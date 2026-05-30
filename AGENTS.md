@@ -33,6 +33,7 @@ The project includes three independent executable codes. They are:
 * The latest verified importer run used model `gpt-5-mini`, produced 186 instance RDF triples and 374 combined triples, and was verified with local RDF/SPARQL checks.
 * The designer and importer are independent executables. The importer can run on another machine from a handoff package containing `./design.md`, `./db/ontology.ttl`, and the source `./data/*`. Do not rely on in-memory Fuseki process state as the portable handoff artifact; use Turtle files or an equivalent export.
 * Future importer improvement: support optional ontology inspection by querying Fuseki when available, while retaining `./db/ontology.ttl` as the portable fallback and handoff artifact.
+* Long-term graph handoff should be database/query-first rather than whole-Turtle-prompt-first. Turtle files are useful as portable artifacts, tests, exports, and fallbacks, but future agents should query Fuseki or local RDF graphs for relevant schema/data slices instead of sending large Turtle files wholesale to an LLM.
 * The viewer has not been started.
 * Next work should follow `./PROGRESS.md`, starting at **Milestone 3: Viewer Framework**.
 

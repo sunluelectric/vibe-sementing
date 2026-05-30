@@ -136,6 +136,8 @@ Goal: the semantic web importer reads `design.md`, `db/ontology.ttl`, and
 - [ ] Add optional ontology inspection by querying Fuseki when available.
 - [ ] Keep `db/ontology.ttl` as the portable fallback and cross-machine handoff artifact.
 - [ ] Add tests for Fuseki ontology inspection with local Turtle fallback.
+- [ ] Replace whole-ontology Turtle prompt input with query-based ontology summaries and relevant schema slices so large ontologies do not have to fit in the LLM context.
+- [ ] Prefer Fuseki query inspection for large graphs, with local RDF/SPARQL fallback when Fuseki is unavailable.
 
 ## Milestone 3: Viewer Framework
 
@@ -205,6 +207,10 @@ questions by querying the semantic web and supports Turtle export.
   export, not the in-memory Fuseki process state.
 - Future importer improvement: optionally inspect ontology terms from Fuseki
   when Fuseki is available, with `db/ontology.ttl` fallback for portability.
+- Long-term graph handoff should be database/query-first rather than
+  whole-Turtle-prompt-first. Turtle remains useful for review, export, tests,
+  portability, and fallback, but agents should consume relevant graph slices
+  through Fuseki or local RDF/SPARQL queries when graphs become large.
 
 ## Current Designer Limitations And Scale-Up Notes
 

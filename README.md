@@ -85,6 +85,12 @@ Future importer improvement: optionally inspect ontology terms by querying
 Fuseki when it is available, while retaining `db/ontology.ttl` as the portable
 fallback and cross-machine handoff artifact.
 
+For larger semantic webs, the intended long-term handoff is database/query-first
+rather than whole-Turtle-prompt-first. Turtle remains useful for review, export,
+tests, portability, and fallback, but agents should consume relevant graph
+slices through Fuseki or local RDF/SPARQL queries instead of sending large
+Turtle files wholesale to an LLM.
+
 ## Semantic Web Importer
 
 The importer reads the generated design document, the generated ontology, and
