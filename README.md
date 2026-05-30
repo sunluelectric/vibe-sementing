@@ -9,9 +9,8 @@ The current implemented milestone is the semantic web designer.
 ## Current Handoff State
 
 - The semantic web designer milestone is complete, tested, and documented.
-- The original designer milestone was committed; later verification updates for
-  progressive logging and the smaller default model are currently pending
-  commit.
+- The original designer milestone and later verification updates for
+  progressive logging and the smaller default model have been committed.
 - The importer has not been started.
 - The viewer has not been started.
 - Before starting importer work, confirm with the user.
@@ -32,8 +31,9 @@ The current implemented milestone is the semantic web designer.
 ## Semantic Web Designer
 
 The designer is intentionally simple in the first working version. It designs a
-small RDF/RDFS ontology for the DnD adventure data, validates it, writes review
-artifacts, and loads the ontology into Apache Jena Fuseki.
+small RDF/RDFS ontology from the current `design-requirements.md` and `data/*`,
+validates it, writes review artifacts, and loads the ontology into Apache Jena
+Fuseki.
 
 The designer workflow performs these steps:
 
@@ -46,8 +46,7 @@ The designer workflow performs these steps:
 7. Write `design.md` progressively while the run is active, then replace the
    top-level content with the final design and append the generation log.
 8. Write `db/ontology.ttl` as an intermediate review and loading artifact.
-9. Load the ontology into Fuseki as the named graph
-   `http://example.org/dnd-adventure/graph/ontology`.
+9. Load the ontology into Fuseki as the configured ontology named graph.
 
 Turtle is not the final implementation target. It is used as a testable
 serialization layer and fallback. The intended runtime target is Apache Jena
@@ -72,6 +71,10 @@ Important settings:
 - `FUSEKI_BASE_URL`: defaults to `http://localhost:3030`.
 - `FUSEKI_DATASET`: defaults to `semantic-web-processor`.
 - `FUSEKI_HOME`: defaults to `/opt/apache-jena-fuseki-6.1.0`.
+- `ONTOLOGY_NAMESPACE`: defaults to `http://example.org/semantic-web#`.
+- `ONTOLOGY_GRAPH_URI`: defaults to
+  `http://example.org/semantic-web/graph/ontology`.
+- `DATA_GRAPH_URI`: defaults to `http://example.org/semantic-web/graph/data`.
 
 Fuseki runtime files are written under `db/fuseki-run/`, and Fuseki logs are
 written to `db/fuseki.log`. These local runtime files are ignored by git.
@@ -119,7 +122,7 @@ The designer uses these endpoints by default:
 Query endpoint: http://localhost:3030/semantic-web-processor/query
 Update endpoint: http://localhost:3030/semantic-web-processor/update
 Graph store endpoint: http://localhost:3030/semantic-web-processor/data
-Ontology graph: http://example.org/dnd-adventure/graph/ontology
+Ontology graph: http://example.org/semantic-web/graph/ontology
 ```
 
 Useful verification query:
@@ -128,7 +131,7 @@ Useful verification query:
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 SELECT ?class WHERE {
-  GRAPH <http://example.org/dnd-adventure/graph/ontology> {
+  GRAPH <http://example.org/semantic-web/graph/ontology> {
     ?class a rdfs:Class .
   }
 }
@@ -170,11 +173,12 @@ Expected designer outputs:
 
 - `design.md`: human-readable ontology design document.
 - `db/ontology.ttl`: validated intermediate Turtle ontology.
-- Fuseki named graph: `http://example.org/dnd-adventure/graph/ontology`.
+- Fuseki named graph: the configured `ONTOLOGY_GRAPH_URI`.
 
 ## Current Designer Result
 
-The current generated DnD ontology is deliberately small:
+The current checked-in generated ontology was produced from the DnD sample data
+and is deliberately small:
 
 - 188 RDF triples.
 - 15 RDFS classes.

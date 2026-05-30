@@ -58,8 +58,8 @@ Fuseki when available.
 
 - [x] Validate generated Turtle with `rdflib`.
 - [x] Validate required prefixes and base namespace.
-- [x] Validate required high-level modeling coverage: adventure, quest, scene, location, character, NPC, monster, player option, item, weapon, encounter, check, reward, and victory condition.
-- [x] Validate that core properties have `rdfs:domain` and `rdfs:range` where practical.
+- [x] Validate generic RDF/RDFS schema shape without hardcoded domain classes.
+- [x] Validate that generated properties have `rdfs:domain` and `rdfs:range` where practical.
 - [x] Add tests for valid ontology output.
 - [x] Add tests that malformed Turtle triggers retry feedback.
 
@@ -315,7 +315,6 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
 - The first designer framework pieces were added:
   - `src/designer/agent.py`
   - `src/designer/main.py`
-  - `src/designer/validation.py`
   - `src/designer/workflow.py`
 - The designer now has:
   - a structured input and output contract
@@ -325,7 +324,7 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   - bounded LLM timeout configuration
   - retry feedback when generated output fails validation
   - RDF/Turtle parsing validation
-  - required DnD ontology coverage validation
+  - generic RDF/RDFS schema validation
   - Jena Fuseki as the intended implementation target
   - Turtle as an intermediate artifact and fallback
 - Initial tests were added:

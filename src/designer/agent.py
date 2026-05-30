@@ -4,11 +4,10 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
-from rdflib import Graph
+from rdflib import Graph, RDF, RDFS, XSD
 
 from src.common.llm import get_text_response, parse_json_object
 from src.common.rdf import parse_turtle
-from src.designer.validation import validate_ontology_graph
 
 
 DESIGNER_PROMPT = """You are the semantic web designer agent for this project.
@@ -16,27 +15,26 @@ DESIGNER_PROMPT = """You are the semantic web designer agent for this project.
 Design a compact RDF/RDFS semantic web schema for the user's data and design
 requirements. Do not make a complex or exhaustive ontology. The goal is a small,
 correct, easy-to-import schema that can be loaded into Apache Jena Fuseki and
-improved later.
+improved later. The schema must be driven by the supplied requirements and
+project data, not by any built-in domain example.
 
 Use RDF and RDFS only. Do not use OWL in this first version. You are designing
-the schema; do not insert individual adventure instances.
+the schema; do not insert individual data instances.
 
 Return exactly one JSON object with these keys:
 - design_markdown: a complete design document for design.md.
 - ontology_turtle: valid Turtle containing the ontology/schema.
 
 Ontology requirements:
-- Base namespace: http://example.org/dnd-adventure#
-- Prefixes must include dnd, rdf, rdfs, xsd.
+- Base namespace: {ontology_namespace}
+- Prefixes must include sw, rdf, rdfs, xsd.
 - Keep the ontology compact: about 10 to 16 classes and 15 to 28 properties.
 - Keep the full Turtle under 220 triples.
 - Do not model every detail in the source data. Model only the core concepts
-  needed for importing the sample adventure and answering basic questions.
-- Include simple classes for Adventure, Quest, Scene, Location, Character, Npc,
-  Monster, PlayerOption, Item, Weapon, Encounter, Check, Reward, and
-  VictoryCondition.
-- Include a shallow subclass hierarchy only where obvious, such as Npc and
-  Monster as subclasses of Character, and Weapon as a subclass of Item.
+  needed for importing the supplied data and answering basic questions.
+- Choose class and property names from the supplied domain. Do not assume a
+  particular sample domain unless it appears in the requirements or data.
+- Include a shallow subclass hierarchy only where it is obvious from the input.
 - Include practical object and datatype properties with rdfs:domain and
   rdfs:range.
 - Use rdfs:label and rdfs:comment on important classes and properties.
@@ -63,9 +61,15 @@ class DesignResult:
 
 
 class DesignerAgent:
-    def __init__(self, model: str, timeout_seconds: int = 90):
+    def __init__(
+        self,
+        model: str,
+        timeout_seconds: int = 90,
+        ontology_namespace: str = "http://example.org/semantic-web#",
+    ):
         self.model = model
         self.timeout_seconds = timeout_seconds
+        self.ontology_namespace = ontology_namespace
         self.progress_entries: list[str] = []
 
     def run(
@@ -85,7 +89,11 @@ class DesignerAgent:
             f"- Started: {self._timestamp()}\n",
         )
         for attempt in range(1, max_attempts + 1):
-            prompt = DESIGNER_PROMPT.format(requirements=requirements, data=data)
+            prompt = DESIGNER_PROMPT.format(
+                ontology_namespace=self.ontology_namespace,
+                requirements=requirements,
+                data=data,
+            )
             if feedback:
                 prompt += (
                     "\n\nYour previous response failed validation. Fix the problem and "
@@ -126,7 +134,7 @@ class DesignerAgent:
                     raise ValueError("Ontology has fewer than 20 triples.")
                 if len(graph) > 260:
                     raise ValueError("Ontology is too complex for the first version.")
-                validate_ontology_graph(graph).raise_for_errors()
+                self._validate_schema_graph(graph)
                 self._record_progress(
                     progress_path,
                     f"## Attempt {attempt} Validation\n\n"
@@ -153,6 +161,31 @@ class DesignerAgent:
 
     def _run_direct_design_call(self, prompt: str) -> str:
         return get_text_response(self.model, prompt, self.timeout_seconds)
+
+    def _validate_schema_graph(self, graph: Graph) -> None:
+        namespace_map = {prefix: str(namespace) for prefix, namespace in graph.namespaces()}
+        expected_prefixes = {
+            "sw": self.ontology_namespace,
+            "rdf": str(RDF),
+            "rdfs": str(RDFS),
+            "xsd": str(XSD),
+        }
+        for prefix, namespace in expected_prefixes.items():
+            if namespace_map.get(prefix) != namespace:
+                raise ValueError(f"Missing or incorrect prefix {prefix}: expected {namespace}")
+
+        class_terms = set(graph.subjects(RDF.type, RDFS.Class))
+        property_terms = set(graph.subjects(RDF.type, RDF.Property))
+        if not class_terms:
+            raise ValueError("Ontology must define at least one rdfs:Class.")
+        if not property_terms:
+            raise ValueError("Ontology must define at least one rdf:Property.")
+
+        for prop in sorted(property_terms, key=str):
+            if (prop, RDFS.domain, None) not in graph:
+                raise ValueError(f"Property {prop} is missing rdfs:domain.")
+            if (prop, RDFS.range, None) not in graph:
+                raise ValueError(f"Property {prop} is missing rdfs:range.")
 
     def _record_progress(self, progress_path: Path | None, entry: str) -> None:
         self.progress_entries.append(entry.strip())

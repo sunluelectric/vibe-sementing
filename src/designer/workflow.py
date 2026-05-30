@@ -113,6 +113,7 @@ class DesignerWorkflow:
         self.last_design = DesignerAgent(
             model=self.settings.llm_model,
             timeout_seconds=self.settings.llm_timeout_seconds,
+            ontology_namespace=self.settings.ontology_namespace,
         ).run(
             requirements=requirements,
             data=data,

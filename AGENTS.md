@@ -8,6 +8,13 @@ This project is developed jointly by sunlu.electric@github and Codex using Pytho
 
 This project is a one-stop solution to design, insert and query semantic web based on user input structured and unstructured data.
 
+Important domain boundary:
+* The DnD adventure is example input data only. The application is a general-purpose semantic web designer, importer, and viewer.
+* Do not hardcode DnD-specific classes, properties, namespaces, validation rules, prompts, graph URIs, SPARQL queries, importer behavior, or viewer behavior in `./src/*`.
+* Product code in `./src/*` should derive ontology terms and instance mappings from `./design-requirements.md`, `./data/*`, generated `./design.md`, generated ontology files, and runtime configuration.
+* If development needs checks against the currently generated DnD example result, put those checks in scripts or tests under `./tests/*`, not in reusable product modules.
+* The default configuration and prompts should stay domain-neutral. Domain-specific examples may appear in documentation or generated artifacts, but should not become assumptions in the application code.
+
 The project includes three independent executable codes. They are:
 * Semantic web designer (`./src/designer/*`): an OpenAI Agents SDK workflow that consumes the design requirement and data, checks or starts Apache Jena Fuseki, uses direct OpenAI API calls as controlled design tools, iteratively validates RDF/RDFS output, writes intermediate Turtle for testing and review, and implements the ontology in Fuseki using Jena-compatible graph operations.
 * Semantic web importer (`./src/importer/*`): an OpenAI Agents SDK tool that interprets the semantic web design and then consumes the data and fill instances into the semantic web according to the data.

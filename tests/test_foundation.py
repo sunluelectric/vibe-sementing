@@ -23,20 +23,20 @@ def test_load_project_data_reads_markdown_and_csv(tmp_path: Path) -> None:
 
 
 def test_rdf_parse_combine_and_query(tmp_path: Path) -> None:
-    dnd = Namespace("http://example.org/dnd-adventure#")
+    sw = Namespace("http://example.org/semantic-web#")
     one = tmp_path / "one.ttl"
     two = tmp_path / "two.ttl"
     combined = tmp_path / "combined.ttl"
     one.write_text(
-        "@prefix dnd: <http://example.org/dnd-adventure#> .\n"
+        "@prefix sw: <http://example.org/semantic-web#> .\n"
         "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n"
-        "dnd:Scene a rdfs:Class .\n",
+        "sw:Record a rdfs:Class .\n",
         encoding="utf-8",
     )
     two.write_text(
-        "@prefix dnd: <http://example.org/dnd-adventure#> .\n"
+        "@prefix sw: <http://example.org/semantic-web#> .\n"
         "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n"
-        "dnd:Location a rdfs:Class .\n",
+        "sw:Source a rdfs:Class .\n",
         encoding="utf-8",
     )
 
@@ -51,7 +51,7 @@ def test_rdf_parse_combine_and_query(tmp_path: Path) -> None:
         """,
     )
 
-    assert (dnd.Scene, RDF.type, RDFS.Class) in graph
+    assert (sw.Record, RDF.type, RDFS.Class) in graph
     assert combined.exists()
     assert len(rows) == 2
 
@@ -59,9 +59,9 @@ def test_rdf_parse_combine_and_query(tmp_path: Path) -> None:
 def test_parse_turtle_accepts_valid_turtle() -> None:
     graph = parse_turtle(
         """
-        @prefix dnd: <http://example.org/dnd-adventure#> .
+        @prefix sw: <http://example.org/semantic-web#> .
         @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-        dnd:Adventure a rdfs:Class .
+        sw:Record a rdfs:Class .
         """
     )
 

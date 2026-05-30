@@ -3,13 +3,12 @@ from __future__ import annotations
 from src.common.llm import parse_json_object
 from src.common.rdf import parse_turtle
 from src.designer.agent import DesignerAgent
-from src.designer.validation import validate_ontology_graph
 
 
 VALID_DESIGN_RESPONSE = r'''
 {
   "design_markdown": "# Test Design\n\nA minimal test design.",
-  "ontology_turtle": "@prefix dnd: <http://example.org/dnd-adventure#> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\ndnd:Adventure a rdfs:Class .\ndnd:Quest a rdfs:Class .\ndnd:Scene a rdfs:Class .\ndnd:Location a rdfs:Class .\ndnd:Character a rdfs:Class .\ndnd:Npc a rdfs:Class ; rdfs:subClassOf dnd:Character .\ndnd:Monster a rdfs:Class ; rdfs:subClassOf dnd:Character .\ndnd:PlayerOption a rdfs:Class .\ndnd:Item a rdfs:Class .\ndnd:Weapon a rdfs:Class ; rdfs:subClassOf dnd:Item .\ndnd:Encounter a rdfs:Class .\ndnd:Check a rdfs:Class .\ndnd:Reward a rdfs:Class .\ndnd:VictoryCondition a rdfs:Class .\ndnd:hasScene a rdf:Property ; rdfs:domain dnd:Adventure ; rdfs:range dnd:Scene .\n"
+  "ontology_turtle": "@prefix sw: <http://example.org/semantic-web#> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\nsw:Record a rdfs:Class ; rdfs:label \"Record\" ; rdfs:comment \"A source record.\" .\nsw:Source a rdfs:Class ; rdfs:label \"Source\" ; rdfs:comment \"An input source.\" .\nsw:Topic a rdfs:Class ; rdfs:label \"Topic\" ; rdfs:comment \"A described topic.\" .\nsw:hasSource a rdf:Property ; rdfs:label \"has source\" ; rdfs:comment \"Links a record to a source.\" ; rdfs:domain sw:Record ; rdfs:range sw:Source .\nsw:hasTopic a rdf:Property ; rdfs:label \"has topic\" ; rdfs:comment \"Links a record to a topic.\" ; rdfs:domain sw:Record ; rdfs:range sw:Topic .\nsw:name a rdf:Property ; rdfs:label \"name\" ; rdfs:comment \"A display name.\" ; rdfs:domain rdfs:Resource ; rdfs:range xsd:string .\n"
 }
 '''
 
@@ -20,24 +19,26 @@ def test_designer_response_contract_parses_json_and_turtle() -> None:
     assert payload["design_markdown"].startswith("# Test Design")
     graph = parse_turtle(payload["ontology_turtle"])
 
-    validation = validate_ontology_graph(graph)
-    validation.raise_for_errors()
+    DesignerAgent("test-model")._validate_schema_graph(graph)
 
 
-def test_designer_validation_rejects_missing_required_class() -> None:
+def test_designer_validation_rejects_property_without_domain() -> None:
     turtle = """
-@prefix dnd: <http://example.org/dnd-adventure#> .
+@prefix sw: <http://example.org/semantic-web#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-dnd:Adventure a rdfs:Class .
+sw:Record a rdfs:Class .
+sw:relatedTo a rdf:Property ; rdfs:range sw:Record .
 """
     graph = parse_turtle(turtle)
 
-    validation = validate_ontology_graph(graph)
-
-    assert not validation.ok
-    assert "Missing required class dnd:Scene" in validation.errors
+    try:
+        DesignerAgent("test-model")._validate_schema_graph(graph)
+    except ValueError as exc:
+        assert "missing rdfs:domain" in str(exc)
+    else:
+        raise AssertionError("Expected schema validation to reject missing domain.")
 
 
 def test_designer_agent_runs_with_stubbed_response() -> None:

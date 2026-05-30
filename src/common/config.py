@@ -36,11 +36,14 @@ class Settings:
     fuseki_start_timeout_seconds: int = int(
         os.getenv("FUSEKI_START_TIMEOUT_SECONDS", "20")
     )
+    ontology_namespace: str = os.getenv(
+        "ONTOLOGY_NAMESPACE", "http://example.org/semantic-web#"
+    )
     ontology_graph_uri: str = os.getenv(
-        "ONTOLOGY_GRAPH_URI", "http://example.org/dnd-adventure/graph/ontology"
+        "ONTOLOGY_GRAPH_URI", "http://example.org/semantic-web/graph/ontology"
     )
     data_graph_uri: str = os.getenv(
-        "DATA_GRAPH_URI", "http://example.org/dnd-adventure/graph/data"
+        "DATA_GRAPH_URI", "http://example.org/semantic-web/graph/data"
     )
     app_host: str = os.getenv("VIEWER_HOST", "127.0.0.1")
     app_port: int = int(os.getenv("VIEWER_PORT", "8000"))
