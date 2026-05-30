@@ -222,6 +222,38 @@ Troubleshooting:
 - If graph loading appears to fall back to file mode, check `db/fuseki.log` and
   confirm the dataset path is `/semantic-web-processor`.
 
+Check whether Fuseki is running:
+
+```bash
+pgrep -af fuseki
+```
+
+If Fuseki is running, the command prints a line that starts with a process ID,
+for example:
+
+```text
+5046 /usr/bin/java ... org.apache.jena.fuseki... --mem --update --localhost /semantic-web-processor
+```
+
+Stop Fuseki gracefully by replacing `5046` with the process ID shown on your
+machine:
+
+```bash
+kill -TERM 5046
+```
+
+Check again:
+
+```bash
+pgrep -af fuseki
+```
+
+If the process still appears after a few seconds, force stop it:
+
+```bash
+kill -KILL 5046
+```
+
 ## Usage
 
 Install dependencies:
