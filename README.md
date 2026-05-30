@@ -255,6 +255,27 @@ Run importer from a handoff package on another machine:
    settings if loading to Fuseki is desired.
 3. Run `uv run python -m src.importer.main`.
 
+## Test With A Different Use Case
+
+To test the project with a different domain or dataset, replace
+`design-requirements.md` and the files under `data/`, then remove the generated
+semantic web artifacts from the previous run:
+
+```bash
+rm -f design.md db/ontology.ttl db/instances.ttl db/semantic_web.ttl db/export.ttl
+```
+
+Then rerun the designer and importer:
+
+```bash
+uv run python -m src.designer.main
+uv run python -m src.importer.main
+uv run pytest
+```
+
+Do not delete `db/fuseki-run/` while Fuseki is running. It is runtime state, not
+a generated review/export artifact.
+
 Expected designer outputs:
 
 - `design.md`: human-readable ontology design document.
