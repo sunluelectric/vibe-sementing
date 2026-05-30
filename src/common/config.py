@@ -48,6 +48,7 @@ class Settings:
     app_host: str = os.getenv("VIEWER_HOST", "127.0.0.1")
     app_port: int = int(os.getenv("VIEWER_PORT", "8000"))
     designer_iterations: int = int(os.getenv("DESIGNER_ITERATIONS", "2"))
+    importer_iterations: int = int(os.getenv("IMPORTER_ITERATIONS", "2"))
 
     @property
     def sparql_query_url(self) -> str:

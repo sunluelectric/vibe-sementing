@@ -1,20 +1,18 @@
 # Semantic Web Processor
 
 This project builds a semantic web from local structured and unstructured data,
-stores it in Apache Jena Fuseki, and will provide an agentic importer and
-browser-based viewer.
+stores it in Apache Jena Fuseki, and will provide a browser-based viewer.
 
-The current implemented milestone is the semantic web designer.
+The current implemented milestones are the semantic web designer and importer.
 
 ## Current Handoff State
 
 - The semantic web designer milestone is complete, tested, and documented.
 - The original designer milestone and later verification updates for
   progressive logging and the smaller default model have been committed.
-- The importer has not been started.
+- The semantic web importer milestone is complete, tested, and documented.
 - The viewer has not been started.
-- Before starting importer work, confirm with the user.
-- The next implementation milestone is `Milestone 2: Importer Framework` in
+- The next implementation milestone is `Milestone 3: Viewer Framework` in
   `PROGRESS.md`.
 - Do not manually change the ontology to make importer work easier. The importer
   must fit instances into the existing designer output unless the user approves
@@ -24,7 +22,8 @@ The current implemented milestone is the semantic web designer.
 
 - `src/designer`: OpenAI Agents SDK workflow for semantic web design and Jena
   implementation.
-- `src/importer`: planned OpenAI Agents SDK workflow for inserting instances.
+- `src/importer`: OpenAI Agents SDK workflow for inserting instances without
+  changing the ontology.
 - `src/viewer`: planned browser chatbot and export UI.
 - `src/common`: shared configuration, RDF, Fuseki, file, and LLM utilities.
 
@@ -58,6 +57,28 @@ failure, validation status, and triple count. After a successful run, the final
 human-readable design remains at the top of `design.md`, followed by a
 `Designer Generation Log` section.
 
+## Semantic Web Importer
+
+The importer reads the generated design document, the generated ontology, and
+the source data. It creates instance Turtle using only the ontology terms that
+already exist. It validates that the instance graph does not define new
+`rdfs:Class` or `rdf:Property` terms, writes local artifacts, combines ontology
+and instances for review, and loads the instance graph into Fuseki when
+available.
+
+The importer workflow performs these steps:
+
+1. Check whether Fuseki is reachable.
+2. Start Fuseki if needed, using the same project-local runtime directory.
+3. Read `design.md`, `db/ontology.ttl`, and files under `data/`.
+4. Inspect ontology classes and properties.
+5. Use a direct OpenAI API call to generate instance Turtle.
+6. Validate the generated Turtle with `rdflib` and ontology-driven checks.
+7. Retry with validation feedback when needed.
+8. Write `db/instances.ttl`.
+9. Write `db/semantic_web.ttl` by combining ontology and instances.
+10. Load instances into Fuseki as the configured data named graph.
+
 ## Configuration
 
 Configuration is read from `.env` and defaults in `src/common/config.py`.
@@ -68,6 +89,7 @@ Important settings:
 - `LLM_MODEL`: defaults to `gpt-5-mini`.
 - `LLM_TIMEOUT_SECONDS`: defaults to `90`.
 - `DESIGNER_ITERATIONS`: defaults to `2`.
+- `IMPORTER_ITERATIONS`: defaults to `2`.
 - `FUSEKI_BASE_URL`: defaults to `http://localhost:3030`.
 - `FUSEKI_DATASET`: defaults to `semantic-web-processor`.
 - `FUSEKI_HOME`: defaults to `/opt/apache-jena-fuseki-6.1.0`.
@@ -169,11 +191,23 @@ Run the designer:
 uv run python -m src.designer.main
 ```
 
+Run the importer:
+
+```bash
+uv run python -m src.importer.main
+```
+
 Expected designer outputs:
 
 - `design.md`: human-readable ontology design document.
 - `db/ontology.ttl`: validated intermediate Turtle ontology.
 - Fuseki named graph: the configured `ONTOLOGY_GRAPH_URI`.
+
+Expected importer outputs:
+
+- `db/instances.ttl`: validated instance Turtle.
+- `db/semantic_web.ttl`: combined ontology and instance graph.
+- Fuseki named graph: the configured `DATA_GRAPH_URI`.
 
 ## Current Designer Result
 
@@ -186,11 +220,19 @@ and is deliberately small:
 - RDF validation passed.
 - Fuseki SPARQL query returned 15 ontology classes from the named ontology graph.
 
+## Current Importer Result
+
+The current checked-in instance graph was produced from the generated DnD sample
+ontology and source data:
+
+- 186 instance RDF triples.
+- 374 combined ontology and instance triples.
+- Instance RDF validation passed.
+- Fuseki instance graph load target: `fuseki`.
+- Local SPARQL coverage check returned 2 NPCs, 7 monsters, 4 scenes, 5 items,
+  and 2 rewards.
+
 ## Next Milestones
 
-- Implement the importer workflow to read `design.md`, inspect the ontology, and
-  insert adventure instance data without changing the schema.
 - Implement the viewer workflow and browser UI to query the semantic web and
   export it from Fuseki.
-
-Before starting importer work, pause and ask the user for approval.

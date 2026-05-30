@@ -1,0 +1,229 @@
+@prefix dnd: <http://example.org/dnd-adventure#> .
+@prefix inst: <http://example.org/dnd-adventure/instances#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+inst:Aldric_Thorn a dnd:Npc ;
+    rdfs:label "Aldric Thorn (Quest Giver)" ;
+    dnd:description "Merchant ambushed near Millhaven; his chest (200 gp) and heirloom dagger were stolen." ;
+    dnd:name "Aldric Thorn" ;
+    dnd:personality "Nervous, grateful, tends to over-explain" ;
+    dnd:role "Merchant" .
+
+inst:Elder_Mira a dnd:Npc ;
+    rdfs:label "Elder Mira" ;
+    dnd:name "Elder Mira" ;
+    dnd:personality "Stern but fair, protective of Millhaven" ;
+    dnd:role "Village Elder / Quest Authority" .
+
+inst:Goblin_1 a dnd:Monster ;
+    rdfs:label "Goblin Sentry 1" ;
+    dnd:armorClass "15"^^xsd:nonNegativeInteger ;
+    dnd:carries inst:scimitar_common ;
+    dnd:hp "7"^^xsd:nonNegativeInteger ;
+    dnd:name "Goblin Sentry 1" ;
+    dnd:xpValue "50"^^xsd:nonNegativeInteger .
+
+inst:Goblin_2 a dnd:Monster ;
+    rdfs:label "Goblin Sentry 2" ;
+    dnd:armorClass "15"^^xsd:nonNegativeInteger ;
+    dnd:carries inst:shortbow_common ;
+    dnd:hp "7"^^xsd:nonNegativeInteger ;
+    dnd:name "Goblin Sentry 2" ;
+    dnd:xpValue "50"^^xsd:nonNegativeInteger .
+
+inst:Goblin_3 a dnd:Monster ;
+    rdfs:label "Goblin 3 (Main Chamber)" ;
+    dnd:armorClass "15"^^xsd:nonNegativeInteger ;
+    dnd:carries inst:scimitar_common ;
+    dnd:hp "7"^^xsd:nonNegativeInteger ;
+    dnd:name "Goblin (Main Chamber)" ;
+    dnd:xpValue "50"^^xsd:nonNegativeInteger .
+
+inst:Goblin_4 a dnd:Monster ;
+    rdfs:label "Goblin 4 (Main Chamber)" ;
+    dnd:armorClass "15"^^xsd:nonNegativeInteger ;
+    dnd:carries inst:shortbow_common ;
+    dnd:hp "7"^^xsd:nonNegativeInteger ;
+    dnd:name "Goblin (Main Chamber)" ;
+    dnd:xpValue "50"^^xsd:nonNegativeInteger .
+
+inst:Goblin_5 a dnd:Monster ;
+    rdfs:label "Goblin 5 (Main Chamber)" ;
+    dnd:armorClass "15"^^xsd:nonNegativeInteger ;
+    dnd:carries inst:scimitar_common ;
+    dnd:hp "7"^^xsd:nonNegativeInteger ;
+    dnd:name "Goblin (Main Chamber)" ;
+    dnd:xpValue "50"^^xsd:nonNegativeInteger .
+
+inst:Goblin_6 a dnd:Monster ;
+    rdfs:label "Goblin 6 (Bodyguard)" ;
+    dnd:armorClass "15"^^xsd:nonNegativeInteger ;
+    dnd:carries inst:scimitar_common ;
+    dnd:hp "7"^^xsd:nonNegativeInteger ;
+    dnd:name "Goblin Bodyguard" ;
+    dnd:xpValue "50"^^xsd:nonNegativeInteger .
+
+inst:Grix a dnd:Monster ;
+    rdfs:label "Grix, Goblin Boss" ;
+    dnd:armorClass "17"^^xsd:nonNegativeInteger ;
+    dnd:carries inst:chest_key,
+        inst:heirloom_dagger ;
+    dnd:hp "21"^^xsd:nonNegativeInteger ;
+    dnd:name "Grix (Goblin Boss)" ;
+    dnd:xpValue "200"^^xsd:nonNegativeInteger .
+
+inst:adventure_ashenvale a dnd:Adventure ;
+    dnd:hasQuest inst:quest_recover_chest ;
+    dnd:hasScene inst:scene1,
+        inst:scene2,
+        inst:scene3,
+        inst:scene4 ;
+    dnd:name "The Goblin Cave of Ashenvale" .
+
+inst:check_grix_escape a dnd:Check ;
+    rdfs:label "Catch Grix escape check" ;
+    dnd:checkDC "12"^^xsd:nonNegativeInteger ;
+    dnd:checkType "Dexterity/Athletics" .
+
+inst:check_picklock_s3 a dnd:Check ;
+    rdfs:label "Thieves' Tools check to pick lock (Scene 3)" ;
+    dnd:checkDC "12"^^xsd:nonNegativeInteger ;
+    dnd:checkType "Dexterity/Thieves' Tools" .
+
+inst:check_stealth_s2 a dnd:Check ;
+    rdfs:label "Stealth check (Scene 2)" ;
+    dnd:checkDC "13"^^xsd:nonNegativeInteger ;
+    dnd:checkType "Dexterity/Stealth" .
+
+inst:check_strength_s3 a dnd:Check ;
+    rdfs:label "Strength check to break door (Scene 3)" ;
+    dnd:checkDC "14"^^xsd:nonNegativeInteger ;
+    dnd:checkType "Strength" .
+
+inst:gold_chest a dnd:Item ;
+    dnd:description "A locked wooden chest belonging to Aldric Thorn; contains 200 gold pieces and one healing potion (inst:healing_potion_2)." ;
+    dnd:itemType "Quest Item" ;
+    dnd:name "Aldric's Gold Chest (Locked)" .
+
+inst:healing_potion_1 a dnd:Item ;
+    dnd:description "Restores 2d4+2 HP when consumed. (Found near cave entrance in Scene 2.)" ;
+    dnd:itemType "Healing Potion" ;
+    dnd:name "Healing Potion (trail)" .
+
+inst:healing_potion_2 a dnd:Item ;
+    dnd:description "Restores 2d4+2 HP when consumed. (Found inside Aldric's chest.)" ;
+    dnd:itemType "Healing Potion" ;
+    dnd:name "Healing Potion (in chest)" .
+
+inst:scattered_gold a dnd:Item ;
+    dnd:description "Approximately 12 gold pieces scattered around the chamber." ;
+    dnd:itemType "Treasure" ;
+    dnd:name "Scattered Gold (chamber)" .
+
+inst:Loc_GoblinWarren a dnd:Location ;
+    dnd:description "Low, torch-lit cave tunnels and chambers filled with crude bedrolls, gnawed bones, and stolen goods." ;
+    dnd:name "Ashenvale Burrows - Goblin Warren" .
+
+inst:Loc_HillsideTrail a dnd:Location ;
+    dnd:description "Rocky trail leading up into the hills; goblin tracks visible in the mud." ;
+    dnd:name "Hillside Trail" .
+
+inst:chest_key a dnd:Item ;
+    dnd:description "Small iron key that opens Aldric's locked chest." ;
+    dnd:itemType "Key" ;
+    dnd:name "Chest Key" .
+
+inst:enc_grix a dnd:Encounter ;
+    rdfs:label "Grix & Bodyguard" ;
+    dnd:description "Goblin Boss Grix and one goblin bodyguard. Grix is arrogant and taunts the players. If reduced to 5 HP or fewer, Grix attempts to flee (inst:check_grix_escape). If he escapes he drops the key if reduced below threshold." .
+
+inst:enc_main_chamber a dnd:Encounter ;
+    rdfs:label "Main Chamber Encounter" ;
+    dnd:description "Three goblins occupy the main chamber (if alarmed they are behind cover: +2 AC). A locked chest (inst:gold_chest) sits against the far wall. Scattered loot: inst:scattered_gold. Chest contains 200 gold and a healing potion (inst:healing_potion_2)." .
+
+inst:enc_scene1_intro a dnd:Encounter ;
+    rdfs:label "Scene 1: Intro - Aldric & Elder" ;
+    dnd:description "Meeting with Aldric Thorn (quest giver) and Elder Mira (village elder). Participants (NPCs): inst:Aldric_Thorn, inst:Elder_Mira." .
+
+inst:enc_scene4_delivery a dnd:Encounter ;
+    rdfs:label "Return & Reward" ;
+    dnd:description "Deliver recovered goods to Aldric Thorn and Elder Mira. Aldric is grateful; Elder Mira pays 50 gold. If both chest and dagger returned, Aldric gives +10 gold from his purse." .
+
+inst:enc_sentries a dnd:Encounter ;
+    rdfs:label "Sentry Encounter (Scene 2)" ;
+    dnd:description "Two goblin sentries guard the cave entrance. Options: sneak (inst:check_stealth_s2), distract, or fight. Loot if defeated: 3 gold pieces and 1 Healing Potion (inst:healing_potion_1)." .
+
+inst:heirloom_dagger a dnd:Weapon ;
+    dnd:damage "1d4+1 piercing" ;
+    dnd:description "A finely-crafted dagger with a silver pommel engraved with the Thorn family crest. Family heirloom belonging to Aldric Thorn." ;
+    dnd:itemProperty "Finesse, Light, Thrown (20/60)" ;
+    dnd:itemType "Simple Melee Weapon" ;
+    dnd:name "Heirloom Dagger" .
+
+inst:quest_recover_chest a dnd:Quest ;
+    dnd:difficultyLevel "Beginner-friendly" ;
+    dnd:hasObjective "Retrieve merchant Aldric Thorn's chest and heirloom dagger from the Ashenvale Burrows." ;
+    dnd:hasReward inst:reward_aldrics_bonus10,
+        inst:reward_elder_50 ;
+    dnd:recommendedLevel "1"^^xsd:nonNegativeInteger ;
+    dnd:recommendedPartySize "2–4" ;
+    dnd:victoryCondition inst:vc_return_chest_and_dagger .
+
+inst:reward_aldrics_bonus10 a dnd:Reward ;
+    dnd:description "Optional personal bonus from Aldric Thorn if both the chest and heirloom dagger are returned." ;
+    dnd:goldAmount "10"^^xsd:nonNegativeInteger .
+
+inst:reward_elder_50 a dnd:Reward ;
+    dnd:description "Reward offered by Elder Mira for returning Aldric's chest (monetary reward from village)." ;
+    dnd:goldAmount "50"^^xsd:nonNegativeInteger ;
+    dnd:rewardXP "100"^^xsd:nonNegativeInteger .
+
+inst:scene1 a dnd:Scene ;
+    dnd:description "Introduce Aldric Thorn and Elder Mira; players learn quest details (direction north toward hills, ~4–5 goblins). Once players agree, proceed to Scene 2." ;
+    dnd:exitTo inst:scene2 ;
+    dnd:hasEncounter inst:enc_scene1_intro ;
+    dnd:locatedIn inst:Loc_Millhaven ;
+    dnd:name "Scene 1: The Village of Millhaven" .
+
+inst:scene4 a dnd:Scene ;
+    dnd:description "Dawn; players return with recovered goods. Deliver chest and dagger to Aldric and Elder Mira; collect reward (inst:reward_elder_50) and optional personal bonus from Aldric (inst:reward_aldrics_bonus10)." ;
+    dnd:hasEncounter inst:enc_scene4_delivery ;
+    dnd:locatedIn inst:Loc_Millhaven ;
+    dnd:name "Scene 4: Return to Millhaven" .
+
+inst:vc_return_chest_and_dagger a dnd:VictoryCondition ;
+    dnd:conditionDescription "Return the chest and Aldric's heirloom dagger to Aldric Thorn in Millhaven." .
+
+inst:Loc_Millhaven a dnd:Location ;
+    dnd:description "Small farming village where the quest begins and ends." ;
+    dnd:name "Millhaven" .
+
+inst:scene2 a dnd:Scene ;
+    dnd:description "A rocky trail under a half-moon; cave entrance ahead. Optional: defeat or sneak past 2 goblin sentries. If sneaking, successful stealth grants surprise in Scene 3." ;
+    dnd:exitTo inst:scene3 ;
+    dnd:hasEncounter inst:enc_sentries ;
+    dnd:locatedIn inst:Loc_HillsideTrail ;
+    dnd:name "Scene 2: The Hillside Trail" .
+
+inst:scene3 a dnd:Scene ;
+    dnd:description "Main cave chamber with stolen goods, a locked chest, and a bolted door to the back chamber (Grix). To reach Grix: break door (inst:check_strength_s3) DC 14 Strength or pick lock (inst:check_picklock_s3) DC 12 Dexterity/Thieves' Tools. Victory requires retrieving the chest and heirloom dagger." ;
+    dnd:hasEncounter inst:enc_grix,
+        inst:enc_main_chamber ;
+    dnd:locatedIn inst:Loc_GoblinWarren ;
+    dnd:name "Scene 3: The Goblin Warren" .
+
+inst:shortbow_common a dnd:Weapon ;
+    dnd:damage "1d6+2 piercing" ;
+    dnd:description "Typical goblin shortbow." ;
+    dnd:itemProperty "Range 80/320" ;
+    dnd:itemType "Simple Ranged Weapon" ;
+    dnd:name "Shortbow (common)" .
+
+inst:scimitar_common a dnd:Weapon ;
+    dnd:damage "1d6+2 slashing" ;
+    dnd:description "Typical goblin scimitar." ;
+    dnd:itemProperty "Light" ;
+    dnd:itemType "Simple Melee Weapon" ;
+    dnd:name "Scimitar (common)" .
+

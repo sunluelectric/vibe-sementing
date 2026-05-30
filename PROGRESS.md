@@ -90,46 +90,46 @@ Goal: the semantic web importer reads `design.md`, `db/ontology.ttl`, and
 
 ### 2.1 Importer Contracts
 
-- [ ] Define importer input contract: design document, ontology Turtle, source data, and namespace policy.
-- [ ] Define importer output contract: instance Turtle only, with no schema mutation.
-- [ ] Add tests for importer output contract parsing using fixture responses.
+- [x] Define importer input contract: design document, ontology Turtle, source data, and namespace policy.
+- [x] Define importer output contract: instance Turtle only, with no schema mutation.
+- [x] Add tests for importer output contract parsing using fixture responses.
 
 ### 2.2 Importer Agent Execution
 
-- [ ] Implement an OpenAI Agents SDK importer agent.
-- [ ] Provide agent tools for reading design text, reading source data, inspecting ontology terms, and returning Turtle.
-- [ ] Add bounded timeout and retry feedback.
-- [ ] Add command-line logging for model, source files, retries, and output locations.
-- [ ] Test importer tool functions without a live API call.
-- [ ] Test importer execution with a stubbed agent response.
+- [x] Implement an OpenAI Agents SDK importer agent.
+- [x] Provide agent tools for reading design text, reading source data, inspecting ontology terms, and returning Turtle.
+- [x] Add bounded timeout and retry feedback.
+- [x] Add command-line logging for model, source files, retries, and output locations.
+- [x] Test importer tool functions without a live API call.
+- [x] Test importer execution with a stubbed agent response.
 
 ### 2.3 Importer RDF Validation
 
-- [ ] Validate generated instance Turtle with `rdflib`.
-- [ ] Validate that instance graph imports or uses the ontology namespace.
-- [ ] Validate that the importer does not create new `rdfs:Class` or `rdf:Property` terms outside the generated ontology.
-- [ ] Validate that source data coverage includes named NPCs, monsters, items, scenes, loot, rewards, and XP awards.
-- [ ] Add tests for valid importer output.
-- [ ] Add tests that schema mutation triggers retry feedback.
+- [x] Validate generated instance Turtle with `rdflib`.
+- [x] Validate that instance graph imports or uses the ontology namespace.
+- [x] Validate that the importer does not create new `rdfs:Class` or `rdf:Property` terms outside the generated ontology.
+- [x] Validate sample source coverage in `tests/*` for named NPCs, monsters, items, scenes, loot, rewards, and XP awards.
+- [x] Add tests for valid importer output.
+- [x] Add tests that schema mutation triggers retry feedback.
 
 ### 2.4 Importer Persistence
 
-- [ ] Write generated instances to `db/instances.ttl`.
-- [ ] Combine ontology and instances into `db/semantic_web.ttl`.
-- [ ] Load instance graph into Fuseki when Fuseki is available.
-- [ ] Fall back to local Turtle files when Fuseki is unavailable.
-- [ ] Add tests for local instance persistence and graph combination.
-- [ ] Add a Fuseki smoke test that can be skipped when Fuseki is unavailable.
+- [x] Write generated instances to `db/instances.ttl`.
+- [x] Combine ontology and instances into `db/semantic_web.ttl`.
+- [x] Load instance graph into Fuseki when Fuseki is available.
+- [x] Fall back to local Turtle files when Fuseki is unavailable.
+- [x] Add tests for local instance persistence and graph combination.
+- [x] Add a Fuseki smoke test that can be skipped when Fuseki is unavailable.
 
 ### 2.5 Importer Product Run
 
-- [ ] Run `uv run python -m src.importer.main`.
-- [ ] Inspect `db/instances.ttl` using RDF parsing and SPARQL checks.
-- [ ] Ask source-coverage SPARQL questions against the combined graph.
-- [ ] Revise importer code, prompts, tools, or validators if the product output is weak or invalid.
-- [ ] Re-run importer after revisions until output passes checks.
-- [ ] Update `README.md` with importer usage and behavior.
-- [ ] Commit the importer milestone.
+- [x] Run `uv run python -m src.importer.main`.
+- [x] Inspect `db/instances.ttl` using RDF parsing and SPARQL checks.
+- [x] Ask source-coverage SPARQL questions against the combined graph.
+- [x] Revise importer code, prompts, tools, or validators if the product output is weak or invalid.
+- [x] Re-run importer after revisions until output passes checks.
+- [x] Update `README.md` with importer usage and behavior.
+- [x] Commit the importer milestone.
 
 ## Milestone 3: Viewer Framework
 
@@ -327,13 +327,32 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   - generic RDF/RDFS schema validation
   - Jena Fuseki as the intended implementation target
   - Turtle as an intermediate artifact and fallback
+- The importer framework was added:
+  - `src/importer/agent.py`
+  - `src/importer/main.py`
+  - `src/importer/validation.py`
+  - `src/importer/workflow.py`
+- The importer now has:
+  - a structured input and output contract
+  - direct LLM execution path
+  - OpenAI Agents SDK workflow orchestration
+  - tools for reading design text, reading source data, inspecting ontology terms, iterative import, and instance persistence/load
+  - bounded LLM timeout configuration
+  - retry feedback when generated output fails validation
+  - RDF/Turtle parsing validation
+  - ontology-driven no-schema-mutation validation
+  - Jena Fuseki as the intended implementation target
+  - Turtle as an intermediate artifact and fallback
 - Initial tests were added:
   - `tests/test_foundation.py`
   - `tests/test_designer_contract.py`
   - `tests/test_designer_workflow.py`
+  - `tests/test_importer_contract.py`
+  - `tests/test_importer_workflow.py`
+  - `tests/test_importer_product_output.py`
 - The lightweight test suite passes:
   - command: `uv run pytest`
-  - result: `14 passed`
+  - result: `26 passed`
 
 ### Historical Issues And Fixes
 
@@ -353,39 +372,41 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
 - Final designer output: `design.md`, `db/ontology.ttl`, and a named Fuseki graph at `http://example.org/dnd-adventure/graph/ontology`.
 - Latest ontology verification after the compact prompt and `gpt-5-mini` rerun: 188 triples, 15 classes, 28 properties, RDF validation passed, Fuseki SPARQL query returned 15 ontology classes.
 - Final designer test command: `uv run pytest`, result `14 passed`.
-- Work is paused after the semantic web designer milestone. The importer has not been started.
+- Importer work was approved by the user and completed.
 - `design.md` and `db/ontology.ttl` have been produced by the designer.
-- `db/instances.ttl` and `db/semantic_web.ttl` have not been produced yet because importer work has not started.
-- The importer framework has not been implemented yet.
+- `db/instances.ttl` and `db/semantic_web.ttl` have been produced by the importer.
+- The importer framework has been implemented.
 - The viewer framework has not been implemented yet.
-- Semantic web design has been completed by the product. Data insertion has not started.
+- Semantic web design and data insertion have been completed by the product.
 - Fuseki ontology loading has been successfully performed.
+- Fuseki instance loading has been successfully performed.
 - The designer milestone commit has been made.
+- The importer milestone commit has been made.
 
 ### Immediate Next Step
 
-- Pause here until the user approves importer work.
-- When approved, start Milestone 2 with importer contracts and tests.
-- Do not change the ontology manually while implementing the importer.
-- The importer should read `design.md` and query or read the ontology, then insert instances without schema mutation.
+- Start Milestone 3 with viewer query-layer contracts and tests.
 
 ## Handoff For Next Codex Instance
 
 - Start by reading `AGENTS.md`, `README.md`, and this file.
 - The semantic web designer is complete and committed.
-- Current clean designer outputs are:
+- The semantic web importer is complete and committed.
+- Current generated outputs are:
   - `design.md`
   - `db/ontology.ttl`
+  - `db/instances.ttl`
+  - `db/semantic_web.ttl`
   - Fuseki named graph `http://example.org/dnd-adventure/graph/ontology`
+  - Fuseki data graph `http://example.org/semantic-web/graph/data` unless overridden by `.env`
 - Current tests:
   - `uv run pytest`
-  - expected result: `14 passed`
+  - expected result: `26 passed`
 - Current runtime notes:
   - Fuseki may already be running on port `3030`.
   - If not, use the project-local Fuseki base `db/fuseki-run`.
   - Do not use `/opt/apache-jena-fuseki-6.1.0/run` as the runtime base.
   - Use SPARQL `ASK` via `POST` for readiness checks.
 - Current development boundary:
-  - The importer has not been started.
-  - Ask the user before starting importer work.
+  - The viewer has not been started.
   - When importer work starts, implement it in small tested steps according to Milestone 2.

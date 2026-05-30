@@ -23,14 +23,16 @@ The project includes three independent executable codes. They are:
 ## Current Development State
 
 * The semantic web designer milestone is complete, tested, and documented.
-* The original designer milestone was committed. Later verification updates for progressive `./design.md` logging, compact prompting, and the default model are pending commit.
+* The original designer milestone and later verification updates for progressive `./design.md` logging, compact prompting, generic product-code validation, and the default model have been committed.
 * The designer has produced `./design.md` and `./db/ontology.ttl`.
 * The designer has loaded the ontology into Fuseki as named graph `http://example.org/dnd-adventure/graph/ontology`.
 * The latest verified designer run used model `gpt-5-mini`, produced 188 RDF triples, 15 RDFS classes, and 28 RDF properties, and was verified by querying Fuseki directly.
-* The importer has not been started.
+* The semantic web importer milestone is complete, tested, documented, and committed.
+* The importer has produced `./db/instances.ttl` and `./db/semantic_web.ttl`.
+* The importer has loaded the instance graph into Fuseki as named graph `http://example.org/semantic-web/graph/data`, unless overridden by `.env`.
+* The latest verified importer run used model `gpt-5-mini`, produced 186 instance RDF triples and 374 combined triples, and was verified with local RDF/SPARQL checks.
 * The viewer has not been started.
-* Before starting importer work, ask the user for approval.
-* Next work should follow `./PROGRESS.md`, starting at **Milestone 2: Importer Framework** only after user approval.
+* Next work should follow `./PROGRESS.md`, starting at **Milestone 3: Viewer Framework**.
 
 ## Setups and Requirements
 
