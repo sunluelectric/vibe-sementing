@@ -6,7 +6,7 @@ This project is developed jointly by sunlu.electric@github and Codex using Pytho
 
 ## Project Overview
 
-
+This project is a one-stop solution to design, insert and query semantic web based on user input structured and unstructured data.
 
 The project includes three independent executable codes. They are:
 * Semantic web designer (`./src/designer/*`): a CrewAI-based agentic AI framework that consumes the design requirement and the data, and design the semantic web classes, priorities and architectures.
@@ -22,6 +22,8 @@ The project includes three independent executable codes. They are:
 * Apache Jena Fuseki is used as the triplesotre and has been installed on the server. Details are given in **Locations of Files**
 * OpenAI API key has been prepared and saved in the project folder under `.env`. Details are given in **Locations of Files**
 * Both the semantic web designer and the semantic viewer will need to access unstructured data. It may happen that the files size or numbers are large. In those cases, the agentic AI frameworks may need to chunk the documents and perform semantic search. A semantic search tool is provided in `./tools/semantic-search/*`. Read the codes and documents there to understand how to use it as a tool. 
+  * Note: modify the semantic search tool if needed. For example, the semantic search tool supports PDF and HTML files as inputs. Consider also add supports for plain texts and markdown files.
+  * The semantic search tool comes with a .env file, inside which are configurations for the tool, such as a seperate `OPENAI_API_KEY` of the tool, choice of models and embedding methods, locations of files by default, etc. Modify them if needed. For example, the locaiton of files definately needs to be changed.
 
 ### Locations of Files
 
@@ -86,7 +88,15 @@ The project includes three independent executable codes. They are:
 
 ### Requirements for semantic web importer
 
+* Understand the semantic web design, either by querying the database, or by reading `./design.md`, or both.
+* Read files in `./data/*`, understand them, and insert the data into the semantic web.
+* Do not change the semantic web structure designed by semantic web designer. Try to fit the instances into it.
+
 ### Requirements for semantic web viewer
+
+* Understand the semtic web design, either by querying the database, or by reading `./design.md`, or both.
+* When started, a browser-based UI should pop up, inside which is a chatbot. The user can interact with the chatbot and ask questions about the data in the semantic web. The semantic web viewer should query the semantic web and answer the questions accordingly.
+* The semantic web can be exported and downloaded from the UI. For example, there can be a button on the UI that says `Export as Turtle`, and let the user download the semantic web as Turtle.
 
 ### Other requirements
 
