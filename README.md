@@ -81,6 +81,10 @@ The portable handoff artifact is `db/ontology.ttl`, not the in-memory Fuseki
 process state. A running Fuseki dataset can be used for verification, but the
 receiving machine should receive the ontology Turtle or an equivalent export.
 
+Future importer improvement: optionally inspect ontology terms by querying
+Fuseki when it is available, while retaining `db/ontology.ttl` as the portable
+fallback and cross-machine handoff artifact.
+
 ## Semantic Web Importer
 
 The importer reads the generated design document, the generated ontology, and

@@ -131,6 +131,12 @@ Goal: the semantic web importer reads `design.md`, `db/ontology.ttl`, and
 - [x] Update `README.md` with importer usage and behavior.
 - [x] Commit the importer milestone.
 
+### 2.x Future Importer Improvement
+
+- [ ] Add optional ontology inspection by querying Fuseki when available.
+- [ ] Keep `db/ontology.ttl` as the portable fallback and cross-machine handoff artifact.
+- [ ] Add tests for Fuseki ontology inspection with local Turtle fallback.
+
 ## Milestone 3: Viewer Framework
 
 Goal: the semantic web viewer starts a browser-based chatbot UI that answers
@@ -197,6 +203,8 @@ questions by querying the semantic web and supports Turtle export.
   `db/ontology.ttl`, and `data/*`.
 - The portable ontology handoff artifact is `db/ontology.ttl` or an equivalent
   export, not the in-memory Fuseki process state.
+- Future importer improvement: optionally inspect ontology terms from Fuseki
+  when Fuseki is available, with `db/ontology.ttl` fallback for portability.
 
 ## Current Designer Limitations And Scale-Up Notes
 
