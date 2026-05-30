@@ -9,7 +9,7 @@ This project is developed jointly by sunlu.electric@github and Codex using Pytho
 This project is a one-stop solution to design, insert and query semantic web based on user input structured and unstructured data.
 
 The project includes three independent executable codes. They are:
-* Semantic web designer (`./src/designer/*`): a CrewAI-based agentic AI framework that consumes the design requirement and the data, and design the semantic web classes, priorities and architectures.
+* Semantic web designer (`./src/designer/*`): an OpenAI Agents SDK workflow that consumes the design requirement and data, checks or starts Apache Jena Fuseki, uses direct OpenAI API calls as controlled design tools, iteratively validates RDF/RDFS output, writes intermediate Turtle for testing and review, and implements the ontology in Fuseki using Jena-compatible graph operations.
 * Semantic web importer (`./src/importer/*`): an OpenAI Agents SDK tool that interprets the semantic web design and then consumes the data and fill instances into the semantic web according to the data.
 * Semantic web viewer (`./src/viewer/*`): an chatbot AI agent with browser-based UI, that consumes the user questions from the UI, and based on the questions query the semantic web, and based on the returned results answer the questions; there are also options on the UI that allow the user to export and download the semantic web in Turtle (`.ttl`) or other commonly seen formats, in which case the semantic web viewer needs to (use the triplestore's capability to) convert the data into the required format.
 
@@ -81,6 +81,19 @@ The project includes three independent executable codes. They are:
 
 ### Requirements for semantic web designer
 
+* Use OpenAI Agents SDK as the overall workflow framework.
+* Do not use CrewAI for the designer.
+* The actual ontology design step can use direct OpenAI API calls, but those calls should be controlled by the designer workflow and wrapped as workflow tools or equivalent internal steps.
+* The designer workflow should include at least these stages:
+  * Check whether Apache Jena Fuseki is available.
+  * Start Apache Jena Fuseki when needed and possible.
+  * Read `./design-requirements.md` and `./data/*`.
+  * Generate a semantic web design and ontology.
+  * Validate the generated ontology with RDF parsing and project-specific checks.
+  * Iterate the design a few times, using validation feedback to improve quality.
+  * Write `./design.md` for human review and for the importer.
+  * Write Turtle (`.ttl`) only as an intermediate artifact for testing, review, fallback, and Jena loading.
+  * Implement the ontology in Apache Jena Fuseki using Jena-compatible graph operations.
 * Focus mainly on RDF and RDFS; OWL can be used but it is not required. In other words, implement class and property hierarchy, but not necessarily implementing complicated OWL-defined class and properties
 * Iteratively improve the design
 * Implement the design to the semantic web, with the installed triplestore Apache Jena Fuseki
@@ -110,4 +123,3 @@ The project includes three independent executable codes. They are:
 ## Example: Semantic web for a DnD game
 
 The following is a use case of the project. It helps Codex understand the purpose, input/output and flow of the project execution.
-
