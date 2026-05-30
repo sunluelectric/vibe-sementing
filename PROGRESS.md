@@ -190,9 +190,13 @@ questions by querying the semantic web and supports Turtle export.
 - The semantic web designer milestone is complete, tested, documented, and committed.
 - Later verification updates changed the default designer model to `gpt-5-mini`,
   tightened the compact ontology prompt, and added progressive `design.md`
-  logging. These updates are tested but not yet committed.
-- Work is intentionally paused before starting the importer.
-- Do not start importer work until the user explicitly approves it.
+  logging. These updates have been committed.
+- The semantic web importer milestone is complete, tested, documented, and committed.
+- Designer and importer are independent executables. The importer can run on a
+  different machine from a handoff package containing `design.md`,
+  `db/ontology.ttl`, and `data/*`.
+- The portable ontology handoff artifact is `db/ontology.ttl` or an equivalent
+  export, not the in-memory Fuseki process state.
 
 ## Current Designer Limitations And Scale-Up Notes
 
@@ -414,4 +418,3 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   - Use SPARQL `ASK` via `POST` for readiness checks.
 - Current development boundary:
   - The viewer has not been started.
-  - When importer work starts, implement it in small tested steps according to Milestone 2.

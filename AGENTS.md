@@ -31,6 +31,7 @@ The project includes three independent executable codes. They are:
 * The importer has produced `./db/instances.ttl` and `./db/semantic_web.ttl`.
 * The importer has loaded the instance graph into Fuseki as named graph `http://example.org/semantic-web/graph/data`, unless overridden by `.env`.
 * The latest verified importer run used model `gpt-5-mini`, produced 186 instance RDF triples and 374 combined triples, and was verified with local RDF/SPARQL checks.
+* The designer and importer are independent executables. The importer can run on another machine from a handoff package containing `./design.md`, `./db/ontology.ttl`, and the source `./data/*`. Do not rely on in-memory Fuseki process state as the portable handoff artifact; use Turtle files or an equivalent export.
 * The viewer has not been started.
 * Next work should follow `./PROGRESS.md`, starting at **Milestone 3: Viewer Framework**.
 
