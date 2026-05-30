@@ -1,0 +1,1 @@
+Design a semantic web for the DnD advanture. Use your domain knowledge about DnD to design the semantic web, such as to have class Npc, Player, Monster, Weapon, etc, with approperate properties. Later, add the advanture data to the semantic web.
