@@ -13,6 +13,16 @@ The project includes three independent executable codes. They are:
 * Semantic web importer (`./src/importer/*`): an OpenAI Agents SDK tool that interprets the semantic web design and then consumes the data and fill instances into the semantic web according to the data.
 * Semantic web viewer (`./src/viewer/*`): an chatbot AI agent with browser-based UI, that consumes the user questions from the UI, and based on the questions query the semantic web, and based on the returned results answer the questions; there are also options on the UI that allow the user to export and download the semantic web in Turtle (`.ttl`) or other commonly seen formats, in which case the semantic web viewer needs to (use the triplestore's capability to) convert the data into the required format.
 
+## Current Development State
+
+* The semantic web designer milestone is complete, tested, documented, and committed.
+* The designer has produced `./design.md` and `./db/ontology.ttl`.
+* The designer has loaded the ontology into Fuseki as named graph `http://example.org/dnd-adventure/graph/ontology`.
+* The importer has not been started.
+* The viewer has not been started.
+* Before starting importer work, ask the user for approval.
+* Next work should follow `./PROGRESS.md`, starting at **Milestone 2: Importer Framework** only after user approval.
+
 ## Setups and Requirements
 
 ### Preparations that have been carried out
@@ -122,4 +132,4 @@ The project includes three independent executable codes. They are:
 
 ## Example: Semantic web for a DnD game
 
-The following is a use case of the project. It helps Codex understand the purpose, input/output and flow of the project execution.
+The following is a use case of the project. It helps Codex understand the purpose, input/output and flow of the project execution.

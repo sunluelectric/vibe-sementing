@@ -184,9 +184,104 @@ questions by querying the semantic web and supports Turtle export.
 
 ## Current Notes
 
-- Initial dependency installation succeeded with `uv sync --all-extras --dev`.
-- A first live designer run was stopped because the model call took too long without progress output.
-- The next implementation step is designer persistence tests and command-line logging before attempting another live model run.
+- Initial dependency installation succeeded.
+- CrewAI was tried early, then removed from the designer architecture.
+- The semantic web designer milestone is complete, tested, documented, and committed.
+- Work is intentionally paused before starting the importer.
+- Do not start importer work until the user explicitly approves it.
+
+## Current Designer Limitations And Scale-Up Notes
+
+The semantic web designer milestone is intentionally a workflow-first MVP. The
+goal was to prove that the product can read inputs, generate a semantic web
+design, validate it, write `design.md`, write an intermediate Turtle ontology,
+start or connect to Apache Jena Fuseki, and load the ontology into Fuseki.
+
+### Deliberate Simplifications
+
+- The designer currently reads `./data/*` directly.
+- The designer does not yet use `./tools/semantic-search`.
+- The designer supports direct loading of markdown, text, and CSV files through
+  `src/common/files.py`.
+- Direct data loading is acceptable for the current small DnD sample, but it
+  will not scale to large files or many files.
+- The ontology prompt explicitly asks the model to keep the schema simple.
+- The current prompt says to avoid complex or exhaustive modeling.
+- The current prompt asks for RDF/RDFS only and explicitly avoids OWL in the
+  first version.
+- The current prompt asks for about 12 to 18 classes and 20 to 35 properties.
+- The current validation rejects ontologies over 260 triples as too complex for
+  the first version.
+- These simplicity constraints were added because earlier broader design prompts
+  made the designer take too long and made the workflow harder to stabilize.
+
+### Workarounds Taken
+
+- CrewAI was removed from the designer because it added orchestration overhead
+  and made execution less predictable.
+- The designer now uses an OpenAI Agents SDK workflow shell, but operational
+  steps are executed explicitly instead of asking the model to decide the full
+  workflow sequence.
+- The direct OpenAI API design call is still model-driven, but it is constrained
+  by a small prompt, validation, and retry feedback.
+- Turtle is used as a validated intermediate artifact for review, tests, and
+  Fuseki loading. It is not the final runtime target.
+- Fuseki startup needed a project-local writable runtime base. The manager now
+  sets `FUSEKI_BASE` to `db/fuseki-run`.
+- Fuseki readiness needed a SPARQL `ASK` POST request. A GET request to the
+  query endpoint was not reliable for Fuseki 6.
+
+### Fuseki Usage Instructions For Future Work
+
+- Fuseki is installed at `/opt/apache-jena-fuseki-6.1.0`.
+- Do not use the default Fuseki base under
+  `/opt/apache-jena-fuseki-6.1.0/run` for this project. It may not be writable.
+- Use the project-local runtime base `db/fuseki-run`.
+- The working startup pattern is:
+
+```bash
+FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
+  /opt/apache-jena-fuseki-6.1.0/fuseki-server \
+  --mem --update --localhost /semantic-web-processor
+```
+
+- Keep `--update` enabled so graph loading and SPARQL updates work.
+- Keep `--localhost` for local development.
+- Logs should go to `db/fuseki.log`.
+- If Fuseki reports port `3030` is already bound, check for stale Fuseki
+  processes with `pgrep -af fuseki`.
+- Do not use `GET /semantic-web-processor/query` as the main readiness check.
+- Use a SPARQL `ASK { ?s ?p ?o }` request through `POST` to check readiness.
+- Load ontology data through:
+  `http://localhost:3030/semantic-web-processor/data`
+- Query data through:
+  `http://localhost:3030/semantic-web-processor/query`
+- The designer ontology graph URI is:
+  `http://example.org/dnd-adventure/graph/ontology`
+- Verify ontology implementation with a named-graph SPARQL query against the
+  ontology graph, not only by checking that `db/ontology.ttl` exists.
+
+### Future Scale-Up Requirements
+
+- Add retrieval support to the designer before using large or numerous data
+  files.
+- Integrate `./tools/semantic-search` into the designer workflow as a tool or
+  adapter.
+- Extend or wrap `./tools/semantic-search` so it supports the project data
+  formats, especially markdown and CSV.
+- Add a designer workflow tool such as `retrieve_design_context` that retrieves
+  only relevant source chunks for ontology design.
+- Replace whole-data prompt stuffing with retrieval over relevant chunks.
+- Relax the current prompt limits only after retrieval and validation are strong
+  enough.
+- Do not remove all simplicity guidance at once. A better scale-up path is:
+  first generate a small core ontology, then run one or more refinement stages
+  that expand the ontology only when retrieved data proves the need.
+- Replace the current fixed size limits with quality-oriented constraints, such
+  as importer usability, clear class/property hierarchy, validation coverage,
+  and avoiding overfitting to one sample file.
+- Consider adding a separate schema review/refinement agent step that evaluates
+  whether new classes or properties are justified by the data.
 
 ## Current Status Summary
 
@@ -228,11 +323,11 @@ questions by querying the semantic web and supports Turtle export.
   - `tests/test_designer_workflow.py`
 - The lightweight test suite passes:
   - command: `uv run pytest`
-  - result: `10 passed`
+  - result: `12 passed`
 
-### Failed Or Stopped
+### Historical Issues And Fixes
 
-- The first live designer run using the default CrewAI path was stopped because it produced no progress output for too long.
+- The first live designer run using the early CrewAI path was stopped because it produced no progress output for too long.
 - CrewAI was removed from the designer plan, code, dependency metadata, and local environment.
 - A second live designer run using the direct LLM path was also stopped because it still took too long without visible progress.
 - A live designer run using model-decided Agents SDK orchestration was stopped because the first orchestration call took too long without visible progress.
@@ -247,15 +342,38 @@ questions by querying the semantic web and supports Turtle export.
 - Final ontology verification: 224 triples, 15 classes, 35 properties, RDF validation passed, Fuseki SPARQL query returned 15 ontology classes.
 - Final designer test command: `uv run pytest`, result `12 passed`.
 - Work is paused after the semantic web designer milestone. The importer has not been started.
-- No final `design.md`, `db/ontology.ttl`, `db/instances.ttl`, or `db/semantic_web.ttl` has been produced yet.
+- `design.md` and `db/ontology.ttl` have been produced by the designer.
+- `db/instances.ttl` and `db/semantic_web.ttl` have not been produced yet because importer work has not started.
 - The importer framework has not been implemented yet.
 - The viewer framework has not been implemented yet.
-- No semantic web design or data insertion has been completed by the product yet.
-- No Fuseki load has been successfully performed yet.
-- No milestone commit has been made yet.
+- Semantic web design has been completed by the product. Data insertion has not started.
+- Fuseki ontology loading has been successfully performed.
+- The designer milestone commit has been made.
 
 ### Immediate Next Step
 
-- Add designer persistence tests for writing `design.md` and intermediate `db/ontology.ttl`.
-- Add an Agents SDK workflow configuration smoke test that does not require a live API call.
-- Only after those small tests pass, retry the live designer product run.
+- Pause here until the user approves importer work.
+- When approved, start Milestone 2 with importer contracts and tests.
+- Do not change the ontology manually while implementing the importer.
+- The importer should read `design.md` and query or read the ontology, then insert instances without schema mutation.
+
+## Handoff For Next Codex Instance
+
+- Start by reading `AGENTS.md`, `README.md`, and this file.
+- The semantic web designer is complete and committed.
+- Current clean designer outputs are:
+  - `design.md`
+  - `db/ontology.ttl`
+  - Fuseki named graph `http://example.org/dnd-adventure/graph/ontology`
+- Current tests:
+  - `uv run pytest`
+  - expected result: `12 passed`
+- Current runtime notes:
+  - Fuseki may already be running on port `3030`.
+  - If not, use the project-local Fuseki base `db/fuseki-run`.
+  - Do not use `/opt/apache-jena-fuseki-6.1.0/run` as the runtime base.
+  - Use SPARQL `ASK` via `POST` for readiness checks.
+- Current development boundary:
+  - The importer has not been started.
+  - Ask the user before starting importer work.
+  - When importer work starts, implement it in small tested steps according to Milestone 2.
