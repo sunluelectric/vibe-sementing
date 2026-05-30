@@ -51,6 +51,52 @@ def test_designer_agent_runs_with_stubbed_response() -> None:
     assert len(result.graph) >= 20
 
 
+def test_designer_agent_writes_progress_after_stubbed_call(tmp_path) -> None:
+    class StubDesigner(DesignerAgent):
+        def _run_direct_design_call(self, prompt: str) -> str:
+            return VALID_DESIGN_RESPONSE
+
+    progress_path = tmp_path / "design.md"
+    result = StubDesigner("test-model").run(
+        "requirements",
+        "data",
+        max_attempts=1,
+        progress_path=progress_path,
+    )
+
+    progress = progress_path.read_text(encoding="utf-8")
+    assert "Semantic Web Designer Progress" in progress
+    assert "Attempt 1" in progress
+    assert "LLM request started" in progress
+    assert "LLM response received" in progress
+    assert "Status: passed" in progress
+    assert "# Test Design" in progress
+    assert result.progress_markdown == progress.strip()
+
+
+def test_designer_agent_records_llm_call_failure(tmp_path) -> None:
+    class TimeoutDesigner(DesignerAgent):
+        def _run_direct_design_call(self, prompt: str) -> str:
+            raise TimeoutError("test timeout")
+
+    progress_path = tmp_path / "design.md"
+
+    try:
+        TimeoutDesigner("test-model").run(
+            "requirements",
+            "data",
+            max_attempts=1,
+            progress_path=progress_path,
+        )
+    except RuntimeError:
+        pass
+
+    progress = progress_path.read_text(encoding="utf-8")
+    assert "LLM request started" in progress
+    assert "LLM request failed" in progress
+    assert "TimeoutError: test timeout" in progress
+
+
 def test_designer_agent_retries_after_invalid_turtle() -> None:
     class RetryDesigner(DesignerAgent):
         def __init__(self) -> None:

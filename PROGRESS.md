@@ -50,6 +50,7 @@ Fuseki when available.
 - [x] Add designer tools for Fuseki status, Fuseki startup, iterative design, and ontology persistence/load.
 - [x] Use explicit designer workflow tool sequencing so operational steps are controllable and visible.
 - [x] Add command-line logging that reports model, iterations, Fuseki dataset, output locations, and load target.
+- [x] Add progressive `design.md` logging so active LLM attempts, failures, and validation status are visible while the designer is running.
 - [x] Test direct agent execution with a stubbed LLM response.
 - [x] Test Agents SDK workflow configuration without requiring a live API call.
 
@@ -187,6 +188,9 @@ questions by querying the semantic web and supports Turtle export.
 - Initial dependency installation succeeded.
 - CrewAI was tried early, then removed from the designer architecture.
 - The semantic web designer milestone is complete, tested, documented, and committed.
+- Later verification updates changed the default designer model to `gpt-5-mini`,
+  tightened the compact ontology prompt, and added progressive `design.md`
+  logging. These updates are tested but not yet committed.
 - Work is intentionally paused before starting the importer.
 - Do not start importer work until the user explicitly approves it.
 
@@ -209,7 +213,8 @@ start or connect to Apache Jena Fuseki, and load the ontology into Fuseki.
 - The current prompt says to avoid complex or exhaustive modeling.
 - The current prompt asks for RDF/RDFS only and explicitly avoids OWL in the
   first version.
-- The current prompt asks for about 12 to 18 classes and 20 to 35 properties.
+- The current prompt asks for about 10 to 16 classes and 15 to 28 properties.
+- The current prompt asks the model to keep the full Turtle under 220 triples.
 - The current validation rejects ontologies over 260 triples as too complex for
   the first version.
 - These simplicity constraints were added because earlier broader design prompts
@@ -224,6 +229,12 @@ start or connect to Apache Jena Fuseki, and load the ontology into Fuseki.
   workflow sequence.
 - The direct OpenAI API design call is still model-driven, but it is constrained
   by a small prompt, validation, and retry feedback.
+- The default model is now `gpt-5-mini`, which replaced the earlier `gpt-5.5`
+  default after `gpt-5.5-mini` was rejected by the API as an unknown model.
+- `design.md` is written progressively during designer runs. It records run
+  start, each attempt start, LLM response or failure, validation status, and the
+  accepted candidate design. After success, the final design is written at the
+  top and the progress history is appended as `Designer Generation Log`.
 - Turtle is used as a validated intermediate artifact for review, tests, and
   Fuseki loading. It is not the final runtime target.
 - Fuseki startup needed a project-local writable runtime base. The manager now
@@ -323,7 +334,7 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   - `tests/test_designer_workflow.py`
 - The lightweight test suite passes:
   - command: `uv run pytest`
-  - result: `12 passed`
+  - result: `14 passed`
 
 ### Historical Issues And Fixes
 
@@ -333,14 +344,16 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
 - A live designer run using model-decided Agents SDK orchestration was stopped because the first orchestration call took too long without visible progress.
 - The designer workflow was revised to keep the Agents SDK shell and tools but execute the operational steps explicitly.
 - A later explicit-workflow live designer run reached the design step but was stopped because the design prompt was still too broad.
-- The designer prompt was revised to require a simple first-version RDF/RDFS ontology, with about 12 to 18 classes and 20 to 35 properties.
+- The designer prompt was revised to require a simple first-version RDF/RDFS ontology, first with about 12 to 18 classes and 20 to 35 properties, then later tightened to about 10 to 16 classes and 15 to 28 properties with fewer than 220 triples requested.
 - Default designer validation attempts were reduced to 2 while stabilizing the product run.
+- The designer default model was changed from `gpt-5.5` to `gpt-5-mini` to reduce cost and latency for the compact design task. An attempted `gpt-5.5-mini` default was rejected by the API as an unknown model.
+- Progressive `design.md` logging was added after a long LLM call made it hard to tell whether the workflow was still active. LLM request failures and timeouts are now recorded in `design.md` and can feed retry attempts.
 - Fuseki startup initially failed because the default Fuseki base under `/opt` was not writable. The manager now sets `FUSEKI_BASE` to `db/fuseki-run`.
 - Fuseki readiness initially failed because Fuseki 6 handles SPARQL availability by POST, not by GET. The client now uses `ASK { ?s ?p ?o }`.
 - The designer product run completed successfully with `load_target: fuseki`.
 - Final designer output: `design.md`, `db/ontology.ttl`, and a named Fuseki graph at `http://example.org/dnd-adventure/graph/ontology`.
-- Final ontology verification: 224 triples, 15 classes, 35 properties, RDF validation passed, Fuseki SPARQL query returned 15 ontology classes.
-- Final designer test command: `uv run pytest`, result `12 passed`.
+- Latest ontology verification after the compact prompt and `gpt-5-mini` rerun: 188 triples, 15 classes, 28 properties, RDF validation passed, Fuseki SPARQL query returned 15 ontology classes.
+- Final designer test command: `uv run pytest`, result `14 passed`.
 - Work is paused after the semantic web designer milestone. The importer has not been started.
 - `design.md` and `db/ontology.ttl` have been produced by the designer.
 - `db/instances.ttl` and `db/semantic_web.ttl` have not been produced yet because importer work has not started.
@@ -367,7 +380,7 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   - Fuseki named graph `http://example.org/dnd-adventure/graph/ontology`
 - Current tests:
   - `uv run pytest`
-  - expected result: `12 passed`
+  - expected result: `14 passed`
 - Current runtime notes:
   - Fuseki may already be running on port `3030`.
   - If not, use the project-local Fuseki base `db/fuseki-run`.

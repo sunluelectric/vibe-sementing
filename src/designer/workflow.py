@@ -117,6 +117,7 @@ class DesignerWorkflow:
             requirements=requirements,
             data=data,
             max_attempts=self.settings.designer_iterations,
+            progress_path=self.settings.design_doc_path,
         )
         return {
             "status": "success",
@@ -127,7 +128,14 @@ class DesignerWorkflow:
     def persist_and_load_ontology(self) -> dict[str, Any]:
         if self.last_design is None:
             raise RuntimeError("No design is available to persist.")
-        write_text(self.settings.design_doc_path, self.last_design.design_markdown + "\n")
+        design_markdown = self.last_design.design_markdown
+        if self.last_design.progress_markdown:
+            design_markdown = (
+                f"{design_markdown}\n\n"
+                "## Designer Generation Log\n\n"
+                f"{self.last_design.progress_markdown}\n"
+            )
+        write_text(self.settings.design_doc_path, design_markdown + "\n")
         self.last_load_target = load_graph_to_fuseki_or_file(
             client=self.fuseki_client,
             graph_uri=self.settings.ontology_graph_uri,

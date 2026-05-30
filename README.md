@@ -8,8 +8,10 @@ The current implemented milestone is the semantic web designer.
 
 ## Current Handoff State
 
-- The semantic web designer milestone is complete, tested, documented, and
-  committed.
+- The semantic web designer milestone is complete, tested, and documented.
+- The original designer milestone was committed; later verification updates for
+  progressive logging and the smaller default model are currently pending
+  commit.
 - The importer has not been started.
 - The viewer has not been started.
 - Before starting importer work, confirm with the user.
@@ -38,10 +40,11 @@ The designer workflow performs these steps:
 1. Check whether Fuseki is reachable.
 2. Start Fuseki if needed, using a project-local writable runtime directory.
 3. Read `design-requirements.md` and files under `data/`.
-4. Use a direct OpenAI API call to generate a simple RDF/RDFS design.
+4. Use a direct OpenAI API call to generate a compact RDF/RDFS design.
 5. Validate the generated Turtle with `rdflib` and project-specific checks.
 6. Retry with validation feedback when needed.
-7. Write `design.md`.
+7. Write `design.md` progressively while the run is active, then replace the
+   top-level content with the final design and append the generation log.
 8. Write `db/ontology.ttl` as an intermediate review and loading artifact.
 9. Load the ontology into Fuseki as the named graph
    `http://example.org/dnd-adventure/graph/ontology`.
@@ -50,6 +53,12 @@ Turtle is not the final implementation target. It is used as a testable
 serialization layer and fallback. The intended runtime target is Apache Jena
 Fuseki.
 
+The designer writes a live progress log to `design.md` during LLM generation.
+This log records the model, attempt count, attempt start time, LLM response or
+failure, validation status, and triple count. After a successful run, the final
+human-readable design remains at the top of `design.md`, followed by a
+`Designer Generation Log` section.
+
 ## Configuration
 
 Configuration is read from `.env` and defaults in `src/common/config.py`.
@@ -57,7 +66,7 @@ Configuration is read from `.env` and defaults in `src/common/config.py`.
 Important settings:
 
 - `OPENAI_API_KEY`: required for the designer model call.
-- `LLM_MODEL`: defaults to `gpt-5.5`.
+- `LLM_MODEL`: defaults to `gpt-5-mini`.
 - `LLM_TIMEOUT_SECONDS`: defaults to `90`.
 - `DESIGNER_ITERATIONS`: defaults to `2`.
 - `FUSEKI_BASE_URL`: defaults to `http://localhost:3030`.
@@ -167,9 +176,9 @@ Expected designer outputs:
 
 The current generated DnD ontology is deliberately small:
 
-- 224 RDF triples.
+- 188 RDF triples.
 - 15 RDFS classes.
-- 35 RDF properties.
+- 28 RDF properties.
 - RDF validation passed.
 - Fuseki SPARQL query returned 15 ontology classes from the named ontology graph.
 

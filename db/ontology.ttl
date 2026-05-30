@@ -5,275 +5,232 @@
 
 dnd:Adventure a rdfs:Class ;
     rdfs:label "Adventure" ;
-    rdfs:comment "A complete playable DnD adventure module." .
+    rdfs:comment "Top-level container for an adventure composed of quests and scenes." .
 
 dnd:Character a rdfs:Class ;
     rdfs:label "Character" ;
-    rdfs:comment "Any acting person or creature in the adventure." .
+    rdfs:comment "Any character-like agent in the adventure (players, NPCs, monsters)." .
 
 dnd:Check a rdfs:Class ;
     rdfs:label "Check" ;
-    rdfs:comment "A roll against a difficulty class using an ability, skill, or tool." .
+    rdfs:comment "A mechanical skill or ability check (DC and type)." .
 
 dnd:Encounter a rdfs:Class ;
     rdfs:label "Encounter" ;
-    rdfs:comment "A combat, social, exploration, trap, or mixed challenge." .
+    rdfs:comment "A conflict or challenge that occurs within a scene; links to participants." .
 
 dnd:Item a rdfs:Class ;
     rdfs:label "Item" ;
-    rdfs:comment "An object that can be found, carried, used, or rewarded." .
+    rdfs:comment "Tangible object such as loot, potions, chests, equipment." .
 
 dnd:Location a rdfs:Class ;
     rdfs:label "Location" ;
-    rdfs:comment "A physical place where scenes, encounters, characters, or items may be found." .
+    rdfs:comment "A physical or descriptive place such as a village, trail, or cave chamber." .
 
 dnd:Monster a rdfs:Class ;
     rdfs:label "Monster" ;
-    rdfs:comment "A hostile or challenge creature in an encounter." ;
+    rdfs:comment "A hostile creature or adversary (goblins, bosses)." ;
     rdfs:subClassOf dnd:Character .
 
 dnd:Npc a rdfs:Class ;
-    rdfs:label "NPC" ;
-    rdfs:comment "A non-player character controlled by the Dungeon Master." ;
+    rdfs:label "Non-Player Character" ;
+    rdfs:comment "A non-player character such as a quest giver or villager." ;
     rdfs:subClassOf dnd:Character .
 
 dnd:Player a rdfs:Class ;
-    rdfs:label "Player Character" ;
-    rdfs:comment "A character controlled by a player." ;
-    rdfs:subClassOf dnd:Character .
+    rdfs:label "Player" ;
+    rdfs:comment "A player-controlled character; subclassing is kept flat to ease data ingestion." .
 
 dnd:PlayerOption a rdfs:Class ;
     rdfs:label "Player Option" ;
-    rdfs:comment "A player-facing option such as a class, race, background, or starting choice." .
+    rdfs:comment "A selectable option for players (character class, race)." .
 
 dnd:Quest a rdfs:Class ;
     rdfs:label "Quest" ;
-    rdfs:comment "A goal or mission that characters can complete during an adventure." .
+    rdfs:comment "A goal-driven task inside an adventure (for example: recover stolen goods)." .
 
 dnd:Reward a rdfs:Class ;
     rdfs:label "Reward" ;
-    rdfs:comment "Gold, XP, items, services, or other benefits granted to characters." .
+    rdfs:comment "A reward object for quests or NPC offers (gold, items, XP)." .
 
 dnd:Scene a rdfs:Class ;
     rdfs:label "Scene" ;
-    rdfs:comment "A unit of play such as a village scene, trail scene, cave room, or ending scene." .
+    rdfs:comment "A narrated location or encounter node; scenes have descriptions, exits and encounters." .
 
 dnd:VictoryCondition a rdfs:Class ;
     rdfs:label "Victory Condition" ;
-    rdfs:comment "A condition that marks success, completion, or a favorable outcome." .
+    rdfs:comment "A textual condition describing success for a quest or objective." .
 
 dnd:Weapon a rdfs:Class ;
     rdfs:label "Weapon" ;
-    rdfs:comment "An item used to deal damage." ;
+    rdfs:comment "A weapon used for attacks; modeled as a kind of Item." ;
     rdfs:subClassOf dnd:Item .
-
-dnd:ability a rdf:Property ;
-    rdfs:label "ability" ;
-    rdfs:comment "The ability used for a check, such as Strength or Dexterity." ;
-    rdfs:domain dnd:Check ;
-    rdfs:range xsd:string .
-
-dnd:adventureType a rdf:Property ;
-    rdfs:label "adventure type" ;
-    rdfs:comment "A broad adventure type such as dungeon crawl, mystery, or wilderness exploration." ;
-    rdfs:domain dnd:Adventure ;
-    rdfs:range xsd:string .
 
 dnd:armorClass a rdf:Property ;
     rdfs:label "armor class" ;
-    rdfs:comment "Armor Class for a character or monster." ;
+    rdfs:comment "Armor Class (AC) value for a character or monster." ;
     rdfs:domain dnd:Character ;
-    rdfs:range xsd:integer .
+    rdfs:range xsd:nonNegativeInteger .
 
-dnd:carriesItem a rdf:Property ;
-    rdfs:label "carries item" ;
-    rdfs:comment "Links a character to an item they carry." ;
+dnd:carries a rdf:Property ;
+    rdfs:label "carries" ;
+    rdfs:comment "States that a Character carries or possesses an Item." ;
     rdfs:domain dnd:Character ;
     rdfs:range dnd:Item .
 
-dnd:containsItem a rdf:Property ;
-    rdfs:label "contains item" ;
-    rdfs:comment "Links a resource to an item found, stored, hidden, or present there." ;
-    rdfs:domain rdfs:Resource ;
-    rdfs:range dnd:Item .
+dnd:checkDC a rdf:Property ;
+    rdfs:label "check DC" ;
+    rdfs:comment "Numeric difficulty class (DC) for a Check." ;
+    rdfs:domain dnd:Check ;
+    rdfs:range xsd:nonNegativeInteger .
+
+dnd:checkType a rdf:Property ;
+    rdfs:label "check type" ;
+    rdfs:comment "Skill or ability type for a Check (e.g., 'Dexterity/Stealth')." ;
+    rdfs:domain dnd:Check ;
+    rdfs:range xsd:string .
+
+dnd:conditionDescription a rdf:Property ;
+    rdfs:label "condition description" ;
+    rdfs:comment "Text describing a victory condition for a quest." ;
+    rdfs:domain dnd:VictoryCondition ;
+    rdfs:range xsd:string .
 
 dnd:damage a rdf:Property ;
     rdfs:label "damage" ;
-    rdfs:comment "Damage expression for a weapon or attack, stored as text such as 1d6 plus 2 slashing." ;
+    rdfs:comment "Damage expression for weapons, stored as text (e.g. '1d4+1 piercing')." ;
     rdfs:domain dnd:Weapon ;
     rdfs:range xsd:string .
 
 dnd:description a rdf:Property ;
     rdfs:label "description" ;
-    rdfs:comment "A general human-readable description." ;
+    rdfs:comment "Longer textual description for scenes, items, locations, etc." ;
     rdfs:domain rdfs:Resource ;
     rdfs:range xsd:string .
 
-dnd:difficulty a rdf:Property ;
-    rdfs:label "difficulty" ;
-    rdfs:comment "A simple difficulty description for the adventure or encounter." ;
-    rdfs:domain dnd:Adventure ;
+dnd:difficultyLevel a rdf:Property ;
+    rdfs:label "difficulty level" ;
+    rdfs:comment "Textual difficulty (Beginner-friendly, etc.)." ;
+    rdfs:domain dnd:Quest ;
     rdfs:range xsd:string .
 
-dnd:difficultyClass a rdf:Property ;
-    rdfs:label "difficulty class" ;
-    rdfs:comment "The target number for a check." ;
-    rdfs:domain dnd:Check ;
-    rdfs:range xsd:integer .
-
-dnd:dmNotes a rdf:Property ;
-    rdfs:label "DM notes" ;
-    rdfs:comment "Guidance text for the Dungeon Master." ;
-    rdfs:domain rdfs:Resource ;
-    rdfs:range xsd:string .
-
-dnd:exitDescription a rdf:Property ;
-    rdfs:label "exit description" ;
-    rdfs:comment "Text describing exits or transitions from a scene." ;
+dnd:exitTo a rdf:Property ;
+    rdfs:label "exit to" ;
+    rdfs:comment "Scene-to-scene navigation; an exit leads from one Scene to another." ;
     rdfs:domain dnd:Scene ;
-    rdfs:range xsd:string .
+    rdfs:range dnd:Scene .
 
-dnd:featuresCharacter a rdf:Property ;
-    rdfs:label "features character" ;
-    rdfs:comment "Links a resource to a character appearing or participating there." ;
-    rdfs:domain rdfs:Resource ;
-    rdfs:range dnd:Character .
-
-dnd:hasCheck a rdf:Property ;
-    rdfs:label "has check" ;
-    rdfs:comment "Links a resource to a relevant ability, skill, or tool check." ;
-    rdfs:domain rdfs:Resource ;
-    rdfs:range dnd:Check .
+dnd:goldAmount a rdf:Property ;
+    rdfs:label "gold amount" ;
+    rdfs:comment "Amount of gold coins in a Reward." ;
+    rdfs:domain dnd:Reward ;
+    rdfs:range xsd:nonNegativeInteger .
 
 dnd:hasEncounter a rdf:Property ;
     rdfs:label "has encounter" ;
-    rdfs:comment "Links a scene to an encounter available in that scene." ;
+    rdfs:comment "Links a Scene to an Encounter that occurs in it." ;
     rdfs:domain dnd:Scene ;
     rdfs:range dnd:Encounter .
 
-dnd:hasLocation a rdf:Property ;
-    rdfs:label "has location" ;
-    rdfs:comment "Links a scene to the place where it occurs." ;
-    rdfs:domain dnd:Scene ;
-    rdfs:range dnd:Location .
-
-dnd:hasPlayerOption a rdf:Property ;
-    rdfs:label "has player option" ;
-    rdfs:comment "Links an adventure to a class, race, or other option available to players." ;
-    rdfs:domain dnd:Adventure ;
-    rdfs:range dnd:PlayerOption .
+dnd:hasObjective a rdf:Property ;
+    rdfs:label "has objective" ;
+    rdfs:comment "Short textual description of the quest objective." ;
+    rdfs:domain dnd:Quest ;
+    rdfs:range xsd:string .
 
 dnd:hasQuest a rdf:Property ;
     rdfs:label "has quest" ;
-    rdfs:comment "Links an adventure to one of its quests." ;
+    rdfs:comment "Links an Adventure to a Quest it contains." ;
     rdfs:domain dnd:Adventure ;
     rdfs:range dnd:Quest .
 
 dnd:hasReward a rdf:Property ;
     rdfs:label "has reward" ;
-    rdfs:comment "Links a resource to a reward." ;
-    rdfs:domain rdfs:Resource ;
+    rdfs:comment "Associates a Quest with its Reward (gold, items, XP)." ;
+    rdfs:domain dnd:Quest ;
     rdfs:range dnd:Reward .
 
 dnd:hasScene a rdf:Property ;
     rdfs:label "has scene" ;
-    rdfs:comment "Links an adventure to one of its scenes." ;
+    rdfs:comment "Associates an Adventure with Scenes that belong to it." ;
     rdfs:domain dnd:Adventure ;
     rdfs:range dnd:Scene .
 
-dnd:hasVictoryCondition a rdf:Property ;
-    rdfs:label "has victory condition" ;
-    rdfs:comment "Links a resource to a condition for success or completion." ;
-    rdfs:domain rdfs:Resource ;
-    rdfs:range dnd:VictoryCondition .
-
-dnd:hitPoints a rdf:Property ;
+dnd:hp a rdf:Property ;
     rdfs:label "hit points" ;
-    rdfs:comment "Hit points for a character or monster." ;
+    rdfs:comment "Hit points of a character or monster." ;
     rdfs:domain dnd:Character ;
-    rdfs:range xsd:integer .
+    rdfs:range xsd:nonNegativeInteger .
 
-dnd:involvesMonster a rdf:Property ;
-    rdfs:label "involves monster" ;
-    rdfs:comment "Links an encounter to a monster type or monster participant." ;
-    rdfs:domain dnd:Encounter ;
-    rdfs:range dnd:Monster .
+dnd:includesItem a rdf:Property ;
+    rdfs:label "includes item" ;
+    rdfs:comment "A Reward may include zero or more Items." ;
+    rdfs:domain dnd:Reward ;
+    rdfs:range dnd:Item .
 
-dnd:itemEffect a rdf:Property ;
-    rdfs:label "item effect" ;
-    rdfs:comment "Text describing the mechanical or story effect of an item." ;
+dnd:itemProperty a rdf:Property ;
+    rdfs:label "item property" ;
+    rdfs:comment "Short string listing item properties (e.g., 'Finesse, Light, Thrown')." ;
     rdfs:domain dnd:Item ;
     rdfs:range xsd:string .
 
-dnd:monsterCount a rdf:Property ;
-    rdfs:label "monster count" ;
-    rdfs:comment "Number of monsters of a type involved in an encounter." ;
-    rdfs:domain dnd:Encounter ;
-    rdfs:range xsd:integer .
+dnd:itemType a rdf:Property ;
+    rdfs:label "item type" ;
+    rdfs:comment "Category or type label for an item (e.g., 'Healing Potion', 'Simple Melee Weapon')." ;
+    rdfs:domain dnd:Item ;
+    rdfs:range xsd:string .
 
-dnd:nextScene a rdf:Property ;
-    rdfs:label "next scene" ;
-    rdfs:comment "Links a scene to a following or reachable scene." ;
+dnd:locatedIn a rdf:Property ;
+    rdfs:label "located in" ;
+    rdfs:comment "Links a Scene to the Location where it takes place." ;
     rdfs:domain dnd:Scene ;
-    rdfs:range dnd:Scene .
+    rdfs:range dnd:Location .
 
-dnd:objective a rdf:Property ;
-    rdfs:label "objective" ;
-    rdfs:comment "The main goal for a scene, quest, or encounter." ;
+dnd:name a rdf:Property ;
+    rdfs:label "name" ;
+    rdfs:comment "General name used for characters, items, scenes and other resources." ;
     rdfs:domain rdfs:Resource ;
     rdfs:range xsd:string .
 
-dnd:optionCategory a rdf:Property ;
-    rdfs:label "option category" ;
-    rdfs:comment "Category for a player option, such as class or race." ;
-    rdfs:domain dnd:PlayerOption ;
+dnd:personality a rdf:Property ;
+    rdfs:label "personality" ;
+    rdfs:comment "Short personality notes for an NPC (e.g., 'nervous, grateful')." ;
+    rdfs:domain dnd:Character ;
     rdfs:range xsd:string .
-
-dnd:questGiver a rdf:Property ;
-    rdfs:label "quest giver" ;
-    rdfs:comment "Links a quest to the NPC who gives, requests, or authorizes it." ;
-    rdfs:domain dnd:Quest ;
-    rdfs:range dnd:Npc .
 
 dnd:recommendedLevel a rdf:Property ;
     rdfs:label "recommended level" ;
-    rdfs:comment "Recommended character level for the adventure." ;
-    rdfs:domain dnd:Adventure ;
-    rdfs:range xsd:integer .
+    rdfs:comment "Numeric recommended character level for the quest." ;
+    rdfs:domain dnd:Quest ;
+    rdfs:range xsd:nonNegativeInteger .
 
 dnd:recommendedPartySize a rdf:Property ;
     rdfs:label "recommended party size" ;
-    rdfs:comment "Recommended number of player characters, kept as text for flexible ranges." ;
-    rdfs:domain dnd:Adventure ;
+    rdfs:comment "Human-readable recommended party size, e.g. '2–4'." ;
+    rdfs:domain dnd:Quest ;
     rdfs:range xsd:string .
 
-dnd:rewardAmount a rdf:Property ;
-    rdfs:label "reward amount" ;
-    rdfs:comment "Flexible text amount for a reward, such as 50 gp, 100 XP, or one potion." ;
+dnd:rewardXP a rdf:Property ;
+    rdfs:label "reward XP" ;
+    rdfs:comment "Experience points granted as a reward." ;
     rdfs:domain dnd:Reward ;
-    rdfs:range xsd:string .
+    rdfs:range xsd:nonNegativeInteger .
 
-dnd:skill a rdf:Property ;
-    rdfs:label "skill" ;
-    rdfs:comment "The skill or tool used for a check, such as Stealth or Thieves Tools." ;
-    rdfs:domain dnd:Check ;
-    rdfs:range xsd:string .
-
-dnd:title a rdf:Property ;
-    rdfs:label "title" ;
-    rdfs:comment "A short human-readable name." ;
-    rdfs:domain rdfs:Resource ;
-    rdfs:range xsd:string .
-
-dnd:usesWeapon a rdf:Property ;
-    rdfs:label "uses weapon" ;
-    rdfs:comment "Links a character to a weapon they use." ;
+dnd:role a rdf:Property ;
+    rdfs:label "role" ;
+    rdfs:comment "Character role (e.g., 'Merchant', 'Quest Giver')." ;
     rdfs:domain dnd:Character ;
-    rdfs:range dnd:Weapon .
+    rdfs:range xsd:string .
+
+dnd:victoryCondition a rdf:Property ;
+    rdfs:label "victory condition" ;
+    rdfs:comment "Links a Quest to one of its victory conditions." ;
+    rdfs:domain dnd:Quest ;
+    rdfs:range dnd:VictoryCondition .
 
 dnd:xpValue a rdf:Property ;
     rdfs:label "XP value" ;
-    rdfs:comment "Experience point value associated with a monster, reward, or event." ;
-    rdfs:domain rdfs:Resource ;
-    rdfs:range xsd:integer .
+    rdfs:comment "Experience points awarded for defeating a creature." ;
+    rdfs:domain dnd:Character ;
+    rdfs:range xsd:nonNegativeInteger .
 

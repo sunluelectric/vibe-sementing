@@ -15,9 +15,11 @@ The project includes three independent executable codes. They are:
 
 ## Current Development State
 
-* The semantic web designer milestone is complete, tested, documented, and committed.
+* The semantic web designer milestone is complete, tested, and documented.
+* The original designer milestone was committed. Later verification updates for progressive `./design.md` logging, compact prompting, and the default model are pending commit.
 * The designer has produced `./design.md` and `./db/ontology.ttl`.
 * The designer has loaded the ontology into Fuseki as named graph `http://example.org/dnd-adventure/graph/ontology`.
+* The latest verified designer run used model `gpt-5-mini`, produced 188 RDF triples, 15 RDFS classes, and 28 RDF properties, and was verified by querying Fuseki directly.
 * The importer has not been started.
 * The viewer has not been started.
 * Before starting importer work, ask the user for approval.
@@ -40,7 +42,7 @@ The project includes three independent executable codes. They are:
 * OpenAI API key and LLM instances in agentic AI frameworks
   * The project develops and deploys multiple agentic AI frameworks for semantic web design, data insertation and result query. LLM will be used in the agentic AI frameworks
   * OpenAI API Key can be found in `.env` file, as environment variable `OPENAI_API_KEY`
-  * It is recommended to use model `gpt-5.5` instances in the agentic AI frameworks
+  * The current default model in `src/common/config.py` is `gpt-5-mini`, chosen to reduce latency and cost for the compact designer workflow. Override it with `LLM_MODEL` in `.env` when needed.
 
 * Design requirements
   * Design requirements is given in `./design-requirements.md`
@@ -98,13 +100,14 @@ The project includes three independent executable codes. They are:
   * Check whether Apache Jena Fuseki is available.
   * Start Apache Jena Fuseki when needed and possible.
   * Read `./design-requirements.md` and `./data/*`.
-  * Generate a semantic web design and ontology.
+  * Generate a compact semantic web design and ontology.
   * Validate the generated ontology with RDF parsing and project-specific checks.
   * Iterate the design a few times, using validation feedback to improve quality.
-  * Write `./design.md` for human review and for the importer.
+  * Write `./design.md` progressively while the design is running, then leave the final design at the top and append a generation log for human review and for the importer.
   * Write Turtle (`.ttl`) only as an intermediate artifact for testing, review, fallback, and Jena loading.
   * Implement the ontology in Apache Jena Fuseki using Jena-compatible graph operations.
 * Focus mainly on RDF and RDFS; OWL can be used but it is not required. In other words, implement class and property hierarchy, but not necessarily implementing complicated OWL-defined class and properties
+* Keep the first-pass ontology compact. The current designer prompt asks for about 10 to 16 classes, 15 to 28 properties, and fewer than 220 triples.
 * Iteratively improve the design
 * Implement the design to the semantic web, with the installed triplestore Apache Jena Fuseki
 * Document the design in `./design.md`; later the semantic web importer agentic AI framework will read the document, using which to understand the semantic web design, so that it can insert data into it
