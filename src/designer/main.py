@@ -14,6 +14,7 @@ def main() -> None:
     print(f"Designer wrote {result.ontology_path} with {result.triple_count} triples")
     print(f"Ontology load target: {result.load_target}")
     print(f"Fuseki status: {result.fuseki_status}")
+    print(f"Fuseki stop result: {result.fuseki_stop_result}")
 
 
 if __name__ == "__main__":

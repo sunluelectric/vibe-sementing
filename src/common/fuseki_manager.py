@@ -3,6 +3,7 @@ from __future__ import annotations
 import subprocess
 import time
 import os
+import signal
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -11,6 +12,13 @@ from src.common.fuseki import FusekiClient
 
 @dataclass
 class FusekiStartResult:
+    status: str
+    message: str
+    pid: int | None = None
+
+
+@dataclass
+class FusekiStopResult:
     status: str
     message: str
     pid: int | None = None
@@ -32,6 +40,7 @@ class FusekiManager:
         self.dataset = dataset
         self.client = client
         self.start_timeout_seconds = start_timeout_seconds
+        self.process: subprocess.Popen | None = None
 
     def status(self) -> dict[str, str | bool]:
         available = self.client.is_available()
@@ -65,6 +74,7 @@ class FusekiManager:
                 env=env,
                 start_new_session=True,
             )
+        self.process = process
 
         deadline = time.time() + self.start_timeout_seconds
         while time.time() < deadline:
@@ -90,6 +100,45 @@ class FusekiManager:
             message="Fuseki start command was launched but did not become reachable in time.",
             pid=process.pid,
         )
+
+    def stop_if_started(self, timeout_seconds: int = 10) -> FusekiStopResult:
+        process = self.process
+        if process is None:
+            return FusekiStopResult(
+                status="not_started",
+                message="Fuseki was not started by this workflow.",
+            )
+
+        if process.poll() is not None:
+            return FusekiStopResult(
+                status="already_exited",
+                message=f"Fuseki process already exited with code {process.returncode}.",
+                pid=process.pid,
+            )
+
+        try:
+            os.killpg(process.pid, signal.SIGTERM)
+        except ProcessLookupError:
+            return FusekiStopResult(
+                status="already_exited",
+                message="Fuseki process was already gone before shutdown.",
+                pid=process.pid,
+            )
+        try:
+            process.wait(timeout=timeout_seconds)
+            return FusekiStopResult(
+                status="stopped",
+                message="Fuseki process started by this workflow was stopped.",
+                pid=process.pid,
+            )
+        except subprocess.TimeoutExpired:
+            os.killpg(process.pid, signal.SIGKILL)
+            process.wait(timeout=timeout_seconds)
+            return FusekiStopResult(
+                status="killed",
+                message="Fuseki process did not stop after SIGTERM and was killed.",
+                pid=process.pid,
+            )
 
     def command(self) -> list[str]:
         executable = self.fuseki_home / "fuseki-server"

@@ -22,6 +22,7 @@ class DesignerWorkflowResult:
     triple_count: int
     load_target: str
     fuseki_status: dict[str, Any]
+    fuseki_stop_result: dict[str, Any]
 
 
 class DesignerWorkflow:
@@ -38,6 +39,7 @@ class DesignerWorkflow:
         )
         self.last_design: DesignResult | None = None
         self.last_load_target: str | None = None
+        self.last_stop_result: dict[str, Any] | None = None
 
     def build_agent(self) -> Agent:
         return Agent(
@@ -61,6 +63,7 @@ class DesignerWorkflow:
     def run(self) -> DesignerWorkflowResult:
         global _active_workflow
         _active_workflow = self
+        result: DesignerWorkflowResult | None = None
         try:
             self.build_agent()
             with trace("Semantic Web Designer Workflow"):
@@ -83,15 +86,20 @@ class DesignerWorkflow:
 
             if self.last_design is None or self.last_load_target is None:
                 raise RuntimeError("Designer workflow ended before ontology persistence completed.")
-            return DesignerWorkflowResult(
+            result = DesignerWorkflowResult(
                 design_path=str(self.settings.design_doc_path),
                 ontology_path=str(self.settings.ontology_path),
                 triple_count=len(self.last_design.graph),
                 load_target=self.last_load_target,
                 fuseki_status=self.fuseki_manager.status(),
+                fuseki_stop_result={},
             )
         finally:
+            self.last_stop_result = self.stop_fuseki_if_started()
+            print(f"Designer Fuseki stop result: {self.last_stop_result}", flush=True)
             _active_workflow = None
+        result.fuseki_stop_result = self.last_stop_result
+        return result
 
     def run_sync(self) -> DesignerWorkflowResult:
         return self.run()
@@ -101,6 +109,14 @@ class DesignerWorkflow:
 
     def start_fuseki(self) -> dict[str, Any]:
         result = self.fuseki_manager.start()
+        return {
+            "status": result.status,
+            "message": result.message,
+            "pid": result.pid,
+        }
+
+    def stop_fuseki_if_started(self) -> dict[str, Any]:
+        result = self.fuseki_manager.stop_if_started()
         return {
             "status": result.status,
             "message": result.message,

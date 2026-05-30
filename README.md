@@ -133,6 +133,10 @@ Important details:
 
 - Use `--update`, otherwise graph loading and SPARQL updates may not work.
 - Use `--localhost` for local development.
+- Designer and importer runs stop Fuseki automatically only when that workflow
+  started Fuseki itself.
+- If Fuseki was already running before a designer or importer run, the workflow
+  treats it as externally owned and leaves it running.
 - Do not rely on `GET /semantic-web-processor/query` as a readiness check.
 - Use a SPARQL `ASK` query through `POST` to check readiness.
 - Load ontology data through the graph store endpoint.

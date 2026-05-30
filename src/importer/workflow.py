@@ -25,6 +25,7 @@ class ImporterWorkflowResult:
     combined_triple_count: int
     load_target: str
     fuseki_status: dict[str, Any]
+    fuseki_stop_result: dict[str, Any]
 
 
 class ImporterWorkflow:
@@ -42,6 +43,7 @@ class ImporterWorkflow:
         self.last_import: ImportResult | None = None
         self.last_load_target: str | None = None
         self.last_combined_triple_count: int | None = None
+        self.last_stop_result: dict[str, Any] | None = None
 
     def build_agent(self) -> Agent:
         return Agent(
@@ -66,6 +68,7 @@ class ImporterWorkflow:
     def run(self) -> ImporterWorkflowResult:
         global _active_workflow
         _active_workflow = self
+        result: ImporterWorkflowResult | None = None
         try:
             self.build_agent()
             with trace("Semantic Web Importer Workflow"):
@@ -93,16 +96,21 @@ class ImporterWorkflow:
 
             if self.last_import is None or self.last_load_target is None:
                 raise RuntimeError("Importer workflow ended before instance persistence completed.")
-            return ImporterWorkflowResult(
+            result = ImporterWorkflowResult(
                 instances_path=str(self.settings.instances_path),
                 combined_path=str(self.settings.combined_path),
                 triple_count=len(self.last_import.graph),
                 combined_triple_count=self.last_combined_triple_count or 0,
                 load_target=self.last_load_target,
                 fuseki_status=self.fuseki_manager.status(),
+                fuseki_stop_result={},
             )
         finally:
+            self.last_stop_result = self.stop_fuseki_if_started()
+            print(f"Importer Fuseki stop result: {self.last_stop_result}", flush=True)
             _active_workflow = None
+        result.fuseki_stop_result = self.last_stop_result
+        return result
 
     def run_sync(self) -> ImporterWorkflowResult:
         return self.run()
@@ -112,6 +120,14 @@ class ImporterWorkflow:
 
     def start_fuseki(self) -> dict[str, Any]:
         result = self.fuseki_manager.start()
+        return {
+            "status": result.status,
+            "message": result.message,
+            "pid": result.pid,
+        }
+
+    def stop_fuseki_if_started(self) -> dict[str, Any]:
+        result = self.fuseki_manager.stop_if_started()
         return {
             "status": result.status,
             "message": result.message,

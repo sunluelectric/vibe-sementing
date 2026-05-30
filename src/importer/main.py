@@ -17,6 +17,7 @@ def main() -> None:
     )
     print(f"Instance load target: {result.load_target}")
     print(f"Fuseki status: {result.fuseki_status}")
+    print(f"Fuseki stop result: {result.fuseki_stop_result}")
 
 
 if __name__ == "__main__":

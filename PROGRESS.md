@@ -241,6 +241,9 @@ start or connect to Apache Jena Fuseki, and load the ontology into Fuseki.
   sets `FUSEKI_BASE` to `db/fuseki-run`.
 - Fuseki readiness needed a SPARQL `ASK` POST request. A GET request to the
   query endpoint was not reliable for Fuseki 6.
+- Fuseki cleanup now stops workflow-owned Fuseki processes after designer and
+  importer runs. If Fuseki was already running before the workflow, it is
+  treated as externally owned and left running.
 
 ### Fuseki Usage Instructions For Future Work
 
@@ -259,6 +262,8 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
 - Keep `--update` enabled so graph loading and SPARQL updates work.
 - Keep `--localhost` for local development.
 - Logs should go to `db/fuseki.log`.
+- Designer and importer cleanup stops only workflow-owned Fuseki processes.
+  Existing Fuseki processes are left alone.
 - If Fuseki reports port `3030` is already bound, check for stale Fuseki
   processes with `pgrep -af fuseki`.
 - Do not use `GET /semantic-web-processor/query` as the main readiness check.
@@ -352,7 +357,7 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   - `tests/test_importer_product_output.py`
 - The lightweight test suite passes:
   - command: `uv run pytest`
-  - result: `26 passed`
+  - result: `28 passed`
 
 ### Historical Issues And Fixes
 
@@ -401,7 +406,7 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   - Fuseki data graph `http://example.org/semantic-web/graph/data` unless overridden by `.env`
 - Current tests:
   - `uv run pytest`
-  - expected result: `26 passed`
+  - expected result: `28 passed`
 - Current runtime notes:
   - Fuseki may already be running on port `3030`.
   - If not, use the project-local Fuseki base `db/fuseki-run`.

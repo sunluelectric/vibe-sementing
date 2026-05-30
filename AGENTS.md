@@ -66,6 +66,7 @@ The project includes three independent executable codes. They are:
 * Triplestore
   * Apache Jena Fuseki is installed on the server
   * The location is `/opt/apache-jena-fuseki-6.1.0`
+  * Designer and importer workflows stop Fuseki automatically only when the workflow started Fuseki itself. If Fuseki was already running before the workflow, leave it running.
   * The tree is given by
   ```
   .

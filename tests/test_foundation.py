@@ -89,6 +89,72 @@ def test_fuseki_manager_uses_project_writable_base(tmp_path: Path) -> None:
     assert "--localhost" in command
 
 
+def test_fuseki_manager_stop_ignores_unowned_server(tmp_path: Path) -> None:
+    class Client:
+        query_url = "http://localhost:3030/test/query"
+
+        def is_available(self) -> bool:
+            return True
+
+    manager = FusekiManager(
+        fuseki_home=tmp_path / "fuseki",
+        fuseki_run_dir=tmp_path / "run",
+        fuseki_log_path=tmp_path / "fuseki.log",
+        dataset="test",
+        client=Client(),
+    )
+
+    result = manager.stop_if_started()
+
+    assert result.status == "not_started"
+
+
+def test_fuseki_manager_stops_owned_process(tmp_path: Path, monkeypatch) -> None:
+    class Client:
+        query_url = "http://localhost:3030/test/query"
+
+        def is_available(self) -> bool:
+            return True
+
+    class Process:
+        pid = 12345
+        returncode = None
+
+        def __init__(self) -> None:
+            self.waited = False
+
+        def poll(self):
+            return None
+
+        def wait(self, timeout):
+            self.waited = True
+            self.returncode = 0
+            return 0
+
+    signals = []
+
+    def fake_killpg(pid, sig):
+        signals.append((pid, sig))
+
+    manager = FusekiManager(
+        fuseki_home=tmp_path / "fuseki",
+        fuseki_run_dir=tmp_path / "run",
+        fuseki_log_path=tmp_path / "fuseki.log",
+        dataset="test",
+        client=Client(),
+    )
+    process = Process()
+    manager.process = process
+    monkeypatch.setattr("src.common.fuseki_manager.os.killpg", fake_killpg)
+
+    result = manager.stop_if_started()
+
+    assert result.status == "stopped"
+    assert result.pid == process.pid
+    assert process.waited
+    assert signals
+
+
 def test_fuseki_client_availability_uses_sparql_ask(monkeypatch) -> None:
     calls = []
 
