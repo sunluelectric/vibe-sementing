@@ -1,15 +1,103 @@
 # Semantic Web Processor
 
-This project is developed jointly by sunlu.electric@github and Codex.
+This project is developed jointly by sunlu.electric@github and Codex using Python.
 
 ## Introduction
 
 ## Project Overview
 
-## Requirements
 
-## Preliminary Server Setup
 
-## Example
+The project includes three independent executable codes. They are:
+* Semantic web designer (`./src/designer/*`): a CrewAI-based agentic AI framework that consumes the design requirement and the data, and design the semantic web classes, priorities and architectures.
+* Semantic web importer (`./src/importer/*`): an OpenAI Agents SDK tool that interprets the semantic web design and then consumes the data and fill instances into the semantic web according to the data.
+* Semantic web viewer (`./src/viewer/*`): an chatbot AI agent with browser-based UI, that consumes the user questions from the UI, and based on the questions query the semantic web, and based on the returned results answer the questions; there are also options on the UI that allow the user to export and download the semantic web in Turtle (`.ttl`) or other commonly seen formats, in which case the semantic web viewer needs to (use the triplestore's capability to) convert the data into the required format.
 
+## Setups and Requirements
+
+### Preparations that have been carried out
+
+* `git` is installed on the server; `git init` has been performed to the project folder
+* `uv` is installed on the server; `uv init` has been performed to the project folder
+* Apache Jena Fuseki is used as the triplesotre and has been installed on the server. Details are given in **Locations of Files**
+* OpenAI API key has been prepared and saved in the project folder under `.env`. Details are given in **Locations of Files**
+* Both the semantic web designer and the semantic viewer will need to access unstructured data. It may happen that the files size or numbers are large. In those cases, the agentic AI frameworks may need to chunk the documents and perform semantic search. A semantic search tool is provided in `./tools/semantic-search/*`. Read the codes and documents there to understand how to use it as a tool. 
+
+### Locations of Files
+
+* OpenAI API key and LLM instances in agentic AI frameworks
+  * The project develops and deploys multiple agentic AI frameworks for semantic web design, data insertation and result query. LLM will be used in the agentic AI frameworks
+  * OpenAI API Key can be found in `.env` file, as environment variable `OPENAI_API_KEY`
+  * It is recommended to use model `gpt-5.5` instances in the agentic AI frameworks
+
+* Design requirements
+  * Design requirements is given in `./design-requirements.md`
+
+* Data
+  * The data to be used for semantic web design and insertation is saved in `./data/*`
+  * There are only two types of data: unstructured data in markdown; structured data in CSV
+
+* Semantic web database
+  * Semantic web should be stored in `./db/*`
+
+* Triplestore
+  * Apache Jena Fuseki is installed on the server
+  * The location is `/opt/apache-jena-fuseki-6.1.0`
+  * The tree is given by
+  ```
+  .
+    ├── fuseki-backup
+    ├── fuseki-plain
+    ├── fuseki-server
+    ├── fuseki-server.bat
+    ├── fuseki-server.jar
+    ├── LICENSE
+    ├── log4j2.properties
+    ├── NOTICE
+    ├── README
+    ├── run
+    │   ├── backups
+    │   ├── config.ttl
+    │   ├── configuration
+    │   ├── databases
+    │   ├── logs
+    │   ├── shiro.ini
+    │   ├── system_files
+    │   └── templates
+    │       ├── config-mem
+    │       ├── config-tdb
+    │       ├── config-tdb2
+    │       ├── config-tdb2-dir
+    │       ├── config-tdb2-mem
+    │       ├── config-tdb-dir
+    │       └── config-tdb-mem
+    └── service
+        └── service
+            ├── fuseki.initd
+            └── fuseki.service
+  ```
+
+### Requirements for semantic web designer
+
+* Focus mainly on RDF and RDFS; OWL can be used but it is not required. In other words, implement class and property hierarchy, but not necessarily implementing complicated OWL-defined class and properties
+* Iteratively improve the design
+* Implement the design to the semantic web, with the installed triplestore Apache Jena Fuseki
+* Document the design in `./design.md`; later the semantic web importer agentic AI framework will read the document, using which to understand the semantic web design, so that it can insert data into it
+
+### Requirements for semantic web importer
+
+### Requirements for semantic web viewer
+
+### Other requirements
+
+* Plan then implement. Save the plan in `./PROGRESS.md`. Carry out the steps one by one according to the plan. After finishing each step, checkbox in `./PROGRESS.md`.
+* Test after each step before checking the checkbox.
+* Update `README.md` with detailed implementation and explanation after milestones.
+* Perform `git add` and `git commit` after milestones.
+* Do NOT use emoji in any document, including `./design.md`, `./PROGRESS.md`, `README.md`, and any other documents.
+* Intermediate files and testing scripts can be saved at `./tests/*`.
+
+## Example: Semantic web for a DnD game
+
+The following is a use case of the project. It helps Codex understand the purpose, input/output and flow of the project execution.
 
