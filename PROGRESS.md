@@ -299,13 +299,19 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
 
 - Add retrieval support to the designer before using large or numerous data
   files.
-- Integrate `./tools/semantic-search` into the designer workflow as a tool or
-  adapter.
+- Add retrieval support to the importer before using large or numerous data
+  files.
+- Integrate `./tools/semantic-search` into designer and importer workflows as a
+  tool or adapter.
 - Extend or wrap `./tools/semantic-search` so it supports the project data
   formats, especially markdown and CSV.
 - Add a designer workflow tool such as `retrieve_design_context` that retrieves
   only relevant source chunks for ontology design.
-- Replace whole-data prompt stuffing with retrieval over relevant chunks.
+- Add importer workflow tools such as `retrieve_import_context` and
+  `retrieve_schema_context` that retrieve source facts and relevant ontology
+  slices for instance insertion.
+- Replace whole-data prompt stuffing with retrieval over relevant chunks in
+  both designer and importer.
 - Relax the current prompt limits only after retrieval and validation are strong
   enough.
 - Do not remove all simplicity guidance at once. A better scale-up path is:
@@ -316,6 +322,11 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   and avoiding overfitting to one sample file.
 - Consider adding a separate schema review/refinement agent step that evaluates
   whether new classes or properties are justified by the data.
+- Treat Fuseki as the long-term source of truth for implemented ontology and
+  instance graphs. `design.md` should remain reference documentation for humans
+  and agents, not the only machine-readable contract.
+- Future importer/viewer agents should query Fuseki for relevant graph slices
+  when available, with local RDF/Turtle fallback for portability and tests.
 
 ## Current Status Summary
 

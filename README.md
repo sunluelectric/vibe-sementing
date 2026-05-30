@@ -91,6 +91,19 @@ tests, portability, and fallback, but agents should consume relevant graph
 slices through Fuseki or local RDF/SPARQL queries instead of sending large
 Turtle files wholesale to an LLM.
 
+Known future scale-up work:
+
+- The current designer prompt and validation limits intentionally keep the first
+  ontology compact. Production workflows will need richer refinement stages and
+  quality-oriented constraints instead of fixed class/property/triple limits.
+- Designer and importer currently read all supported files under `data/*`.
+  Before using large or numerous documents, they should use semantic retrieval
+  through `tools/semantic-search` or an equivalent adapter.
+- Fuseki should become the primary machine-readable graph handoff between
+  frameworks when available. `design.md` should remain a reference document, and
+  Turtle should remain useful for portability, review, tests, export, and
+  fallback.
+
 ## Semantic Web Importer
 
 The importer reads the generated design document, the generated ontology, and

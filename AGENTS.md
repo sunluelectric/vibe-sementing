@@ -34,6 +34,7 @@ The project includes three independent executable codes. They are:
 * The designer and importer are independent executables. The importer can run on another machine from a handoff package containing `./design.md`, `./db/ontology.ttl`, and the source `./data/*`. Do not rely on in-memory Fuseki process state as the portable handoff artifact; use Turtle files or an equivalent export.
 * Future importer improvement: support optional ontology inspection by querying Fuseki when available, while retaining `./db/ontology.ttl` as the portable fallback and handoff artifact.
 * Long-term graph handoff should be database/query-first rather than whole-Turtle-prompt-first. Turtle files are useful as portable artifacts, tests, exports, and fallbacks, but future agents should query Fuseki or local RDF graphs for relevant schema/data slices instead of sending large Turtle files wholesale to an LLM.
+* Future scale-up work must address three known limitations: the designer prompt and iteration limits intentionally cap ontology complexity; designer/importer currently read all of `./data/*` instead of using semantic retrieval; and inter-framework graph handoff should move toward Fuseki/query-first operation with `./design.md` as reference documentation.
 * The viewer has not been started.
 * Next work should follow `./PROGRESS.md`, starting at **Milestone 3: Viewer Framework**.
 
@@ -45,7 +46,7 @@ The project includes three independent executable codes. They are:
 * `uv` is installed on the server; `uv init` has been performed to the project folder
 * Apache Jena Fuseki is used as the triplesotre and has been installed on the server. Details are given in **Locations of Files**
 * OpenAI API key has been prepared and saved in the project folder under `.env`. Details are given in **Locations of Files**
-* Both the semantic web designer and the semantic viewer will need to access unstructured data. It may happen that the files size or numbers are large. In those cases, the agentic AI frameworks may need to chunk the documents and perform semantic search. A semantic search tool is provided in `./tools/semantic-search/*`. Read the codes and documents there to understand how to use it as a tool. 
+* The semantic web designer, importer, and viewer will need to access structured and unstructured data. It may happen that the file sizes or file counts are large. In those cases, the agentic AI frameworks need to chunk documents and perform semantic search instead of prompt-stuffing all of `./data/*`. A semantic search tool is provided in `./tools/semantic-search/*`. Read the code and documents there to understand how to use it as a tool.
   * Note: modify the semantic search tool if needed. For example, the semantic search tool supports PDF and HTML files as inputs. Consider also add supports for plain texts and markdown files.
   * The semantic search tool comes with a .env file, inside which are configurations for the tool, such as a seperate `OPENAI_API_KEY` of the tool, choice of models and embedding methods, locations of files by default, etc. Modify them if needed. For example, the locaiton of files definately needs to be changed.
 
