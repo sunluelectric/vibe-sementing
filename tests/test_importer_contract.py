@@ -3,6 +3,7 @@ from __future__ import annotations
 from src.common.llm import parse_json_object
 from src.common.rdf import parse_turtle
 from src.importer.agent import ImportFocus, ImporterAgent
+from src.importer.csv_import import CsvImportPlan
 from src.importer.validation import validate_instance_graph
 
 
@@ -147,6 +148,31 @@ def test_importer_agent_plans_next_import_focus() -> None:
 
     assert focus.complete is False
     assert focus.query == "records and sources"
+
+
+def test_importer_agent_plans_csv_mapping() -> None:
+    class StubImporter(ImporterAgent):
+        def _run_direct_import_call(self, prompt: str) -> str:
+            assert "planning deterministic CSV-to-RDF import mappings" in prompt
+            assert "CSV profiles:" in prompt
+            return (
+                '{"mappings": [{"csv_file": "records.csv", '
+                '"row_class": "http://example.org/semantic-web#Record", '
+                '"subject_uri_template": "http://example.org/record/{Name|slug}", '
+                '"column_mappings": [{"column": "Name", '
+                '"property": "http://example.org/semantic-web#name", '
+                '"datatype": "string"}]}]}'
+            )
+
+    plan = StubImporter("test-model").plan_csv_import(
+        design_text="# Design",
+        ontology_graph=parse_turtle(VALID_ONTOLOGY_TURTLE),
+        csv_profiles="CSV file: records.csv\nColumns:\n- Name: datatype=string",
+        max_attempts=1,
+    )
+
+    assert isinstance(plan, CsvImportPlan)
+    assert plan.mappings[0].csv_file == "records.csv"
 
 
 def test_importer_agent_generates_valid_instance_slice() -> None:

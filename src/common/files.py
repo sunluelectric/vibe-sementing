@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pandas as pd
+from src.common.csv_profile import profile_csv, render_csv_profile
 
 
 def read_text(path: Path) -> str:
@@ -24,7 +24,7 @@ def write_text(path: Path, content: str) -> None:
     path.write_text(content, encoding="utf-8")
 
 
-def load_project_data(data_dir: Path) -> str:
+def load_project_data(data_dir: Path, include_csv: bool = True) -> str:
     parts: list[str] = []
     for path in sorted(data_dir.glob("*")):
         if path.is_dir():
@@ -33,11 +33,6 @@ def load_project_data(data_dir: Path) -> str:
             parts.append(f"# Source file: {path.name}\n\n{read_text(path)}")
         elif path.suffix.lower() == ".pdf":
             parts.append(f"# Source file: {path.name}\n\n{read_pdf_text(path)}")
-        elif path.suffix.lower() == ".csv":
-            dataframe = pd.read_csv(path)
-            parts.append(
-                f"# Source file: {path.name}\n\n"
-                f"Columns: {', '.join(dataframe.columns)}\n\n"
-                f"{dataframe.to_csv(index=False)}"
-            )
+        elif include_csv and path.suffix.lower() == ".csv":
+            parts.append(render_csv_profile(profile_csv(path)))
     return "\n\n".join(parts).strip()

@@ -11,6 +11,7 @@ from src.importer.agent import ImportFocus, ImportResult
 from src.importer.workflow import ImporterWorkflow
 from tests.test_importer_contract import VALID_IMPORT_RESPONSE, VALID_ONTOLOGY_TURTLE
 from src.common.llm import parse_json_object
+from src.importer.csv_import import CsvColumnMapping, CsvFileMapping, CsvImportPlan, CsvRelationshipMapping
 
 
 class OfflineFusekiClient:
@@ -228,6 +229,136 @@ def test_importer_iterative_retrieval_merges_model_planned_slices(tmp_path) -> N
     progress = workflow.settings.import_doc_path.read_text(encoding="utf-8")
     assert "Import Batch Retrieval" in progress
     assert "Record 1 Source 1" in progress
+
+
+def test_importer_workflow_deterministically_imports_csv_with_stubbed_mapping(tmp_path, monkeypatch) -> None:
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    (data_dir / "stores.csv").write_text(
+        "Triplestore Name,Developer/Maintainer,License Type\n"
+        "Apache Jena TDB,Apache Software Foundation,Apache 2.0\n"
+        "GraphDB,Ontotext,Commercial / Free Edition\n",
+        encoding="utf-8",
+    )
+    (data_dir / "notes.md").write_text("# Notes\n\nSemantic web notes.", encoding="utf-8")
+    ontology_path = tmp_path / "ontology.ttl"
+    ontology_path.write_text(
+        """
+@prefix sw: <http://example.org/semantic-web#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+sw:Triplestore a rdfs:Class .
+sw:Organization a rdfs:Class .
+sw:Topic a rdfs:Class .
+sw:name a rdf:Property ; rdfs:domain rdfs:Resource ; rdfs:range xsd:string .
+sw:licenseType a rdf:Property ; rdfs:domain sw:Triplestore ; rdfs:range xsd:string .
+sw:maintainedBy a rdf:Property ; rdfs:domain sw:Triplestore ; rdfs:range sw:Organization .
+sw:summary a rdf:Property ; rdfs:domain sw:Topic ; rdfs:range xsd:string .
+""",
+        encoding="utf-8",
+    )
+    design_path = tmp_path / "design.md"
+    design_path.write_text("# Design", encoding="utf-8")
+    workflow = ImporterWorkflow(
+        replace(
+            get_settings(),
+            data_dir=data_dir,
+            design_doc_path=design_path,
+            ontology_path=ontology_path,
+            import_doc_path=tmp_path / "import.md",
+            instances_path=tmp_path / "instances.ttl",
+            combined_path=tmp_path / "semantic_web.ttl",
+            importer_iterations=1,
+            db_dir=tmp_path,
+        )
+    )
+    workflow.fuseki_client = OfflineFusekiClient()
+
+    class StubAgent:
+        def __init__(self, model, timeout_seconds=90) -> None:
+            self.model = model
+            self.timeout_seconds = timeout_seconds
+
+        def plan_csv_import(
+            self,
+            design_text,
+            ontology_graph,
+            csv_profiles,
+            max_attempts=1,
+            progress_path=None,
+            validation_feedback="",
+        ):
+            assert "Apache Jena TDB" in csv_profiles
+            return CsvImportPlan(
+                mappings=(
+                    CsvFileMapping(
+                        csv_file="stores.csv",
+                        row_class_uri="http://example.org/semantic-web#Triplestore",
+                        subject_uri_template="http://example.org/semantic-web/instance/triplestore/{Triplestore Name|slug}",
+                        label_template="{Triplestore Name}",
+                        column_mappings=(
+                            CsvColumnMapping(
+                                column="Triplestore Name",
+                                property_uri="http://example.org/semantic-web#name",
+                                datatype="string",
+                            ),
+                            CsvColumnMapping(
+                                column="License Type",
+                                property_uri="http://example.org/semantic-web#licenseType",
+                                datatype="string",
+                            ),
+                        ),
+                        relationship_mappings=(
+                            CsvRelationshipMapping(
+                                column="Developer/Maintainer",
+                                property_uri="http://example.org/semantic-web#maintainedBy",
+                                target_class_uri="http://example.org/semantic-web#Organization",
+                                target_uri_template="http://example.org/semantic-web/instance/organization/{Developer/Maintainer|slug}",
+                                target_label_template="{Developer/Maintainer}",
+                            ),
+                        ),
+                    ),
+                )
+            )
+
+        def run(
+            self,
+            design_text,
+            ontology_turtle,
+            ontology_graph,
+            source_data,
+            max_attempts=1,
+            progress_path=None,
+            reset_progress=False,
+        ):
+            assert "stores.csv" not in source_data
+            graph = parse_turtle(
+                """
+@prefix sw: <http://example.org/semantic-web#> .
+@prefix inst: <http://example.org/semantic-web/instance/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+inst:semantic-web-notes a sw:Topic ;
+  sw:summary "Semantic web notes." .
+"""
+            )
+            return ImportResult(instances_turtle="", graph=graph)
+
+        def _progress_markdown(self):
+            return ""
+
+    monkeypatch.setattr("src.importer.workflow.ImporterAgent", StubAgent)
+
+    result = workflow.run_iterative_import()
+
+    assert result["status"] == "success"
+    assert workflow.last_retrieval_summary["csv"]["used"] is True
+    assert workflow.last_import is not None
+    assert len(workflow.last_import.graph) >= 10
+    progress = workflow.settings.import_doc_path.read_text(encoding="utf-8")
+    assert "Deterministic CSV Import" in progress
 
 
 def test_importer_inspects_ontology_from_fuseki_when_available(tmp_path) -> None:

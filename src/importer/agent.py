@@ -8,6 +8,7 @@ from rdflib import Graph
 
 from src.common.llm import get_text_response, parse_json_object
 from src.common.rdf import parse_turtle
+from src.importer.csv_import import CsvImportPlan, parse_csv_import_plan
 from src.importer.validation import inspect_ontology_terms, validate_instance_graph
 
 
@@ -122,6 +123,50 @@ Retrieved source data:
 
 Existing imported instance summary:
 {existing_instances}
+"""
+
+
+CSV_MAPPING_PLANNER_PROMPT = """You are planning deterministic CSV-to-RDF import mappings.
+
+The importer has a fixed ontology and CSV profile summaries. Return mapping
+JSON only. Do not generate Turtle rows. Do not invent ontology classes or
+properties. The Python workflow will validate the mapping and then convert all
+CSV rows deterministically.
+
+Return exactly one JSON object with this key:
+- mappings: an array of mapping objects.
+
+Each mapping object must have:
+- csv_file: exact CSV file name from the profiles.
+- row_class: full URI of an existing ontology class for each row.
+- subject_uri_template: absolute URI template using CSV column placeholders,
+  with optional `|slug`, for example
+  `http://example.org/semantic-web/instance/item/{{Name|slug}}`.
+- label_template: optional label template using CSV column placeholders.
+- column_mappings: array of literal mappings. Each item has column, property,
+  and datatype. Datatype must be one of string, integer, decimal, boolean,
+  date, datetime, anyURI.
+- relationship_mappings: array of object mappings. Each item has column,
+  property, target_class, target_uri_template, and optional
+  target_label_template.
+- skip_nulls: true unless null cells should be emitted as empty literals.
+
+Rules:
+- Use only classes and properties listed in ontology terms.
+- Reference only columns present in the CSV profiles.
+- Prefer literal mappings for descriptive scalar columns.
+- Use relationship mappings for entity-like columns, such as maintainers,
+  organizations, categories, or linked identifiers.
+- Keep URI templates stable and readable.
+
+Semantic web design document:
+{design_text}
+
+Ontology terms:
+{ontology_terms}
+
+CSV profiles:
+{csv_profiles}
 """
 
 
@@ -253,6 +298,57 @@ class ImporterAgent:
                     f"- Feedback: {feedback}\n",
                 )
         raise RuntimeError(f"Import slice failed after {max_attempts} attempts. {feedback}")
+
+    def plan_csv_import(
+        self,
+        design_text: str,
+        ontology_graph: Graph,
+        csv_profiles: str,
+        max_attempts: int = 2,
+        progress_path: Path | None = None,
+        validation_feedback: str = "",
+    ) -> CsvImportPlan:
+        feedback = validation_feedback
+        ontology_terms = inspect_ontology_terms(ontology_graph).summary()
+        for attempt in range(1, max_attempts + 1):
+            prompt = CSV_MAPPING_PLANNER_PROMPT.format(
+                design_text=design_text,
+                ontology_terms=ontology_terms,
+                csv_profiles=csv_profiles,
+            )
+            if feedback:
+                prompt += (
+                    "\n\nYour previous CSV mapping failed validation. Fix the problem and "
+                    f"return the full JSON object again.\nValidation feedback:\n{feedback}"
+                )
+            self._record_progress(
+                progress_path,
+                "## CSV Mapping Planning\n\n"
+                f"- Status: LLM request started\n"
+                f"- Timestamp: {self._timestamp()}\n"
+                f"- Attempt: {attempt}\n"
+                f"- Retry feedback included: {'yes' if feedback else 'no'}\n",
+            )
+            try:
+                text = self._run_direct_import_call(prompt)
+                payload = parse_json_object(text)
+                plan = parse_csv_import_plan(payload)
+                self._record_progress(
+                    progress_path,
+                    "## CSV Mapping Planning Result\n\n"
+                    f"- Status: received\n"
+                    f"- Mapping count: {len(plan.mappings)}\n",
+                )
+                return plan
+            except Exception as exc:
+                feedback = f"Attempt {attempt} failed: {type(exc).__name__}: {exc}"
+                self._record_progress(
+                    progress_path,
+                    "## CSV Mapping Planning Result\n\n"
+                    f"- Status: failed\n"
+                    f"- Feedback: {feedback}\n",
+                )
+        raise RuntimeError(f"CSV mapping planning failed after {max_attempts} attempts. {feedback}")
 
     def run(
         self,

@@ -121,6 +121,26 @@ def test_designer_retrieves_context_for_large_data(tmp_path) -> None:
     assert workflow.last_retrieval_summary["chunk_count"] > 1
 
 
+def test_designer_context_uses_csv_profile_not_full_row_dump(tmp_path) -> None:
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    rows = ["name,value"] + [f"Record {index},{index}" for index in range(15)]
+    (data_dir / "records.csv").write_text("\n".join(rows), encoding="utf-8")
+    settings = replace(
+        get_settings(),
+        data_dir=data_dir,
+        semantic_search_enabled=False,
+    )
+    workflow = DesignerWorkflow(settings)
+
+    context = workflow.retrieve_design_context("Design for records.")
+
+    assert "CSV profile:" in context
+    assert "Rows: 15" in context
+    assert "Row 1: name: Record 0" in context
+    assert "Record 10,10" not in context
+
+
 def test_designer_iterative_retrieval_uses_model_planned_focuses(tmp_path) -> None:
     data_dir = tmp_path / "data"
     data_dir.mkdir()

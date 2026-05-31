@@ -367,45 +367,45 @@ Suggested architecture:
 
 Implementation checklist:
 
-- [ ] Choose or create a small but realistic non-DnD CSV test dataset, ideally
+- [x] Choose or create a small but realistic non-DnD CSV test dataset, ideally
   with multiple columns, numeric/date/string fields, missing values, and at
   least one relationship-like column. Add matching `design-requirements.md`
   text that describes the desired semantic web in domain-neutral terms.
 - [ ] Preserve or document how to restore the current PDF proof-of-concept
   input after CSV validation if needed.
-- [ ] Add a CSV profiler utility that reports file name, row count, column
+- [x] Add a CSV profiler utility that reports file name, row count, column
   names, inferred datatype per column, null counts, distinct counts or capped
   example values, and the first few/sample rows.
-- [ ] Add focused tests for the CSV profiler, including numeric, date-like,
+- [x] Add focused tests for the CSV profiler, including numeric, date-like,
   string, boolean-like, missing-value, and high-cardinality columns.
-- [ ] Update designer data-loading/retrieval behavior so CSV profile summaries
+- [x] Update designer data-loading/retrieval behavior so CSV profile summaries
   are available to the design prompt and large CSVs are not prompt-stuffed row
   by row.
-- [ ] Add focused designer workflow tests showing that CSV profile summaries are
+- [x] Add focused designer workflow tests showing that CSV profile summaries are
   used in design context and that full large CSV contents are not sent wholesale
   when a profile is sufficient.
-- [ ] Define a constrained importer CSV mapping JSON schema. Include row class,
+- [x] Define a constrained importer CSV mapping JSON schema. Include row class,
   URI template, label template, column mappings, datatype casts, relationship
   mappings, skipped-null behavior, source/provenance options, and optional
   fallback behavior for invalid rows.
-- [ ] Add an importer mapping-planning tool or internal step that asks the LLM
+- [x] Add an importer mapping-planning tool or internal step that asks the LLM
   to produce the mapping JSON from `design.md`, ontology terms, and CSV
   profiles. Do not ask the model to produce one Turtle block containing every
   CSV row.
-- [ ] Add mapping validation against the existing ontology graph. Validation
+- [x] Add mapping validation against the existing ontology graph. Validation
   must reject new classes/properties, unknown ontology terms, invalid datatype
   choices, invalid URI templates, and unsafe/free-form code.
-- [ ] Add deterministic CSV-to-RDF generation from a validated mapping. It
+- [x] Add deterministic CSV-to-RDF generation from a validated mapping. It
   should stream or iterate rows, generate stable instance URIs, emit literals
   with RDF datatypes, skip configured nulls, and serialize valid Turtle.
-- [ ] Add focused tests for mapping validation and CSV-to-RDF generation,
+- [x] Add focused tests for mapping validation and CSV-to-RDF generation,
   including escaping special characters, null handling, datatype conversion,
   stable URI generation, duplicate prevention, and ontology-term enforcement.
-- [ ] Integrate deterministic CSV import into the importer workflow while
+- [x] Integrate deterministic CSV import into the importer workflow while
   keeping existing LLM/retrieval import for unstructured sources. Mixed
   CSV-plus-text/PDF datasets should combine both outputs and validate the merged
   instance graph.
-- [ ] Add importer workflow tests with stubbed mapping-planner output and a CSV
+- [x] Add importer workflow tests with stubbed mapping-planner output and a CSV
   fixture with enough rows to prove row conversion is deterministic and not
   model-per-row.
 - [ ] Run a clean CSV end-to-end validation: stop Fuseki, delete generated

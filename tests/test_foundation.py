@@ -20,7 +20,9 @@ def test_load_project_data_reads_markdown_and_csv(tmp_path: Path) -> None:
     assert "Source file: note.md" in loaded
     assert "Markdown text" in loaded
     assert "Source file: table.csv" in loaded
-    assert "name,value" in loaded
+    assert "CSV profile:" in loaded
+    assert "Columns: name, value" in loaded
+    assert "Row 1: name: A; value: 1" in loaded
 
 
 def test_load_project_data_reads_pdf(tmp_path: Path, monkeypatch) -> None:

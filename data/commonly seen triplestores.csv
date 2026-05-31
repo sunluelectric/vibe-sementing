@@ -1,0 +1,12 @@
+Triplestore Name,Developer/Maintainer,License Type,Primary API/Interfaces,Key Features/Specializations
+GraphDB,Ontotext,Commercial / Free Edition,SPARQL 1.1 / RDF4J / GraphDB Workbench,Advanced RDF/OWL reasoning
+Virtuoso,OpenLink Software,Open Source (GPLv2) / Commercial,SPARQL / SQL / ODBC / JDBC,Hybrid relational/RDF engine
+Blazegraph,Systap (acquired by Amazon),Open Source (GPLv3) / Commercial,SPARQL 1.1 / Blueprint / RDF4J,High-performance graph database (historically powered Wikidata Query Service).
+Amazon Neptune,Amazon Web Services (AWS),Commercial (Managed Service),SPARQL / Apache TinkerPop Gremlin / openCypher,Fully managed cloud database
+Stardog,Stardog Union,Commercial,SPARQL 1.1 / GraphQL / Java API,Enterprise knowledge graph platform with virtual graphs (data virtualization) and logic reasoning.
+AnzoGraph,Cambridge Semantics,Commercial,SPARQL 1.1 / Cypher / C++ API,Massively Parallel Processing (MPP) native graph database designed for distributed analytics.
+MarkLogic,Progress Software,Commercial,SPARQL 1.1 / REST / Java / Node.js,Multi-model NoSQL database integrating XML
+Apache Jena TDB,Apache Software Foundation,Open Source (Apache 2.0),SPARQL 1.1 / Native Jena API,Component of the Apache Jena framework; a native
+RDF4J (formerly Sesame),Eclipse Foundation,Open Source (EDL),SPARQL 1.1 / RDF4J API,Java framework for processing RDF data that includes an in-memory and disk-based triplestore.
+AllegroGraph,Franz Inc.,Commercial,SPARQL 1.1 / Python / Java / Lisp,Document-Graph database with advanced temporal
+Oracle Spatial and Graph,Oracle,Commercial,SPARQL 1.1 / SQL / Property Graph,Enterprise RDF semantic graph support built natively into Oracle Database.

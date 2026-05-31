@@ -23,7 +23,7 @@ def test_semantic_search_chunks_markdown_text_and_csv(tmp_path) -> None:
 
     chunks = chunks_from_data_dir(tmp_path)
 
-    assert {chunk.kind for chunk in chunks} == {"md", "txt", "csv"}
+    assert {chunk.kind for chunk in chunks} == {"md", "txt", "csv-profile"}
     assert any("Docks and boats" in chunk.text for chunk in chunks)
     assert any("Row 1: name: Boat" in chunk.text for chunk in chunks)
 

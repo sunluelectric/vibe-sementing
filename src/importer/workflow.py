@@ -14,6 +14,7 @@ from rdflib import Graph
 
 from src.common.rdf import combine_turtle_files, load_graph, parse_turtle, serialize_graph
 from src.common.semantic_search import SemanticChunk, chunks_from_data_dir, chunks_from_graph, select_context
+from src.importer.csv_import import csv_profiles_for_prompt, generate_csv_instances, validate_csv_import_plan
 from src.importer.agent import ImporterAgent, ImportFocus, ImportResult
 from src.importer.validation import inspect_ontology_terms
 from src.importer.validation import validate_instance_graph
@@ -156,11 +157,11 @@ class ImporterWorkflow:
     def read_design_text(self) -> str:
         return read_text(self.settings.design_doc_path)
 
-    def read_source_data(self) -> str:
-        return load_project_data(self.settings.data_dir)
+    def read_source_data(self, include_csv: bool = True) -> str:
+        return load_project_data(self.settings.data_dir, include_csv=include_csv)
 
-    def retrieve_import_context(self, query: str | None = None) -> str:
-        full_data = self.read_source_data()
+    def retrieve_import_context(self, query: str | None = None, include_csv: bool = True) -> str:
+        full_data = self.read_source_data(include_csv=include_csv)
         if not self.settings.semantic_search_enabled:
             self.last_retrieval_summary["source"] = {
                 "used": False,
@@ -178,7 +179,7 @@ class ImporterWorkflow:
                 "max_chars": self.settings.semantic_context_max_chars,
             }
             return full_data
-        chunks = chunks_from_data_dir(self.settings.data_dir)
+        chunks = chunks_from_data_dir(self.settings.data_dir, include_csv=include_csv)
         search_query = query or self.read_design_text()
         context = select_context(chunks, search_query, self.settings)
         selected = context or full_data[: self.settings.semantic_context_max_chars]
@@ -245,23 +246,40 @@ class ImporterWorkflow:
             model=self.settings.llm_model,
             timeout_seconds=self.settings.llm_timeout_seconds,
         )
-        if self.should_use_iterative_import(ontology_graph):
-            self.last_import = self.run_iterative_retrieval_import(
-                agent=agent,
-                ontology_graph=ontology_graph,
-            )
-        else:
-            source_data = self.retrieve_import_context()
-            ontology_turtle = self.retrieve_schema_context(source_data)
-            self.last_import = agent.run(
-                design_text=self.read_design_text(),
-                ontology_turtle=ontology_turtle,
-                ontology_graph=ontology_graph,
-                source_data=source_data,
-                max_attempts=self.settings.importer_iterations,
-                progress_path=self.settings.import_doc_path,
-                reset_progress=False,
-            )
+        csv_graph = self.run_csv_import(agent, ontology_graph)
+        unstructured_graph = Graph()
+        include_csv_in_llm_import = not bool(csv_graph)
+        if self.has_unstructured_sources() or include_csv_in_llm_import:
+            if self.should_use_iterative_import(ontology_graph, include_csv=include_csv_in_llm_import):
+                unstructured_import = self.run_iterative_retrieval_import(
+                    agent=agent,
+                    ontology_graph=ontology_graph,
+                    include_csv=include_csv_in_llm_import,
+                )
+            else:
+                source_data = self.retrieve_import_context(include_csv=include_csv_in_llm_import)
+                ontology_turtle = self.retrieve_schema_context(source_data)
+                unstructured_import = agent.run(
+                    design_text=self.read_design_text(),
+                    ontology_turtle=ontology_turtle,
+                    ontology_graph=ontology_graph,
+                    source_data=source_data,
+                    max_attempts=self.settings.importer_iterations,
+                    progress_path=self.settings.import_doc_path,
+                    reset_progress=False,
+                )
+            unstructured_graph = unstructured_import.graph
+        merged_graph = Graph()
+        for triple in csv_graph:
+            merged_graph.add(triple)
+        for triple in unstructured_graph:
+            merged_graph.add(triple)
+        validate_instance_graph(merged_graph, ontology_graph).raise_for_errors()
+        self.last_import = ImportResult(
+            instances_turtle=serialize_graph(merged_graph),
+            graph=merged_graph,
+            progress_markdown=agent._progress_markdown(),
+        )
         result = {
             "status": "success",
             "triple_count": len(self.last_import.graph),
@@ -277,6 +295,55 @@ class ImporterWorkflow:
         )
         return result
 
+    def run_csv_import(self, agent: ImporterAgent, ontology_graph: Graph) -> Graph:
+        csv_profiles = csv_profiles_for_prompt(self.settings.data_dir)
+        if not csv_profiles:
+            self.last_retrieval_summary["csv"] = {"used": False, "reason": "no_csv_files"}
+            return Graph()
+        feedback = ""
+        plan = None
+        for attempt in range(1, self.settings.importer_iterations + 1):
+            plan = agent.plan_csv_import(
+                design_text=self.read_design_text(),
+                ontology_graph=ontology_graph,
+                csv_profiles=csv_profiles,
+                max_attempts=1,
+                progress_path=self.settings.import_doc_path,
+                validation_feedback=feedback,
+            )
+            validation = validate_csv_import_plan(plan, ontology_graph, self.settings.data_dir)
+            if validation.ok:
+                break
+            feedback = f"Attempt {attempt} failed validation: {'; '.join(validation.errors)}"
+            self.record_import_progress(
+                "## CSV Mapping Validation\n\n"
+                f"- Status: failed\n"
+                f"- Attempt: {attempt}\n"
+                f"- Feedback: {feedback}\n"
+            )
+        if plan is None:
+            raise RuntimeError("CSV mapping planning did not produce a plan.")
+        validate_csv_import_plan(plan, ontology_graph, self.settings.data_dir).raise_for_errors()
+        graph = generate_csv_instances(plan, ontology_graph, self.settings.data_dir)
+        self.last_retrieval_summary["csv"] = {
+            "used": True,
+            "mapping_count": len(plan.mappings),
+            "triple_count": len(graph),
+        }
+        self.record_import_progress(
+            "## Deterministic CSV Import\n\n"
+            f"- Status: success\n"
+            f"- Mapping count: {len(plan.mappings)}\n"
+            f"- Triple count: {len(graph)}\n"
+        )
+        return graph
+
+    def has_unstructured_sources(self) -> bool:
+        return any(
+            path.is_file() and path.suffix.lower() in {".md", ".txt", ".pdf"}
+            for path in self.settings.data_dir.glob("*")
+        )
+
     def start_import_progress_log(self) -> None:
         write_text(
             self.settings.import_doc_path,
@@ -290,10 +357,10 @@ class ImporterWorkflow:
             f"- Importer slice context max chars: {self.settings.importer_slice_context_max_chars}\n",
         )
 
-    def should_use_iterative_import(self, ontology_graph: Graph) -> bool:
+    def should_use_iterative_import(self, ontology_graph: Graph, include_csv: bool = True) -> bool:
         if not self.settings.semantic_search_enabled:
             return False
-        source_data = self.read_source_data()
+        source_data = self.read_source_data(include_csv=include_csv)
         ontology_turtle = serialize_graph(ontology_graph)
         return (
             len(source_data) > self.settings.semantic_context_max_chars
@@ -304,9 +371,10 @@ class ImporterWorkflow:
         self,
         agent: ImporterAgent,
         ontology_graph: Graph,
+        include_csv: bool = True,
     ) -> ImportResult:
         design_text = self.read_design_text()
-        source_chunks = chunks_from_data_dir(self.settings.data_dir)
+        source_chunks = chunks_from_data_dir(self.settings.data_dir, include_csv=include_csv)
         schema_chunks = chunks_from_graph(ontology_graph, source="ontology")
         slice_settings = replace(
             self.settings,
@@ -371,7 +439,7 @@ class ImporterWorkflow:
                 }
             )
         if not merged_graph:
-            source_data = self.retrieve_import_context()
+            source_data = self.retrieve_import_context(include_csv=include_csv)
             ontology_turtle = self.retrieve_schema_context(source_data)
             fallback = agent.run(
                 design_text=design_text,

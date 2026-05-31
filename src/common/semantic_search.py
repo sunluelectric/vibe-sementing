@@ -11,6 +11,7 @@ from typing import Protocol
 from rdflib import Graph, Literal, RDF, RDFS, URIRef
 
 from src.common.config import Settings
+from src.common.csv_profile import profile_csv, render_csv_profile
 from src.common.files import read_pdf_text, read_text
 
 
@@ -129,7 +130,12 @@ def search_chunks(
     )
 
 
-def chunks_from_data_dir(data_dir: Path, max_chunk_chars: int = 3500, overlap_chars: int = 350) -> list[SemanticChunk]:
+def chunks_from_data_dir(
+    data_dir: Path,
+    max_chunk_chars: int = 3500,
+    overlap_chars: int = 350,
+    include_csv: bool = True,
+) -> list[SemanticChunk]:
     chunks: list[SemanticChunk] = []
     for path in sorted(data_dir.glob("*")):
         if path.is_dir():
@@ -139,7 +145,7 @@ def chunks_from_data_dir(data_dir: Path, max_chunk_chars: int = 3500, overlap_ch
             chunks.extend(chunks_from_text(path.name, read_text(path), suffix.lstrip("."), max_chunk_chars, overlap_chars))
         elif suffix == ".pdf":
             chunks.extend(chunks_from_text(path.name, read_pdf_text(path), "pdf", max_chunk_chars, overlap_chars))
-        elif suffix == ".csv":
+        elif include_csv and suffix == ".csv":
             chunks.extend(chunks_from_csv(path, max_chunk_chars))
     return chunks
 
@@ -174,30 +180,10 @@ def chunks_from_text(
 
 
 def chunks_from_csv(path: Path, max_chunk_chars: int = 3500) -> list[SemanticChunk]:
-    with path.open(newline="", encoding="utf-8") as csv_file:
-        reader = csv.DictReader(csv_file)
-        rows = list(reader)
-        columns = reader.fieldnames or []
-    header = f"CSV file: {path.name}\nColumns: {', '.join(columns)}"
-    chunks: list[SemanticChunk] = []
-    current_rows: list[str] = []
-    current_size = len(header)
-    index = 1
-    for row_number, row in enumerate(rows, start=1):
-        line = f"Row {row_number}: " + "; ".join(
-            f"{column}: {row.get(column, '')}" for column in columns
-        )
-        if current_rows and current_size + len(line) + 1 > max_chunk_chars:
-            chunks.append(_chunk(path.name, "csv", index, header + "\n" + "\n".join(current_rows)))
-            index += 1
-            current_rows = []
-            current_size = len(header)
-        current_rows.append(line)
-        current_size += len(line) + 1
-    if current_rows or not rows:
-        body = "\n".join(current_rows) if current_rows else "No rows."
-        chunks.append(_chunk(path.name, "csv", index, header + "\n" + body))
-    return chunks
+    text = render_csv_profile(profile_csv(path))
+    if len(text) <= max_chunk_chars:
+        return [_chunk(path.name, "csv-profile", 1, text)]
+    return chunks_from_text(path.name, text, "csv-profile", max_chunk_chars, overlap_chars=0)
 
 
 def chunks_from_graph(graph: Graph, source: str = "rdf-graph") -> list[SemanticChunk]:
