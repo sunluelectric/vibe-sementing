@@ -491,6 +491,12 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   2026-05-31. Fresh output: 185 ontology triples, 13 classes, 28 properties,
   178 instance triples, 363 combined triples, 363 Fuseki triples, chatbot answer
   verified through the viewer API, and Fuseki Turtle export parsed with rdflib.
+- A later clean forced-retrieval end-to-end validation on 2026-05-31 succeeded
+  after adding robust schema-slice fallback parsing. The iterative designer used
+  two model-planned semantic-search focuses, produced 148 ontology triples, the
+  importer produced 57 instance triples and 205 combined triples, the viewer
+  answered through the API, exported Turtle parsed with rdflib, and
+  `uv run pytest` reported 56 passed and 2 skipped.
 - The designer milestone commit has been made.
 - The importer milestone commit has been made.
 - The viewer milestone commit has been made.

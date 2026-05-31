@@ -193,8 +193,11 @@ class DesignerAgent:
             f"- Context characters: {len(context)}\n",
         )
         text = self._run_direct_design_call(prompt)
-        payload = parse_json_object(text)
-        notes = str(payload["schema_notes"]).strip()
+        try:
+            payload = parse_json_object(text)
+            notes = str(payload["schema_notes"]).strip()
+        except Exception:
+            notes = text.strip()
         self._record_progress(
             progress_path,
             "## Schema Slice Draft Result\n\n"

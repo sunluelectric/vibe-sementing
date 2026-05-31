@@ -160,3 +160,18 @@ def test_designer_agent_drafts_schema_slice_notes() -> None:
     )
 
     assert "Candidate class: Scene" in notes
+
+
+def test_designer_agent_uses_raw_schema_slice_when_json_is_malformed() -> None:
+    class StubDesigner(DesignerAgent):
+        def _run_direct_design_call(self, prompt: str) -> str:
+            return '{"schema_notes": "Candidate path C:\\bad\\escape"}'
+
+    notes = StubDesigner("test-model").draft_schema_slice(
+        requirements="Design a schema.",
+        focus=DesignFocus(query="paths", purpose="Model paths."),
+        context="Path context.",
+    )
+
+    assert "schema_notes" in notes
+    assert "Candidate path" in notes
