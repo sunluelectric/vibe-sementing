@@ -314,6 +314,37 @@ state.
 - [x] Document the non-DnD validation result in `README.md` and `PROGRESS.md`.
 - [x] Commit the non-DnD validation milestone.
 
+## Milestone 10: Long-Document Coverage Scale-Up
+
+Goal: move beyond proof-of-concept semantic webs for long source documents by
+improving coverage, structure extraction, iteration depth, and schema/instance
+refinement while keeping Fuseki as the runtime source of truth.
+
+- [ ] Add a coverage ledger for designer/importer runs that records source
+  chapters, sections, page ranges, formulas, tables, code examples, tools,
+  named concepts, and imported graph areas.
+- [ ] Improve PDF preprocessing into section-aware chunks using extracted
+  headings, table-of-contents structure, page numbers, formulas, tables, figure
+  captions, and code blocks where available.
+- [ ] Add a scale-up configuration profile for long documents with higher
+  `DESIGNER_RETRIEVAL_FOCUSES`, higher `IMPORTER_RETRIEVAL_BATCHES`, larger
+  slice context caps, and optional stronger `LLM_MODEL` settings.
+- [ ] Add prompt modes that explicitly ask for comprehensive coverage instead
+  of only a compact first-pass semantic web.
+- [ ] Add ontology refinement passes that review uncovered evidence and propose
+  schema additions only when the existing ontology cannot represent important
+  content.
+- [ ] Add importer continuation passes that resume from existing Fuseki data,
+  avoid duplicates, and import uncovered sections until coverage is complete or
+  a configured budget is reached.
+- [ ] Add viewer or script-based coverage reports that summarize what the graph
+  covers and what source areas remain missing.
+- [ ] Validate the scale-up mode on `data/main.pdf` and compare graph coverage
+  against the proof-of-concept result.
+- [ ] Run `uv run pytest`.
+- [ ] Update `README.md` and `PROGRESS.md` with the scale-up validation result.
+- [ ] Commit the scale-up milestone.
+
 ## Current Notes
 
 - Initial dependency installation succeeded.
@@ -338,6 +369,11 @@ state.
   questions about distributions, Poisson facts, CLT/LLN assumptions, and sample
   mean reasoning. Fuseki Turtle export parsed with 310 triples, and
   `uv run pytest` reported 63 passed and 2 skipped.
+- The non-DnD PDF semantic web is a proof of concept, not complete notebook
+  coverage. The current prompts and limits intentionally favor a compact,
+  validated graph over exhaustive extraction. Richer coverage should be possible
+  by scaling up model strength, retrieval focus count, importer batches,
+  context limits, coverage tracking, and schema/instance refinement loops.
 - Long-term graph handoff should be database/query-first rather than
   whole-Turtle-prompt-first. Turtle remains useful for review, export, tests,
   portability, and fallback, but agents should consume relevant graph slices
@@ -583,8 +619,7 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
 
 ### Immediate Next Step
 
-- Commit the completed non-DnD validation milestone, then choose the next
-  product improvement milestone.
+- Start `Milestone 10: Long-Document Coverage Scale-Up` when ready.
 
 ## Handoff For Next Codex Instance
 
@@ -617,3 +652,6 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
     writes progressive run status to `import.md`.
   - The viewer uses Fuseki as its runtime data source and does not read
     `db/semantic_web.ttl` directly.
+  - The current non-DnD PDF graph is intentionally compact and should be treated
+    as proof of concept. Scaling toward comprehensive long-document coverage is
+    the next major product direction.

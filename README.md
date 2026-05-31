@@ -4,7 +4,9 @@ This project builds a semantic web from local structured and unstructured data,
 stores it in Apache Jena Fuseki, and provides a browser-based viewer.
 
 The current implemented milestones are the semantic web designer, importer, and
-viewer.
+viewer. The latest end-to-end result is a proof-of-concept semantic web for a
+large probability, statistics, and data-science notebook PDF, not an exhaustive
+knowledge graph for every fact in that document.
 
 ## Current Handoff State
 
@@ -116,8 +118,23 @@ Known future scale-up work:
   stages and quality-oriented constraints instead of fixed class/property/triple
   limits.
 - Designer and importer now use shared semantic-search retrieval when source or
-  schema context exceeds configured thresholds. Future work should validate this
-  with larger and non-DnD datasets.
+  schema context exceeds configured thresholds. The non-DnD PDF validation shows
+  this works beyond the original DnD sample, but the current settings still
+  sample selected focus areas rather than covering every section of a long
+  document.
+- A richer semantic web should be possible by scaling the workflow up: use a
+  stronger model, ask explicitly for comprehensive coverage, raise retrieval
+  focus and importer batch limits, relax compact ontology limits, and add
+  repeated design/import/refinement passes.
+- Long PDF sources need better preprocessing before indexing. Useful next steps
+  include extracting table-of-contents structure, page ranges, headings,
+  formulas, tables, figure captions, and code blocks into section-aware chunks.
+- Future importer runs should maintain a coverage ledger that records which
+  chapters, sections, entities, formulas, tools, and examples have been imported
+  and which remain out of scope or unprocessed.
+- Schema expansion should be deliberate: first generate a compact core
+  ontology, then run review/refinement passes that add classes and properties
+  only when retrieved evidence shows they are needed for coverage.
 - Viewer fact ranking uses bounded Fuseki results plus local semantic ranking.
   For very large graphs, it should move toward a semantic-web embedding index
   over text-rendered triples before issuing targeted Fuseki queries.
@@ -549,7 +566,30 @@ iterative designer/importer run:
 - Latest local test result after non-DnD PDF validation:
   `63 passed, 2 skipped`.
 
+## Proof-Of-Concept Boundary
+
+The current non-DnD semantic web is intentionally a proof of concept. It proves
+that the designer, importer, Fuseki storage, viewer, PDF ingestion, retrieval,
+and export path work outside the original DnD example. It does not attempt to
+capture every concept, formula, theorem, code example, table, figure, package,
+and cross-reference from the 200+ page notebook.
+
+This limitation is expected from the current settings:
+
+- The designer prompt asks for a compact first-pass RDF/RDFS ontology.
+- Validation rejects overly large first-pass ontologies.
+- Retrieval uses a small number of model-planned focus areas.
+- The importer stops at `IMPORTER_RETRIEVAL_BATCHES`, currently 4 by default.
+- PDF text extraction is less structured than markdown or hand-authored text,
+  especially for equations, tables, code, page headings, and captions.
+
+The architecture can be scaled toward richer coverage by using stronger models,
+more comprehensive prompts, higher iteration limits, section-aware retrieval,
+coverage ledgers, ontology refinement passes, and better PDF preprocessing.
+
 ## Next Milestones
 
-- Choose the next product improvement after the completed non-DnD PDF
-  validation milestone.
+- Improve coverage and graph richness beyond the proof-of-concept result. The
+  likely next milestone is a scale-up mode for long documents with stronger
+  coverage tracking, better PDF section extraction, more import batches, and
+  iterative schema/instance refinement.
