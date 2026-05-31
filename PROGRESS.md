@@ -439,7 +439,73 @@ model defaults, and larger validation/retrieval budgets.
 - [x] Run `uv run pytest`.
 - [x] Commit the test/production mode switch.
 
-## Milestone 12: Long-Document Coverage Scale-Up
+## Milestone 12: New CSV Example Mode Comparison
+
+Goal: validate the product on a new, previously untested CSV-containing example
+and compare the outputs from default test mode and production mode.
+
+- [ ] Prepare a new example dataset under `data/*` with at least one CSV file
+  and matching `design-requirements.md`. The example should be unrelated to
+  the current semantic-web/ontology/triplestore data and unrelated to older DnD
+  or probability/PDF examples.
+- [ ] Preserve or document how to restore the current CSV-aware example if
+  needed.
+- [ ] Run a clean end-to-end test in default test mode:
+  `SEMANTIC_WEB_MODE=test` or unset, delete generated outputs, run designer,
+  run importer, start viewer, ask representative questions, verify Turtle
+  export parses, and run `uv run pytest`.
+- [ ] Record test-mode output metrics: model, designer focus count, ontology
+  triples/classes/properties, CSV mapping count, deterministic CSV triples,
+  total instance triples, combined triples, viewer answers, export parse count,
+  runtime notes, and any weak answers.
+- [ ] Run a clean end-to-end test in production mode:
+  `SEMANTIC_WEB_MODE=production`, delete generated outputs, run designer,
+  run importer, start viewer, ask the same representative questions, verify
+  Turtle export parses, and run `uv run pytest`.
+- [ ] Record production-mode output metrics with the same fields as test mode.
+- [ ] Compare test and production mode outputs for schema richness, instance
+  coverage, CSV mapping fidelity, viewer answer quality, runtime, cost/risk,
+  and validation failures or retries.
+- [ ] Decide whether production defaults need adjustment before long-document
+  scale-up.
+- [ ] Update `README.md`, `PROGRESS.md`, and `AGENTS.md` with the validation
+  result and mode comparison.
+- [ ] Commit the new CSV example mode comparison milestone.
+
+## Milestone 13: README Setup And Run Guide
+
+Goal: rewrite or substantially improve `README.md` so a user can set up and
+run the application end to end on a machine without a vibe coding agent and
+possibly without preliminary installations.
+
+- [ ] Document prerequisites clearly: supported Python version, `uv`, git,
+  Apache Jena Fuseki, Java requirements for Fuseki, OpenAI API key, and network
+  access expectations.
+- [ ] Document first-time setup from a fresh clone: dependency installation,
+  `.env` creation, API key configuration, Fuseki location/configuration, and
+  writable project-local Fuseki runtime/storage directories.
+- [ ] Document `.env` settings in practical groups: OpenAI/model settings,
+  test/production mode, retrieval limits, designer/importer iterations, Fuseki
+  endpoints and graph URIs, viewer host/port, and semantic-search provider.
+- [ ] Explain test mode versus production mode, including default model,
+  prompt behavior, retrieval/batch budgets, ontology triple limits, expected
+  runtime/cost tradeoffs, and how explicit overrides work.
+- [ ] Document how to replace `design-requirements.md` and `data/*` with a new
+  dataset, including CSV, markdown/text, and PDF inputs.
+- [ ] Document clean end-to-end run commands: stop stale Fuseki, remove
+  generated outputs, run designer, run importer, start viewer, ask questions,
+  export Turtle, and run tests.
+- [ ] Document troubleshooting for common failures: missing API key, unknown
+  model, Fuseki port already bound, unwritable Fuseki base, graph load fallback,
+  bad Turtle, invalid CSV mapping, viewer showing missing facts, and export
+  parse failure.
+- [ ] Document expected generated artifacts and which ones are runtime source
+  of truth versus review/export/fallback files.
+- [ ] Add a concise quick-start path and a more detailed setup/reference path.
+- [ ] Run documentation sanity checks and `uv run pytest`.
+- [ ] Commit the README setup/run guide update.
+
+## Milestone 14: Long-Document Coverage Scale-Up
 
 Goal: move beyond proof-of-concept semantic webs for long source documents by
 improving coverage, structure extraction, iteration depth, and schema/instance
@@ -766,8 +832,8 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
 
 ### Immediate Next Step
 
-- Start `Milestone 11: Test And Production Modes`, then continue to
-  `Milestone 12: Long-Document Coverage Scale-Up` when ready.
+- Start `Milestone 12: New CSV Example Mode Comparison`, then continue to
+  `Milestone 13: README Setup And Run Guide`.
 
 ## Handoff For Next Codex Instance
 
@@ -810,8 +876,9 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   - The viewer now uses exact subject-label lookup and class-instance aggregate
     counts before generic relevance search, and its answer prompt is tuned for
     end-user wording rather than database or RDF implementation wording.
-  - The next implementation priority is long-document coverage scale-up using
-    the new production mode switch when appropriate.
+  - The next implementation priority is validating a new CSV-containing example
+    in both test and production modes, then improving README setup/run
+    instructions for users without a vibe coding agent.
   - The current semantic-web/ontology/triplestore graph validates the
     CSV-aware architecture, while unstructured markdown/PDF extraction remains
-    compact and should be expanded through Milestone 11.
+    compact and should be expanded through the long-document coverage milestone.
