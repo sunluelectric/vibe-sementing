@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any
 
 from agents import Agent, function_tool, trace
@@ -12,9 +12,10 @@ from src.common.fuseki_manager import FusekiManager
 from rdflib import Graph
 
 from src.common.rdf import combine_turtle_files, load_graph, parse_turtle, serialize_graph
-from src.common.semantic_search import chunks_from_data_dir, chunks_from_graph, select_context
-from src.importer.agent import ImporterAgent, ImportResult
+from src.common.semantic_search import SemanticChunk, chunks_from_data_dir, chunks_from_graph, select_context
+from src.importer.agent import ImporterAgent, ImportFocus, ImportResult
 from src.importer.validation import inspect_ontology_terms
+from src.importer.validation import validate_instance_graph
 
 
 _active_workflow: "ImporterWorkflow | None" = None
@@ -231,24 +232,135 @@ class ImporterWorkflow:
 
     def run_iterative_import(self) -> dict[str, Any]:
         ontology_graph, ontology_source = self.load_ontology_graph_for_import()
-        source_data = self.retrieve_import_context()
-        ontology_turtle = self.retrieve_schema_context(source_data)
-        self.last_import = ImporterAgent(
+        agent = ImporterAgent(
             model=self.settings.llm_model,
             timeout_seconds=self.settings.llm_timeout_seconds,
-        ).run(
-            design_text=self.read_design_text(),
-            ontology_turtle=ontology_turtle,
-            ontology_graph=ontology_graph,
-            source_data=source_data,
-            max_attempts=self.settings.importer_iterations,
         )
+        if self.should_use_iterative_import(ontology_graph):
+            self.last_import = self.run_iterative_retrieval_import(
+                agent=agent,
+                ontology_graph=ontology_graph,
+            )
+        else:
+            source_data = self.retrieve_import_context()
+            ontology_turtle = self.retrieve_schema_context(source_data)
+            self.last_import = agent.run(
+                design_text=self.read_design_text(),
+                ontology_turtle=ontology_turtle,
+                ontology_graph=ontology_graph,
+                source_data=source_data,
+                max_attempts=self.settings.importer_iterations,
+            )
         return {
             "status": "success",
             "triple_count": len(self.last_import.graph),
             "iterations_allowed": self.settings.importer_iterations,
             "ontology_source": ontology_source,
         }
+
+    def should_use_iterative_import(self, ontology_graph: Graph) -> bool:
+        if not self.settings.semantic_search_enabled:
+            return False
+        source_data = self.read_source_data()
+        ontology_turtle = serialize_graph(ontology_graph)
+        return (
+            len(source_data) > self.settings.semantic_context_max_chars
+            or len(ontology_turtle) > self.settings.semantic_context_max_chars
+        )
+
+    def run_iterative_retrieval_import(
+        self,
+        agent: ImporterAgent,
+        ontology_graph: Graph,
+    ) -> ImportResult:
+        design_text = self.read_design_text()
+        source_chunks = chunks_from_data_dir(self.settings.data_dir)
+        schema_chunks = chunks_from_graph(ontology_graph, source="ontology")
+        slice_settings = replace(
+            self.settings,
+            semantic_context_max_chars=self.settings.importer_slice_context_max_chars,
+        )
+        merged_graph = Graph()
+        batch_summaries: list[dict[str, Any]] = []
+        stop_reason = "batch_limit"
+        for batch_number in range(1, self.settings.importer_retrieval_batches + 1):
+            existing_summary = _instance_graph_summary(merged_graph)
+            focus = agent.plan_import_focus(
+                design_text=design_text,
+                ontology_graph=ontology_graph,
+                data_inventory=_data_inventory(source_chunks),
+                existing_instances=existing_summary,
+            )
+            if focus.complete:
+                stop_reason = "model_complete"
+                batch_summaries.append(
+                    {
+                        "batch": batch_number,
+                        "complete": True,
+                        "query": focus.query,
+                        "purpose": focus.purpose,
+                    }
+                )
+                break
+            source_data = select_context(source_chunks, focus.query, slice_settings)
+            ontology_turtle = select_context(schema_chunks, focus.query, slice_settings)
+            slice_result = agent.generate_instance_slice(
+                design_text=design_text,
+                ontology_turtle=ontology_turtle,
+                ontology_graph=ontology_graph,
+                source_data=source_data,
+                focus=focus,
+                existing_instances=existing_summary,
+                max_attempts=self.settings.importer_iterations,
+            )
+            for triple in slice_result.graph:
+                merged_graph.add(triple)
+            validate_instance_graph(merged_graph, ontology_graph).raise_for_errors()
+            batch_summaries.append(
+                {
+                    "batch": batch_number,
+                    "complete": False,
+                    "query": focus.query,
+                    "purpose": focus.purpose,
+                    "source_context_chars": len(source_data),
+                    "schema_context_chars": len(ontology_turtle),
+                    "slice_triples": len(slice_result.graph),
+                    "merged_triples": len(merged_graph),
+                }
+            )
+        if not merged_graph:
+            source_data = self.retrieve_import_context()
+            ontology_turtle = self.retrieve_schema_context(source_data)
+            fallback = agent.run(
+                design_text=design_text,
+                ontology_turtle=ontology_turtle,
+                ontology_graph=ontology_graph,
+                source_data=source_data,
+                max_attempts=self.settings.importer_iterations,
+            )
+            self.last_retrieval_summary["iterative"] = {
+                "used": False,
+                "reason": "no_valid_slices_fallback",
+                "stop_reason": stop_reason,
+                "batches": batch_summaries,
+            }
+            return fallback
+        validate_instance_graph(merged_graph, ontology_graph).raise_for_errors()
+        self.last_retrieval_summary["iterative"] = {
+            "used": True,
+            "reason": "above_threshold",
+            "stop_reason": stop_reason,
+            "batch_limit": self.settings.importer_retrieval_batches,
+            "batch_count": len([batch for batch in batch_summaries if not batch.get("complete")]),
+            "source_chunk_count": len(source_chunks),
+            "schema_chunk_count": len(schema_chunks),
+            "batches": batch_summaries,
+        }
+        return ImportResult(
+            instances_turtle=serialize_graph(merged_graph),
+            graph=merged_graph,
+            progress_markdown=agent._progress_markdown(),
+        )
 
     def load_ontology_graph_for_import(self) -> tuple[Graph, str]:
         if self.fuseki_client.is_available():
@@ -353,3 +465,38 @@ def run_iterative_import() -> dict[str, Any]:
 def persist_and_load_instances() -> dict[str, Any]:
     """Write instances and combined graph, then load instances into Fuseki or local fallback."""
     return _workflow().persist_and_load_instances()
+
+
+def _data_inventory(chunks: list[SemanticChunk]) -> str:
+    lines: list[str] = []
+    for index, chunk in enumerate(chunks, start=1):
+        preview = " ".join(chunk.text.split())[:350]
+        lines.append(
+            f"{index}. source={chunk.source}; kind={chunk.kind}; "
+            f"characters={len(chunk.text)}; preview={preview}"
+        )
+    return "\n".join(lines)
+
+
+def _instance_graph_summary(graph: Graph) -> str:
+    if not graph:
+        return "- No instances imported yet."
+    rows: list[str] = []
+    for index, subject in enumerate(sorted(set(graph.subjects()), key=str), start=1):
+        if index > 80:
+            rows.append("- Additional instances omitted from summary.")
+            break
+        predicates = sorted(
+            {
+                _local_name(str(predicate))
+                for predicate, _object_value in graph.predicate_objects(subject)
+            }
+        )
+        rows.append(f"- {subject}: {', '.join(predicates)}")
+    return "\n".join(rows)
+
+
+def _local_name(uri: str) -> str:
+    if "#" in uri:
+        return uri.rsplit("#", 1)[1]
+    return uri.rstrip("/").rsplit("/", 1)[-1]

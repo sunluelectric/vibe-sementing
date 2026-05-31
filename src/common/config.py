@@ -64,6 +64,10 @@ class Settings:
     designer_slice_context_max_chars: int = int(
         os.getenv("DESIGNER_SLICE_CONTEXT_MAX_CHARS", "5000")
     )
+    importer_retrieval_batches: int = int(os.getenv("IMPORTER_RETRIEVAL_BATCHES", "4"))
+    importer_slice_context_max_chars: int = int(
+        os.getenv("IMPORTER_SLICE_CONTEXT_MAX_CHARS", "5000")
+    )
 
     @property
     def sparql_query_url(self) -> str:

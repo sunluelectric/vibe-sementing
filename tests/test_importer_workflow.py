@@ -7,7 +7,7 @@ import pytest
 from src.common.config import get_settings
 from src.common.fuseki import client_from_settings
 from src.common.rdf import load_graph, parse_turtle
-from src.importer.agent import ImportResult
+from src.importer.agent import ImportFocus, ImportResult
 from src.importer.workflow import ImporterWorkflow
 from tests.test_importer_contract import VALID_IMPORT_RESPONSE, VALID_ONTOLOGY_TURTLE
 from src.common.llm import parse_json_object
@@ -139,6 +139,83 @@ def test_importer_retrieves_schema_context_for_large_ontology(tmp_path) -> None:
     assert "Source chunk: ontology" in context
     assert workflow.last_retrieval_summary["schema"]["used"] is True
     assert workflow.last_retrieval_summary["schema"]["chunk_count"] > 1
+
+
+def test_importer_iterative_retrieval_merges_model_planned_slices(tmp_path) -> None:
+    workflow = _workflow_with_temp_paths(tmp_path)
+    (workflow.settings.data_dir / "source.md").write_text(
+        "# Source\n\n"
+        + "Record 1 from Source 1 with value details.\n\n" * 120
+        + "Record 2 from Source 2 with additional details.\n\n" * 120,
+        encoding="utf-8",
+    )
+    workflow.settings = replace(
+        workflow.settings,
+        semantic_context_max_chars=900,
+        importer_slice_context_max_chars=700,
+        semantic_search_top_k=1,
+        importer_retrieval_batches=3,
+    )
+    workflow.fuseki_client = OfflineFusekiClient()
+    ontology_graph = parse_turtle(VALID_ONTOLOGY_TURTLE)
+
+    class StubAgent:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def plan_import_focus(self, design_text, ontology_graph, data_inventory, existing_instances):
+            self.calls += 1
+            assert "source=source.md" in data_inventory
+            if self.calls == 1:
+                assert "No instances imported yet" in existing_instances
+                return ImportFocus(False, "Record 1 Source 1", "Import first record.")
+            if self.calls == 2:
+                assert "record-1" in existing_instances
+                return ImportFocus(False, "Record 2 Source 2", "Import second record.")
+            return ImportFocus(True, "", "All visible records are imported.")
+
+        def generate_instance_slice(
+            self,
+            design_text,
+            ontology_turtle,
+            ontology_graph,
+            source_data,
+            focus,
+            existing_instances,
+            max_attempts=2,
+        ):
+            assert len(source_data) <= 700
+            assert len(ontology_turtle) <= 700
+            if "Record 1" in focus.query:
+                turtle = parse_json_object(VALID_IMPORT_RESPONSE)["instances_turtle"]
+            else:
+                turtle = (
+                    "@prefix sw: <http://example.org/semantic-web#> .\n"
+                    "@prefix inst: <http://example.org/semantic-web/instance/> .\n"
+                    "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n"
+                    "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\n"
+                    "inst:record-2 a sw:Record ;\n"
+                    "  rdfs:label \"Record 2\" ;\n"
+                    "  sw:name \"Record 2\" ;\n"
+                    "  sw:hasSource inst:source-2 .\n\n"
+                    "inst:source-2 a sw:Source ;\n"
+                    "  rdfs:label \"Source 2\" ;\n"
+                    "  sw:name \"Source 2\" .\n"
+                )
+            return ImportResult(instances_turtle=turtle, graph=parse_turtle(turtle))
+
+        def _progress_markdown(self):
+            return ""
+
+    result = workflow.run_iterative_retrieval_import(
+        agent=StubAgent(),
+        ontology_graph=ontology_graph,
+    )
+
+    assert len(result.graph) > len(_valid_import_result().graph)
+    assert workflow.last_retrieval_summary["iterative"]["used"] is True
+    assert workflow.last_retrieval_summary["iterative"]["stop_reason"] == "model_complete"
+    assert workflow.last_retrieval_summary["iterative"]["batch_count"] == 2
 
 
 def test_importer_inspects_ontology_from_fuseki_when_available(tmp_path) -> None:

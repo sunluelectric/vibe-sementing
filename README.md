@@ -139,6 +139,25 @@ The importer workflow performs these steps:
 9. Write `db/semantic_web.ttl` by combining ontology and instances.
 10. Load instances into Fuseki as the configured data named graph.
 
+For large importer runs, retrieval can be iterative and model-planned:
+
+1. The importer keeps the full ontology graph locally for validation.
+2. The importer model reviews the design document, ontology term summary, source
+   data inventory, and already imported instance summary.
+3. The model decides whether coverage is complete. If not complete, it proposes
+   the next semantic-search query and purpose.
+4. The workflow retrieves bounded source and ontology context for that focus,
+   capped by `IMPORTER_SLICE_CONTEXT_MAX_CHARS`.
+5. The importer model generates one instance Turtle slice for that focus.
+6. The workflow validates the slice against the full ontology graph, merges it
+   into the working instance graph, then validates the merged graph.
+7. The loop continues until the model reports coverage complete or
+   `IMPORTER_RETRIEVAL_BATCHES` is reached.
+
+Small importer runs still use the previous one-shot import path. The iterative
+path is selected when source data or ontology Turtle exceeds
+`SEMANTIC_CONTEXT_MAX_CHARS` and semantic search is enabled.
+
 ## Semantic Web Viewer
 
 The viewer is a browser-based chatbot and export UI. Fuseki is the runtime data
@@ -216,6 +235,8 @@ Important settings:
 - `SEMANTIC_CONTEXT_MAX_CHARS`: defaults to `16000`.
 - `DESIGNER_RETRIEVAL_FOCUSES`: defaults to `4`.
 - `DESIGNER_SLICE_CONTEXT_MAX_CHARS`: defaults to `5000`.
+- `IMPORTER_RETRIEVAL_BATCHES`: defaults to `4`.
+- `IMPORTER_SLICE_CONTEXT_MAX_CHARS`: defaults to `5000`.
 - `FUSEKI_BASE_URL`: defaults to `http://localhost:3030`.
 - `FUSEKI_DATASET`: defaults to `semantic-web-processor`.
 - `FUSEKI_HOME`: defaults to `/opt/apache-jena-fuseki-6.1.0`.

@@ -249,6 +249,31 @@ by multiple model-planned semantic-search rounds instead of one retrieval pass.
 - [x] Run `uv run pytest`.
 - [x] Commit the iterative designer improvement.
 
+## Milestone 7: Iterative Retrieval-Guided Importer
+
+Goal: improve the semantic web importer so large-data instance insertion can be
+performed as validated, model-planned import slices instead of one full
+instance graph response.
+
+- [x] Add importer configuration for maximum import batches and per-slice
+  context limits.
+- [x] Add an importer planning step that asks the model whether import coverage
+  is complete or which semantic-search focus should be imported next.
+- [x] Add per-focus instance-slice generation using retrieved source and schema
+  context.
+- [x] Update the importer workflow so large-data runs iteratively retrieve,
+  generate, validate, and merge instance slices, while small-data and
+  disabled-search runs keep the existing one-shot path.
+- [x] Validate each slice and the merged instance graph against the full
+  ontology graph.
+- [x] Record batch queries, retrieved context sizes, slice triple counts, and
+  stop reason in importer retrieval summary.
+- [x] Add focused tests for import planning, slice generation, graph merging,
+  and workflow iterative import behavior.
+- [x] Update `README.md` with the iterative importer retrieval flow.
+- [x] Run `uv run pytest`.
+- [x] Commit the iterative importer improvement.
+
 ## Current Notes
 
 - Initial dependency installation succeeded.
