@@ -155,6 +155,35 @@ class ViewerQueryService:
             """
         )
 
+    def class_instance_count_by_label(self, class_label: str) -> int:
+        label = _sparql_string(class_label)
+        rows = self.select(
+            f"""
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+            SELECT (COUNT(DISTINCT ?instance) AS ?count) WHERE {{
+              GRAPH ?schemaGraph {{
+                ?class a rdfs:Class .
+                OPTIONAL {{ ?class rdfs:label ?classLabel . }}
+              }}
+              FILTER(
+                LCASE(STR(?classLabel)) = LCASE({label}) ||
+                LCASE(REPLACE(STRAFTER(STR(?class), "#"), "([a-z])([A-Z])", "$1 $2")) = LCASE({label}) ||
+                LCASE(STRAFTER(STR(?class), "#")) = LCASE(REPLACE({label}, " ", ""))
+              )
+              GRAPH ?dataGraph {{
+                ?instance a ?class .
+                FILTER NOT EXISTS {{ ?instance a rdfs:Class . }}
+                FILTER NOT EXISTS {{ ?instance a rdf:Property . }}
+              }}
+            }}
+            """
+        )
+        if not rows:
+            return 0
+        return int(rows[0].get("count", "0"))
+
     def graph_summary(self) -> dict[str, object]:
         return {
             "triple_count": self.triple_count(),

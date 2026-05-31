@@ -52,6 +52,9 @@ class FakeQueryService:
             }
         ]
 
+    def class_instance_count_by_label(self, class_label: str) -> int:
+        return 1
+
 
 def test_viewer_workflow_builds_agents_sdk_shell() -> None:
     workflow = ViewerWorkflow()
@@ -102,6 +105,21 @@ def test_viewer_agent_matches_acronym_class_requests(monkeypatch) -> None:
     ViewerAgent(model="test-model").answer("What are the NPCs?", query_service)
 
     assert "Non-Player Character" in query_service.class_lookups
+
+
+def test_viewer_agent_includes_class_instance_count_for_count_questions(monkeypatch) -> None:
+    prompts: list[str] = []
+
+    def fake_get_text_response(model: str, prompt: str, timeout_seconds: int) -> str:
+        prompts.append(prompt)
+        return "There is 1 record."
+
+    monkeypatch.setattr("src.viewer.agent.get_text_response", fake_get_text_response)
+    query_service = FakeQueryService()
+
+    ViewerAgent(model="test-model").answer("How many records are there?", query_service)
+
+    assert "classInstanceCount=1" in prompts[0]
 
 
 def test_viewer_workflow_answer_question_with_stubbed_agent(monkeypatch, tmp_path) -> None:

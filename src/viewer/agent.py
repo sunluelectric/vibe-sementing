@@ -137,7 +137,16 @@ def _class_label_facts(
         local_name = _local_name(class_uri)
         variants = _class_variants(label, local_name)
         if any(variant in question_text for variant in variants):
-            rows.extend(query_service.class_instances_by_label(label or local_name, limit=30))
+            matched_label = label or local_name
+            if hasattr(query_service, "class_instance_count_by_label"):
+                rows.append(
+                    {
+                        "class": class_uri,
+                        "classLabel": matched_label,
+                        "classInstanceCount": str(query_service.class_instance_count_by_label(matched_label)),
+                    }
+                )
+            rows.extend(query_service.class_instances_by_label(matched_label, limit=200))
     return rows
 
 

@@ -20,6 +20,8 @@ class FakeFusekiClient:
 
     def select(self, sparql: str) -> list[dict[str, str]]:
         self.selected.append(sparql)
+        if "COUNT(DISTINCT ?instance)" in sparql:
+            return [{"count": "11"}]
         if "COUNT(*)" in sparql:
             return [{"count": "12"}]
         if "rdfs:Class" in sparql and "?class" in sparql:
@@ -56,10 +58,12 @@ def test_viewer_query_helpers_execute_named_graph_queries() -> None:
 
     classes = service.classes()
     instances = service.class_instances_by_label("Scene")
+    count = service.class_instance_count_by_label("Scene")
     turtle = service.export_turtle()
 
     assert classes[0]["label"] == "Scene"
     assert instances[0]["label"] == "Scene"
+    assert count == 11
     assert "CONSTRUCT" in client.constructed[0]
     assert "GRAPH ?graph" in client.selected[0]
     assert "GRAPH ?schemaGraph" in client.selected[-1]
