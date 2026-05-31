@@ -1,508 +1,499 @@
-Design for design.md
+# Semantic Web Schema — design.md
 
-Title
-------
-Compact RDFS schema for a probability / statistics / data-science notebook
+## Purpose and scope
 
-Purpose and scope
-------------------
-This small RDFS schema (RDF + RDFS only) is designed to capture the core
-concepts from a notebook on probability, statistics and data science.
-The goal is a compact, practical vocabulary that supports importing the
-notebook's knowledge into an RDF triplestore (e.g., Apache Jena Fuseki) and
-answering basic queries such as:
-- which distributions have parameter "µ"?
-- give the PDF/PMF formula for Poisson distribution
-- which estimators implement MLE or are implemented in R/Python
-- which theorems assume iid and finite variance
+This small RDF/RDFS schema is a compact, practical starting ontology for the supplied project: two introductory documents about the semantic web/ontology and a CSV listing commonly seen triplestores and their features. The goal is to capture the core conceptual vocabulary needed to:
 
-Design principles and tradeoffs
--------------------------------
-- Minimal and practical: only core concepts needed for import and queries
-  (distributions, parameters, random variables, statistics, estimators,
-  hypothesis tests, theorems, tools, documents, and expressions).
-- RDFS-only (no OWL) to keep the schema lightweight and widely compatible.
-- Broad reusable properties (hasParameter, hasPDF, implementedIn) rather
-  than many one-off properties.
-- Named distributions are modeled as subclasses of Distribution so both the
-  family-level and parameterized instances can be added later.
-- Mathematical formulas are represented by a simple MathematicalExpression
-  node that can store LaTeX/MathML/code strings. This avoids forcing a
-  particular math serialization now.
-- Simple numeric properties use xsd numeric types; numeric constraints
-  (e.g., p in [0,1]) are documented, to be enforced later with validation
-  (SHACL) if desired.
+- represent basic ontology and dataset concepts described in the documents (resources, agents, concepts, simple food example used in the docs), and
+- represent triplestore metadata (name, open-source flag, protocols, APIs, license, features, reasoning support) so the CSV can be imported into a Fuseki dataset and queried.
 
-Overview of classes
---------------------
-(All classes use the base namespace http://example.org/semantic-web#)
+We intentionally keep the model lightweight, RDFS-only (no OWL), and practical for import into Apache Jena Fuseki. The schema is compact and designed to be extended later.
 
-- MathematicalEntity
-  - A lightweight root class for domain items. Useful as a general type for
-    things described in the notebook.
+## Modeling decisions (summary)
 
-- Distribution (subclass of MathematicalEntity)
-  - Represents a probability distribution family.
+- Use RDFS classes and properties only; avoid OWL constructs. This maximizes compatibility with many triplestores and keeps the schema simple.
+- Represent triplestores as a subclass of Software and model their characteristics (supportsSPARQL, isOpenSource, supportsProtocol, exposesAPI, license, hasFeature, supportsReasoning, homepage, vendor, supportsTransactions, storageType). Features, Protocol, API, and License are modeled as simple resource classes so CSV columns that enumerate features or protocols can be linked to per-triplestore feature nodes.
+- Keep a shallow taxonomy extracted from the documents: core modeling concepts (Resource, Agent, Dataset, Ontology, Concept) plus the illustrative food example (Dish, FoodItem, Meat, VegetarianDish) and software/triplestore concepts (Software, Triplestore). This follows the documents' examples and the CSV focus.
+- Prefer broad reusable properties (sw:creator, sw:createdDate, sw:prefLabel, sw:hasConcept) over many tiny one-off predicates. Use sw:hasFeature to attach arbitrary feature nodes to triplestores.
+- Provide rdfs:label/rdfs:comment on important classes and properties to aid human understanding and UI tooling.
 
-- ContinuousDistribution, DiscreteDistribution (subclasses of Distribution)
-  - Shallow subclassing to separate continuous vs discrete families.
+## Classes (what they mean)
 
-- RandomVariable
-  - A random variable; linked to a Distribution via sw:hasDistribution.
+- sw:Resource — Generic information resource. Base class for datasets, software, etc.
+- sw:Agent — Actor/agent (people or organizations).
+- sw:Person — Person; subclass of Agent. (Reflects FOAF-like usage in the docs.)
+- sw:Dataset — A collection of RDF data; subclass of Resource.
+- sw:Ontology — An ontology or schema document; subclass of Dataset.
+- sw:Concept — A conceptual term usable in taxonomies (SKOS-style concept); subclass of Resource.
+- sw:Software — Software artifact; subclass of Resource.
+- sw:Triplestore — RDF database / triplestore; subclass of Software.
+- sw:Feature — Named feature or capability (string-labeled node).
+- sw:Protocol — Protocol used to access the triplestore (e.g., HTTP, SPARQL protocol).
+- sw:API — API exposed by the triplestore (e.g., REST, GraphQL wrapper).
+- sw:License — License resource (e.g., "Apache-2.0").
+- sw:Dish, sw:FoodItem, sw:Meat, sw:VegetarianDish — small illustrative food modeling taken from the docs to keep example vocabulary for import/education.
 
-- Parameter
-  - Parameters of distributions/statistical models (µ, σ², λ, p, n, ...).
-  - Use sw:parameterSymbol (string) to hold the symbol name and
-    sw:parameterValue (xsd:double) for numeric values (when known).
+(There are 16 classes in this first version; they are intentionally broad so they can be reused.)
 
-- Statistic
-  - Sample statistics or test statistics (sample mean, variance, t-stat).
-  - Linked to the random variable via sw:computedFrom.
+## Properties (core predicates and their domain/range)
 
-- Estimator
-  - Estimators (MLE, BayesianEstimator, etc.). Use sw:estimates to point
-    at the Parameter(s). Use sw:implementedIn to link to software.
+All properties are plain RDF properties (rdf:Property) with rdfs:domain and rdfs:range where practical.
 
-- HypothesisTest
-  - Represents a hypothesis test; has p-value (sw:hasPValue), significance
-    level (sw:hasSignificanceLevel) and a linked test-statistic
-    (sw:hasTestStatistic).
+- sw:hasIngredient
+  - domain: sw:Dish
+  - range: sw:FoodItem
+  - comment: links a Dish to FoodItems it contains (object property equivalent).
 
-- ConfidenceInterval
-  - Confidence interval artefact with a confidence level (sw:hasConfidenceLevel).
+- sw:hasComponent
+  - domain: sw:Dish
+  - range: sw:FoodItem
+  - comment: alternate/aliased predicate for ingredient lists; declared a subPropertyOf sw:hasIngredient to normalize ingestion.
 
-- Theorem
-  - Mathematical/statistical theorems (Central Limit Theorem, Law of Large Numbers).
-  - Use sw:hasStatement (text) and sw:assumesCondition to link to Conditions.
+- sw:creator
+  - domain: sw:Resource
+  - range: sw:Agent
+  - comment: who created the resource (maps to dcterms:creator in origin docs).
 
-- Condition
-  - Assumptions or conditions referenced by theorems (e.g., iid, finite variance).
+- sw:publisher
+  - domain: sw:Resource
+  - range: sw:Agent
+  - comment: publisher or distributing agent.
 
-- MathematicalExpression
-  - Holds formula text (LaTeX, MathML, code snippet) via sw:hasFormula.
+- sw:createdDate
+  - domain: sw:Resource
+  - range: xsd:date
+  - comment: creation date; map CSV/metadata date columns here.
 
-- Tool
-  - Software tools / packages (R, Python, numpy, scipy, R packages).
+- sw:format
+  - domain: sw:Resource
+  - range: xsd:string
+  - comment: textual format label (e.g., "Turtle", "JSON-LD").
 
-- Document
-  - Documents, notebook pages or PDFs from the source; useful for provenance.
+- sw:prefLabel
+  - domain: sw:Resource
+  - range: xsd:string
+  - comment: human-readable preferred label (skos:prefLabel-like convenience predicate).
 
-- SemanticWebConcept
-  - Represents mentions of RDF/RDFS/OWL/semantic-web concepts inside the
-    notebook (keeps the ontology aware of the notebook's meta-discussion).
+- sw:hasConcept
+  - domain: sw:Ontology
+  - range: sw:Concept
+  - comment: links an ontology to the concepts it defines.
 
-Core properties (selected)
----------------------------
-- sw:hasDistribution (RandomVariable -> Distribution)
-  - Connects a random variable to its distribution family.
+- sw:broader
+  - domain: sw:Concept
+  - range: sw:Concept
+  - comment: lightweight taxonomy relation (skos:broader style).
 
-- sw:hasParameter (Distribution -> Parameter)
-  - Links a distribution family to its parameters.
+- sw:hasFeature
+  - domain: sw:Triplestore
+  - range: sw:Feature
+  - comment: attach Feature nodes describing capabilities enumerated in the CSV.
 
-- sw:parameterSymbol (Parameter -> xsd:string)
-  - Symbol used in the notebook (e.g., "µ", "σ2", "λ", "p").
+- sw:featureName
+  - domain: sw:Feature
+  - range: xsd:string
+  - comment: short name of the feature as string.
 
-- sw:parameterValue (Parameter -> xsd:double)
-  - Numeric value when available.
+- sw:supportsSPARQL
+  - domain: sw:Triplestore
+  - range: xsd:boolean
+  - comment: whether the store supports SPARQL query endpoint.
 
-- sw:hasMean, sw:hasVariance (Distribution -> xsd:double)
-  - Common numeric moments recorded at distribution-level when known.
+- sw:isOpenSource
+  - domain: sw:Triplestore
+  - range: xsd:boolean
+  - comment: whether the product is open-source.
 
-- sw:hasPDF, sw:hasPMF, sw:hasCDF (Distribution -> MathematicalExpression)
-  - Links to formulas for PDF/PMF/CDF; expression literals can hold LaTeX
-    or executable code.
+- sw:exposesAPI
+  - domain: sw:Triplestore
+  - range: sw:API
+  - comment: link to API type nodes.
 
-- sw:isSpecialCaseOf (Distribution -> Distribution)
-  - e.g., Poisson as a limiting case of Binomial (documented relation).
+- sw:supportsProtocol
+  - domain: sw:Triplestore
+  - range: sw:Protocol
+  - comment: protocol(s) supported (e.g., HTTP, SPARQL Protocol).
 
-- sw:computedFrom (Statistic -> RandomVariable)
-  - Which RV or sample a statistic is computed from.
+- sw:license
+  - domain: sw:Triplestore
+  - range: sw:License
+  - comment: license node for the triplestore.
 
-- sw:estimates (Estimator -> Parameter)
-  - What parameter(s) an estimator targets (MLE, Bayesian, ...).
+- sw:supportsReasoning
+  - domain: sw:Triplestore
+  - range: xsd:boolean
+  - comment: whether the triplestore advertises built-in reasoning or inference support.
 
-- sw:implementedIn (Estimator -> Tool)
-  - Links estimators/methods to software implementations (R/Python packages).
+- sw:homepage
+  - domain: sw:Triplestore
+  - range: xsd:anyURI
+  - comment: vendor or product homepage.
 
-- sw:hasFormula (MathematicalExpression -> xsd:string)
-  - The textual/formal representation of formulas (LaTeX, MathML, or code).
+- sw:vendor
+  - domain: sw:Triplestore
+  - range: xsd:string
+  - comment: vendor or organization name.
 
-- sw:hasStatement (Theorem -> xsd:string)
-  - Short human-readable theorem statement.
+- sw:supportsTransactions
+  - domain: sw:Triplestore
+  - range: xsd:boolean
+  - comment: whether the store supports transactional updates.
 
-- sw:assumesCondition (Theorem -> Condition)
-  - The theorem's assumptions (iid, finite variance, etc.).
+- sw:storageType
+  - domain: sw:Triplestore
+  - range: xsd:string
+  - comment: textual label describing storage/persistence (e.g., "native", "federated").
 
-- sw:hasPValue, sw:hasSignificanceLevel (HypothesisTest -> xsd:double)
-  - Numeric properties for testing.
+(There are 20 properties in this version — broad, reusable, and closely aligned with the CSV columns.)
 
-- sw:hasTestStatistic (HypothesisTest -> Statistic)
-  - The statistic used in the test.
+## Mapping CSV -> RDF guidance (practical)
 
-- sw:hasConfidenceLevel (ConfidenceInterval -> xsd:double)
-  - Confidence level of an interval (e.g., 0.95).
+When importing the triplestore CSV into Fuseki, map columns as follows (recommended):
 
-- sw:documentedIn (MathematicalEntity -> Document)
-  - Provenance: where the concept or formula is documented in the notebook.
+- name -> rdfs:label or sw:prefLabel (create a sw:Triplestore resource per row)
+- open_source -> sw:isOpenSource (xsd:boolean)
+- supports_sparql -> sw:supportsSPARQL (xsd:boolean)
+- api -> create or reuse sw:API nodes and link with sw:exposesAPI
+- protocol -> create or reuse sw:Protocol nodes and link with sw:supportsProtocol
+- license -> create sw:License node and link with sw:license
+- features -> for each listed feature, create sw:Feature node (sw:featureName) and link with sw:hasFeature
+- vendor -> sw:vendor (xsd:string)
+- homepage -> sw:homepage (xsd:anyURI)
+- supports_reasoning -> sw:supportsReasoning (xsd:boolean)
+- supports_transactions -> sw:supportsTransactions (xsd:boolean)
+- storage_type -> sw:storageType (xsd:string)
 
-- sw:mentionsSemanticWebConcept (Document -> SemanticWebConcept)
-  - Links documents that discuss RDF/RDFS/OWL etc.
+Prefer creating small URI-bearing nodes for Protocol/API/Feature/License so you can attach labels and later reconcile duplicates. Use a consistent URI pattern (for example: http://example.org/triplestore/feature/FeatureName) during import.
 
-Modeling notes and examples
----------------------------
-- Named distributions (NormalDistribution, PoissonDistribution, BinomialDistribution,
-  ExponentialDistribution, GammaDistribution, StudentTDistribution) are subclasses
-  of Distribution. Parameter objects (with sw:parameterSymbol) connect to their
-  distributions via sw:hasParameter. The exact numeric parameter value is optional.
+## Import notes for Apache Jena Fuseki
 
-- MathematicalExpression nodes are deliberately generic; formulas can be stored as
-  LaTeX strings or as code snippets (R/Python). Any formal math serialization can be
-  added later as a new literal datatype or a new property.
+- Load the Turtle schema (this ontology) into a dedicated graph in Fuseki (e.g., `http://localhost:3030/dataset/data`) before or along with instance data so client tools can pick up rdfs:domain/range annotations.
+- Convert the CSV into RDF (one triplestore resource per CSV row) using simple mapping tools (e.g., rdf-csv, custom Python script, or SPARQL INSERTs). Ensure boolean columns become xsd:boolean and dates xsd:date.
+- If you need RDFS-based inference (e.g., to infer class membership from rdfs:domain), use Fuseki with TDB and enable the RDFS reasoner when running queries, or materialize domain/range typing during import (preferred for simple deployments).
+- Keep instance URIs stable and dereferenceable when possible (use vendor or canonical product slugs).
 
-- Theorems include a human statement and links to Condition nodes so downstream tools
-  can check applicability (e.g., whether CLT conditions hold for a given dataset).
+## Extensibility
 
-- Numeric constraints (λ>0, σ²≥0, p in [0,1], p-values in [0,1]) are documented in
-  comments; enforce them later via validation shapes (SHACL) rather than in RDFS.
+- This schema is intentionally minimal. Later versions can add more detail (e.g., separate properties for read/write endpoints, detailed API capability descriptors, SKOS integration for richer taxonomy modeling, or OWL axioms for intensional classes like VegetarianDish). For now, RDFS suffices for labeling, basic domain/range guidance, and SPARQL querying in Fuseki.
 
-SPARQL examples (illustrative)
-------------------------------
-- Find distributions that have a parameter symbol "µ":
-  SELECT ?dist WHERE { ?dist a sw:Distribution ; sw:hasParameter ?p . ?p sw:parameterSymbol "µ" . }
+## Example queries you will be able to run after import
 
-- Get PDF/PMF string for PoissonDistribution:
-  SELECT ?formula WHERE { sw:PoissonDistribution sw:hasPMF ?expr . ?expr sw:hasFormula ?formula }
+- List triplestores that are open source and support SPARQL:
+  SELECT ?ts WHERE { ?ts a sw:Triplestore ; sw:isOpenSource true ; sw:supportsSPARQL true . }
 
-- Find theorems that assume "iid":
-  SELECT ?th WHERE { ?th a sw:Theorem ; sw:assumesCondition ?c . ?c rdfs:label "iid" }
+- Find all features of a given triplestore:
+  SELECT ?fname WHERE { ?ts a sw:Triplestore ; sw:hasFeature ?f . ?f sw:featureName ?fname . }
 
-Import guidance
-----------------
-- Load the Turtle schema into Fuseki (as a separate graph) before importing instance
-  data representing the notebook's content.
-- Instance data can create Parameter instances, Distribution instances (or use the
-  named subclass IRIs), link MathematicalExpression nodes with formula strings, and
-  attach provenance to Document nodes.
-- Use external identifiers for named concepts where appropriate (e.g., link
-  sw:NormalDistribution to external resources) via additional predicates later.
+- List Ontologies and the Concepts they declare:
+  SELECT ?ont ?c WHERE { ?ont a sw:Ontology ; sw:hasConcept ?c . }
 
-Extensibility
---------------
-- Later versions may add:
-  - SHACL shapes for numeric ranges and structural validation.
-  - Additional classes for Sample, LikelihoodFunction, Posterior, MCMCChain.
-  - Crosslinks to external vocabularies (PROV, DC, SKOS) and stable IDs (Wikidata).
 
-Maintenance notes
-------------------
-- Keep the schema intentionally small; extend only when a new class or property is
-  re-used across multiple notebook items.
-- Prefer adding instances and links in data over adding many specialized schema terms.
+---
 
-License and provenance
------------------------
-- The schema uses the example.org base IRI for design purposes; in production choose
-  a persistent base IRI. Document provenance (who authored/modified the schema) in
-  repository metadata alongside the schema file.
+This document and the accompanying Turtle provide a compact, usable starting point for the project's semantic schema. The schema models the core concepts mentioned in the supplied documents and the typical triplestore attributes in the CSV while remaining small and easy to import into Fuseki.
 
 ## Designer Generation Log
 
 ## Retrieval Focus Planning
 
 - Status: LLM request started
-- Timestamp: 2026-05-31T14:04:39+00:00
+- Timestamp: 2026-05-31T22:26:46+00:00
 - Max focuses: 4
 
 ## Retrieval Focus Planning Result
 
 - Status: passed
 - Focus count: 4
-- Query: List named mathematical concepts and theorems in the notebook: probability, random variable, expectation, variance, distribution (normal, binomial, Poisson, exponential, gamma, t), Central Limit Theorem, Law of Large Numbers, hypothesis testing, Bayesian methods, MLE, confidence interval
-- Query: Extract explicit relationships and attributes between concepts: statements of 'is a' / subclass, 'has parameter', 'has PDF/CDF/formula', 'has mean', 'has variance', 'is special case of', 'depends on', and variable/parameter names (µ, σ, λ, p)
-- Query: Find references to tools, code and data artifacts: R and Python mentions, package and function names (ggplot2, pandas, numpy, seaborn, TensorFlow, scikit-learn, ggplot, read.csv), code snippets, example data frames/datasets (iris, mortgage_price), figure/table captions and code-to-figure links
-- Query: Locate semantic-web examples and provenance: RDF/Turtle snippets, RDFS/OWL class/property hierarchies, namespace declarations, SPARQL query examples, blank node usage, OWL restrictions and property chains, SWRL/RIF rules, linked data/DBpedia URIs
+- Query: Extract candidate classes, class labels, short definitions, and explicit subClassOf (hierarchy) statements from ontology.md
+- Query: Find predicates/properties, their described semantics, intended domain and range, property types (object vs. datatype), and any logical axioms or constraints across ontology.md and semantic web.md
+- Query: List RDF/RDFS constructs, example triple patterns, recommended serialization formats (e.g., Turtle, RDF/XML, JSON-LD), and common modeling patterns or best practices from semantic web.md
+- Query: From commonly seen triplestores.csv, enumerate each triplestore name with developer/maintainer, license type, primary APIs/interfaces, and key features (reasoning, protocols, open-source status)
 
 ## Schema Slice Draft
 
 - Status: LLM request started
-- Timestamp: 2026-05-31T14:04:58+00:00
-- Query: List named mathematical concepts and theorems in the notebook: probability, random variable, expectation, variance, distribution (normal, binomial, Poisson, exponential, gamma, t), Central Limit Theorem, Law of Large Numbers, hypothesis testing, Bayesian methods, MLE, confidence interval
-- Context characters: 3359
+- Timestamp: 2026-05-31T22:26:59+00:00
+- Query: Extract candidate classes, class labels, short definitions, and explicit subClassOf (hierarchy) statements from ontology.md
+- Context characters: 1684
 
 ## Schema Slice Draft Result
 
 - Status: passed
-- Query: List named mathematical concepts and theorems in the notebook: probability, random variable, expectation, variance, distribution (normal, binomial, Poisson, exponential, gamma, t), Central Limit Theorem, Law of Large Numbers, hypothesis testing, Bayesian methods, MLE, confidence interval
-- Notes characters: 7367
+- Query: Extract candidate classes, class labels, short definitions, and explicit subClassOf (hierarchy) statements from ontology.md
+- Notes characters: 5885
 
 ## Schema Slice Draft
 
 - Status: LLM request started
-- Timestamp: 2026-05-31T14:05:27+00:00
-- Query: Extract explicit relationships and attributes between concepts: statements of 'is a' / subclass, 'has parameter', 'has PDF/CDF/formula', 'has mean', 'has variance', 'is special case of', 'depends on', and variable/parameter names (µ, σ, λ, p)
-- Context characters: 2688
+- Timestamp: 2026-05-31T22:27:31+00:00
+- Query: Find predicates/properties, their described semantics, intended domain and range, property types (object vs. datatype), and any logical axioms or constraints across ontology.md and semantic web.md
+- Context characters: 4928
 
 ## Schema Slice Draft Result
 
 - Status: passed
-- Query: Extract explicit relationships and attributes between concepts: statements of 'is a' / subclass, 'has parameter', 'has PDF/CDF/formula', 'has mean', 'has variance', 'is special case of', 'depends on', and variable/parameter names (µ, σ, λ, p)
-- Notes characters: 6783
+- Query: Find predicates/properties, their described semantics, intended domain and range, property types (object vs. datatype), and any logical axioms or constraints across ontology.md and semantic web.md
+- Notes characters: 8275
 
 ## Schema Slice Draft
 
 - Status: LLM request started
-- Timestamp: 2026-05-31T14:05:59+00:00
-- Query: Find references to tools, code and data artifacts: R and Python mentions, package and function names (ggplot2, pandas, numpy, seaborn, TensorFlow, scikit-learn, ggplot, read.csv), code snippets, example data frames/datasets (iris, mortgage_price), figure/table captions and code-to-figure links
-- Context characters: 4842
+- Timestamp: 2026-05-31T22:28:05+00:00
+- Query: List RDF/RDFS constructs, example triple patterns, recommended serialization formats (e.g., Turtle, RDF/XML, JSON-LD), and common modeling patterns or best practices from semantic web.md
+- Context characters: 3516
 
 ## Schema Slice Draft Result
 
 - Status: passed
-- Query: Find references to tools, code and data artifacts: R and Python mentions, package and function names (ggplot2, pandas, numpy, seaborn, TensorFlow, scikit-learn, ggplot, read.csv), code snippets, example data frames/datasets (iris, mortgage_price), figure/table captions and code-to-figure links
-- Notes characters: 8752
+- Query: List RDF/RDFS constructs, example triple patterns, recommended serialization formats (e.g., Turtle, RDF/XML, JSON-LD), and common modeling patterns or best practices from semantic web.md
+- Notes characters: 5939
 
 ## Schema Slice Draft
 
 - Status: LLM request started
-- Timestamp: 2026-05-31T14:06:35+00:00
-- Query: Locate semantic-web examples and provenance: RDF/Turtle snippets, RDFS/OWL class/property hierarchies, namespace declarations, SPARQL query examples, blank node usage, OWL restrictions and property chains, SWRL/RIF rules, linked data/DBpedia URIs
-- Context characters: 4858
+- Timestamp: 2026-05-31T22:28:38+00:00
+- Query: From commonly seen triplestores.csv, enumerate each triplestore name with developer/maintainer, license type, primary APIs/interfaces, and key features (reasoning, protocols, open-source status)
+- Context characters: 4261
 
 ## Schema Slice Draft Result
 
 - Status: passed
-- Query: Locate semantic-web examples and provenance: RDF/Turtle snippets, RDFS/OWL class/property hierarchies, namespace declarations, SPARQL query examples, blank node usage, OWL restrictions and property chains, SWRL/RIF rules, linked data/DBpedia URIs
-- Notes characters: 8924
+- Query: From commonly seen triplestores.csv, enumerate each triplestore name with developer/maintainer, license type, primary APIs/interfaces, and key features (reasoning, protocols, open-source status)
+- Notes characters: 8212
 
 # Semantic Web Designer Progress
 
 - Model: `gpt-5-mini`
 - Max attempts: 2
-- Started: 2026-05-31T14:07:07+00:00
+- Started: 2026-05-31T22:29:17+00:00
 
 ## Attempt 1
 
 - Status: LLM request started
-- Timestamp: 2026-05-31T14:07:07+00:00
+- Timestamp: 2026-05-31T22:29:17+00:00
 - Retry feedback included: no
 
 ## Attempt 1 Response
 
 - Status: LLM response received
-- Timestamp: 2026-05-31T14:08:37+00:00
-- Response characters: 19152
+- Timestamp: 2026-05-31T22:30:21+00:00
+- Response characters: 14752
 
 ## Attempt 1 Validation
 
+- Status: failed
+- Feedback: Attempt 1 failed: ValueError: Ontology must define at least one rdf:Property.
+
+## Attempt 2
+
+- Status: LLM request started
+- Timestamp: 2026-05-31T22:30:21+00:00
+- Retry feedback included: yes
+
+## Attempt 2 Response
+
+- Status: LLM response received
+- Timestamp: 2026-05-31T22:31:41+00:00
+- Response characters: 16413
+
+## Attempt 2 Validation
+
 - Status: passed
-- Triple count: 202
+- Triple count: 165
 
 ### Candidate Design
 
-Design for design.md
+# Semantic Web Schema — design.md
 
-Title
-------
-Compact RDFS schema for a probability / statistics / data-science notebook
+## Purpose and scope
 
-Purpose and scope
-------------------
-This small RDFS schema (RDF + RDFS only) is designed to capture the core
-concepts from a notebook on probability, statistics and data science.
-The goal is a compact, practical vocabulary that supports importing the
-notebook's knowledge into an RDF triplestore (e.g., Apache Jena Fuseki) and
-answering basic queries such as:
-- which distributions have parameter "µ"?
-- give the PDF/PMF formula for Poisson distribution
-- which estimators implement MLE or are implemented in R/Python
-- which theorems assume iid and finite variance
+This small RDF/RDFS schema is a compact, practical starting ontology for the supplied project: two introductory documents about the semantic web/ontology and a CSV listing commonly seen triplestores and their features. The goal is to capture the core conceptual vocabulary needed to:
 
-Design principles and tradeoffs
--------------------------------
-- Minimal and practical: only core concepts needed for import and queries
-  (distributions, parameters, random variables, statistics, estimators,
-  hypothesis tests, theorems, tools, documents, and expressions).
-- RDFS-only (no OWL) to keep the schema lightweight and widely compatible.
-- Broad reusable properties (hasParameter, hasPDF, implementedIn) rather
-  than many one-off properties.
-- Named distributions are modeled as subclasses of Distribution so both the
-  family-level and parameterized instances can be added later.
-- Mathematical formulas are represented by a simple MathematicalExpression
-  node that can store LaTeX/MathML/code strings. This avoids forcing a
-  particular math serialization now.
-- Simple numeric properties use xsd numeric types; numeric constraints
-  (e.g., p in [0,1]) are documented, to be enforced later with validation
-  (SHACL) if desired.
+- represent basic ontology and dataset concepts described in the documents (resources, agents, concepts, simple food example used in the docs), and
+- represent triplestore metadata (name, open-source flag, protocols, APIs, license, features, reasoning support) so the CSV can be imported into a Fuseki dataset and queried.
 
-Overview of classes
---------------------
-(All classes use the base namespace http://example.org/semantic-web#)
+We intentionally keep the model lightweight, RDFS-only (no OWL), and practical for import into Apache Jena Fuseki. The schema is compact and designed to be extended later.
 
-- MathematicalEntity
-  - A lightweight root class for domain items. Useful as a general type for
-    things described in the notebook.
+## Modeling decisions (summary)
 
-- Distribution (subclass of MathematicalEntity)
-  - Represents a probability distribution family.
+- Use RDFS classes and properties only; avoid OWL constructs. This maximizes compatibility with many triplestores and keeps the schema simple.
+- Represent triplestores as a subclass of Software and model their characteristics (supportsSPARQL, isOpenSource, supportsProtocol, exposesAPI, license, hasFeature, supportsReasoning, homepage, vendor, supportsTransactions, storageType). Features, Protocol, API, and License are modeled as simple resource classes so CSV columns that enumerate features or protocols can be linked to per-triplestore feature nodes.
+- Keep a shallow taxonomy extracted from the documents: core modeling concepts (Resource, Agent, Dataset, Ontology, Concept) plus the illustrative food example (Dish, FoodItem, Meat, VegetarianDish) and software/triplestore concepts (Software, Triplestore). This follows the documents' examples and the CSV focus.
+- Prefer broad reusable properties (sw:creator, sw:createdDate, sw:prefLabel, sw:hasConcept) over many tiny one-off predicates. Use sw:hasFeature to attach arbitrary feature nodes to triplestores.
+- Provide rdfs:label/rdfs:comment on important classes and properties to aid human understanding and UI tooling.
 
-- ContinuousDistribution, DiscreteDistribution (subclasses of Distribution)
-  - Shallow subclassing to separate continuous vs discrete families.
+## Classes (what they mean)
 
-- RandomVariable
-  - A random variable; linked to a Distribution via sw:hasDistribution.
+- sw:Resource — Generic information resource. Base class for datasets, software, etc.
+- sw:Agent — Actor/agent (people or organizations).
+- sw:Person — Person; subclass of Agent. (Reflects FOAF-like usage in the docs.)
+- sw:Dataset — A collection of RDF data; subclass of Resource.
+- sw:Ontology — An ontology or schema document; subclass of Dataset.
+- sw:Concept — A conceptual term usable in taxonomies (SKOS-style concept); subclass of Resource.
+- sw:Software — Software artifact; subclass of Resource.
+- sw:Triplestore — RDF database / triplestore; subclass of Software.
+- sw:Feature — Named feature or capability (string-labeled node).
+- sw:Protocol — Protocol used to access the triplestore (e.g., HTTP, SPARQL protocol).
+- sw:API — API exposed by the triplestore (e.g., REST, GraphQL wrapper).
+- sw:License — License resource (e.g., "Apache-2.0").
+- sw:Dish, sw:FoodItem, sw:Meat, sw:VegetarianDish — small illustrative food modeling taken from the docs to keep example vocabulary for import/education.
 
-- Parameter
-  - Parameters of distributions/statistical models (µ, σ², λ, p, n, ...).
-  - Use sw:parameterSymbol (string) to hold the symbol name and
-    sw:parameterValue (xsd:double) for numeric values (when known).
+(There are 16 classes in this first version; they are intentionally broad so they can be reused.)
 
-- Statistic
-  - Sample statistics or test statistics (sample mean, variance, t-stat).
-  - Linked to the random variable via sw:computedFrom.
+## Properties (core predicates and their domain/range)
 
-- Estimator
-  - Estimators (MLE, BayesianEstimator, etc.). Use sw:estimates to point
-    at the Parameter(s). Use sw:implementedIn to link to software.
+All properties are plain RDF properties (rdf:Property) with rdfs:domain and rdfs:range where practical.
 
-- HypothesisTest
-  - Represents a hypothesis test; has p-value (sw:hasPValue), significance
-    level (sw:hasSignificanceLevel) and a linked test-statistic
-    (sw:hasTestStatistic).
+- sw:hasIngredient
+  - domain: sw:Dish
+  - range: sw:FoodItem
+  - comment: links a Dish to FoodItems it contains (object property equivalent).
 
-- ConfidenceInterval
-  - Confidence interval artefact with a confidence level (sw:hasConfidenceLevel).
+- sw:hasComponent
+  - domain: sw:Dish
+  - range: sw:FoodItem
+  - comment: alternate/aliased predicate for ingredient lists; declared a subPropertyOf sw:hasIngredient to normalize ingestion.
 
-- Theorem
-  - Mathematical/statistical theorems (Central Limit Theorem, Law of Large Numbers).
-  - Use sw:hasStatement (text) and sw:assumesCondition to link to Conditions.
+- sw:creator
+  - domain: sw:Resource
+  - range: sw:Agent
+  - comment: who created the resource (maps to dcterms:creator in origin docs).
 
-- Condition
-  - Assumptions or conditions referenced by theorems (e.g., iid, finite variance).
+- sw:publisher
+  - domain: sw:Resource
+  - range: sw:Agent
+  - comment: publisher or distributing agent.
 
-- MathematicalExpression
-  - Holds formula text (LaTeX, MathML, code snippet) via sw:hasFormula.
+- sw:createdDate
+  - domain: sw:Resource
+  - range: xsd:date
+  - comment: creation date; map CSV/metadata date columns here.
 
-- Tool
-  - Software tools / packages (R, Python, numpy, scipy, R packages).
+- sw:format
+  - domain: sw:Resource
+  - range: xsd:string
+  - comment: textual format label (e.g., "Turtle", "JSON-LD").
 
-- Document
-  - Documents, notebook pages or PDFs from the source; useful for provenance.
+- sw:prefLabel
+  - domain: sw:Resource
+  - range: xsd:string
+  - comment: human-readable preferred label (skos:prefLabel-like convenience predicate).
 
-- SemanticWebConcept
-  - Represents mentions of RDF/RDFS/OWL/semantic-web concepts inside the
-    notebook (keeps the ontology aware of the notebook's meta-discussion).
+- sw:hasConcept
+  - domain: sw:Ontology
+  - range: sw:Concept
+  - comment: links an ontology to the concepts it defines.
 
-Core properties (selected)
----------------------------
-- sw:hasDistribution (RandomVariable -> Distribution)
-  - Connects a random variable to its distribution family.
+- sw:broader
+  - domain: sw:Concept
+  - range: sw:Concept
+  - comment: lightweight taxonomy relation (skos:broader style).
 
-- sw:hasParameter (Distribution -> Parameter)
-  - Links a distribution family to its parameters.
+- sw:hasFeature
+  - domain: sw:Triplestore
+  - range: sw:Feature
+  - comment: attach Feature nodes describing capabilities enumerated in the CSV.
 
-- sw:parameterSymbol (Parameter -> xsd:string)
-  - Symbol used in the notebook (e.g., "µ", "σ2", "λ", "p").
+- sw:featureName
+  - domain: sw:Feature
+  - range: xsd:string
+  - comment: short name of the feature as string.
 
-- sw:parameterValue (Parameter -> xsd:double)
-  - Numeric value when available.
+- sw:supportsSPARQL
+  - domain: sw:Triplestore
+  - range: xsd:boolean
+  - comment: whether the store supports SPARQL query endpoint.
 
-- sw:hasMean, sw:hasVariance (Distribution -> xsd:double)
-  - Common numeric moments recorded at distribution-level when known.
+- sw:isOpenSource
+  - domain: sw:Triplestore
+  - range: xsd:boolean
+  - comment: whether the product is open-source.
 
-- sw:hasPDF, sw:hasPMF, sw:hasCDF (Distribution -> MathematicalExpression)
-  - Links to formulas for PDF/PMF/CDF; expression literals can hold LaTeX
-    or executable code.
+- sw:exposesAPI
+  - domain: sw:Triplestore
+  - range: sw:API
+  - comment: link to API type nodes.
 
-- sw:isSpecialCaseOf (Distribution -> Distribution)
-  - e.g., Poisson as a limiting case of Binomial (documented relation).
+- sw:supportsProtocol
+  - domain: sw:Triplestore
+  - range: sw:Protocol
+  - comment: protocol(s) supported (e.g., HTTP, SPARQL Protocol).
 
-- sw:computedFrom (Statistic -> RandomVariable)
-  - Which RV or sample a statistic is computed from.
+- sw:license
+  - domain: sw:Triplestore
+  - range: sw:License
+  - comment: license node for the triplestore.
 
-- sw:estimates (Estimator -> Parameter)
-  - What parameter(s) an estimator targets (MLE, Bayesian, ...).
+- sw:supportsReasoning
+  - domain: sw:Triplestore
+  - range: xsd:boolean
+  - comment: whether the triplestore advertises built-in reasoning or inference support.
 
-- sw:implementedIn (Estimator -> Tool)
-  - Links estimators/methods to software implementations (R/Python packages).
+- sw:homepage
+  - domain: sw:Triplestore
+  - range: xsd:anyURI
+  - comment: vendor or product homepage.
 
-- sw:hasFormula (MathematicalExpression -> xsd:string)
-  - The textual/formal representation of formulas (LaTeX, MathML, or code).
+- sw:vendor
+  - domain: sw:Triplestore
+  - range: xsd:string
+  - comment: vendor or organization name.
 
-- sw:hasStatement (Theorem -> xsd:string)
-  - Short human-readable theorem statement.
+- sw:supportsTransactions
+  - domain: sw:Triplestore
+  - range: xsd:boolean
+  - comment: whether the store supports transactional updates.
 
-- sw:assumesCondition (Theorem -> Condition)
-  - The theorem's assumptions (iid, finite variance, etc.).
+- sw:storageType
+  - domain: sw:Triplestore
+  - range: xsd:string
+  - comment: textual label describing storage/persistence (e.g., "native", "federated").
 
-- sw:hasPValue, sw:hasSignificanceLevel (HypothesisTest -> xsd:double)
-  - Numeric properties for testing.
+(There are 20 properties in this version — broad, reusable, and closely aligned with the CSV columns.)
 
-- sw:hasTestStatistic (HypothesisTest -> Statistic)
-  - The statistic used in the test.
+## Mapping CSV -> RDF guidance (practical)
 
-- sw:hasConfidenceLevel (ConfidenceInterval -> xsd:double)
-  - Confidence level of an interval (e.g., 0.95).
+When importing the triplestore CSV into Fuseki, map columns as follows (recommended):
 
-- sw:documentedIn (MathematicalEntity -> Document)
-  - Provenance: where the concept or formula is documented in the notebook.
+- name -> rdfs:label or sw:prefLabel (create a sw:Triplestore resource per row)
+- open_source -> sw:isOpenSource (xsd:boolean)
+- supports_sparql -> sw:supportsSPARQL (xsd:boolean)
+- api -> create or reuse sw:API nodes and link with sw:exposesAPI
+- protocol -> create or reuse sw:Protocol nodes and link with sw:supportsProtocol
+- license -> create sw:License node and link with sw:license
+- features -> for each listed feature, create sw:Feature node (sw:featureName) and link with sw:hasFeature
+- vendor -> sw:vendor (xsd:string)
+- homepage -> sw:homepage (xsd:anyURI)
+- supports_reasoning -> sw:supportsReasoning (xsd:boolean)
+- supports_transactions -> sw:supportsTransactions (xsd:boolean)
+- storage_type -> sw:storageType (xsd:string)
 
-- sw:mentionsSemanticWebConcept (Document -> SemanticWebConcept)
-  - Links documents that discuss RDF/RDFS/OWL etc.
+Prefer creating small URI-bearing nodes for Protocol/API/Feature/License so you can attach labels and later reconcile duplicates. Use a consistent URI pattern (for example: http://example.org/triplestore/feature/FeatureName) during import.
 
-Modeling notes and examples
----------------------------
-- Named distributions (NormalDistribution, PoissonDistribution, BinomialDistribution,
-  ExponentialDistribution, GammaDistribution, StudentTDistribution) are subclasses
-  of Distribution. Parameter objects (with sw:parameterSymbol) connect to their
-  distributions via sw:hasParameter. The exact numeric parameter value is optional.
+## Import notes for Apache Jena Fuseki
 
-- MathematicalExpression nodes are deliberately generic; formulas can be stored as
-  LaTeX strings or as code snippets (R/Python). Any formal math serialization can be
-  added later as a new literal datatype or a new property.
+- Load the Turtle schema (this ontology) into a dedicated graph in Fuseki (e.g., `http://localhost:3030/dataset/data`) before or along with instance data so client tools can pick up rdfs:domain/range annotations.
+- Convert the CSV into RDF (one triplestore resource per CSV row) using simple mapping tools (e.g., rdf-csv, custom Python script, or SPARQL INSERTs). Ensure boolean columns become xsd:boolean and dates xsd:date.
+- If you need RDFS-based inference (e.g., to infer class membership from rdfs:domain), use Fuseki with TDB and enable the RDFS reasoner when running queries, or materialize domain/range typing during import (preferred for simple deployments).
+- Keep instance URIs stable and dereferenceable when possible (use vendor or canonical product slugs).
 
-- Theorems include a human statement and links to Condition nodes so downstream tools
-  can check applicability (e.g., whether CLT conditions hold for a given dataset).
+## Extensibility
 
-- Numeric constraints (λ>0, σ²≥0, p in [0,1], p-values in [0,1]) are documented in
-  comments; enforce them later via validation shapes (SHACL) rather than in RDFS.
+- This schema is intentionally minimal. Later versions can add more detail (e.g., separate properties for read/write endpoints, detailed API capability descriptors, SKOS integration for richer taxonomy modeling, or OWL axioms for intensional classes like VegetarianDish). For now, RDFS suffices for labeling, basic domain/range guidance, and SPARQL querying in Fuseki.
 
-SPARQL examples (illustrative)
-------------------------------
-- Find distributions that have a parameter symbol "µ":
-  SELECT ?dist WHERE { ?dist a sw:Distribution ; sw:hasParameter ?p . ?p sw:parameterSymbol "µ" . }
+## Example queries you will be able to run after import
 
-- Get PDF/PMF string for PoissonDistribution:
-  SELECT ?formula WHERE { sw:PoissonDistribution sw:hasPMF ?expr . ?expr sw:hasFormula ?formula }
+- List triplestores that are open source and support SPARQL:
+  SELECT ?ts WHERE { ?ts a sw:Triplestore ; sw:isOpenSource true ; sw:supportsSPARQL true . }
 
-- Find theorems that assume "iid":
-  SELECT ?th WHERE { ?th a sw:Theorem ; sw:assumesCondition ?c . ?c rdfs:label "iid" }
+- Find all features of a given triplestore:
+  SELECT ?fname WHERE { ?ts a sw:Triplestore ; sw:hasFeature ?f . ?f sw:featureName ?fname . }
 
-Import guidance
-----------------
-- Load the Turtle schema into Fuseki (as a separate graph) before importing instance
-  data representing the notebook's content.
-- Instance data can create Parameter instances, Distribution instances (or use the
-  named subclass IRIs), link MathematicalExpression nodes with formula strings, and
-  attach provenance to Document nodes.
-- Use external identifiers for named concepts where appropriate (e.g., link
-  sw:NormalDistribution to external resources) via additional predicates later.
+- List Ontologies and the Concepts they declare:
+  SELECT ?ont ?c WHERE { ?ont a sw:Ontology ; sw:hasConcept ?c . }
 
-Extensibility
---------------
-- Later versions may add:
-  - SHACL shapes for numeric ranges and structural validation.
-  - Additional classes for Sample, LikelihoodFunction, Posterior, MCMCChain.
-  - Crosslinks to external vocabularies (PROV, DC, SKOS) and stable IDs (Wikidata).
 
-Maintenance notes
-------------------
-- Keep the schema intentionally small; extend only when a new class or property is
-  re-used across multiple notebook items.
-- Prefer adding instances and links in data over adding many specialized schema terms.
+---
 
-License and provenance
------------------------
-- The schema uses the example.org base IRI for design purposes; in production choose
-  a persistent base IRI. Document provenance (who authored/modified the schema) in
-  repository metadata alongside the schema file.
+This document and the accompanying Turtle provide a compact, usable starting point for the project's semantic schema. The schema models the core concepts mentioned in the supplied documents and the typical triplestore attributes in the CSV while remaining small and easy to import into Fuseki.
 

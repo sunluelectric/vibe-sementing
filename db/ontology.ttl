@@ -3,250 +3,205 @@
 @prefix sw: <http://example.org/semantic-web#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-sw:BinomialDistribution a rdfs:Class ;
-    rdfs:label "BinomialDistribution" ;
-    rdfs:comment "Binomial distribution family with parameters n and p." ;
-    rdfs:subClassOf sw:DiscreteDistribution .
+sw:API a rdfs:Class ;
+    rdfs:label "API" ;
+    rdfs:comment "API type or interface exposed by a triplestore (e.g., REST)." .
 
-sw:Condition a rdfs:Class ;
-    rdfs:label "Condition" ;
-    rdfs:comment "An assumption or condition for a theorem (e.g., iid, finite variance)." ;
-    rdfs:subClassOf sw:MathematicalEntity .
+sw:Agent a rdfs:Class ;
+    rdfs:label "Agent" ;
+    rdfs:comment "Actor or agent (person or organization)." ;
+    rdfs:subClassOf sw:Resource .
 
-sw:ConfidenceInterval a rdfs:Class ;
-    rdfs:label "ConfidenceInterval" ;
-    rdfs:comment "A confidence interval with a confidence level and bounds." ;
-    rdfs:subClassOf sw:MathematicalEntity .
+sw:Concept a rdfs:Class ;
+    rdfs:label "Concept" ;
+    rdfs:comment "A conceptual term suitable for lightweight taxonomies (SKOS-like)." ;
+    rdfs:subClassOf sw:Resource .
 
-sw:ContinuousDistribution a rdfs:Class ;
-    rdfs:label "ContinuousDistribution" ;
-    rdfs:comment "Continuous distribution family (has PDF)." ;
-    rdfs:subClassOf sw:Distribution .
+sw:Dataset a rdfs:Class ;
+    rdfs:label "Dataset" ;
+    rdfs:comment "A collection of RDF data or resources." ;
+    rdfs:subClassOf sw:Resource .
 
-sw:DiscreteDistribution a rdfs:Class ;
-    rdfs:label "DiscreteDistribution" ;
-    rdfs:comment "Discrete distribution family (has PMF)." ;
-    rdfs:subClassOf sw:Distribution .
+sw:Dish a rdfs:Class ;
+    rdfs:label "Dish" ;
+    rdfs:comment "A prepared food item or recipe." ;
+    rdfs:subClassOf sw:Resource .
 
-sw:Distribution a rdfs:Class ;
-    rdfs:label "Distribution" ;
-    rdfs:comment "A probability distribution family (e.g., Normal, Poisson)." ;
-    rdfs:subClassOf sw:MathematicalEntity .
+sw:Feature a rdfs:Class ;
+    rdfs:label "Feature" ;
+    rdfs:comment "A named capability or feature of a triplestore." .
 
-sw:Document a rdfs:Class ;
-    rdfs:label "Document" ;
-    rdfs:comment "A document, notebook page, or PDF from which content is sourced." ;
-    rdfs:subClassOf sw:MathematicalEntity .
+sw:FoodItem a rdfs:Class ;
+    rdfs:label "FoodItem" ;
+    rdfs:comment "An ingredient or food item." ;
+    rdfs:subClassOf sw:Resource .
 
-sw:Estimator a rdfs:Class ;
-    rdfs:label "Estimator" ;
-    rdfs:comment "An estimation method (MLE, Bayesian estimator, etc.)." ;
-    rdfs:subClassOf sw:MathematicalEntity .
+sw:License a rdfs:Class ;
+    rdfs:label "License" ;
+    rdfs:comment "License resource for software products (e.g., Apache-2.0)." .
 
-sw:ExponentialDistribution a rdfs:Class ;
-    rdfs:label "ExponentialDistribution" ;
-    rdfs:comment "Exponential distribution family (continuous), often parametrized by rate λ." ;
-    rdfs:subClassOf sw:ContinuousDistribution .
+sw:Meat a rdfs:Class ;
+    rdfs:label "Meat" ;
+    rdfs:comment "Animal-based food item." ;
+    rdfs:subClassOf sw:FoodItem .
 
-sw:GammaDistribution a rdfs:Class ;
-    rdfs:label "GammaDistribution" ;
-    rdfs:comment "Gamma distribution family (continuous)." ;
-    rdfs:subClassOf sw:ContinuousDistribution .
+sw:Ontology a rdfs:Class ;
+    rdfs:label "Ontology" ;
+    rdfs:comment "A schema or ontology document describing classes and properties." ;
+    rdfs:subClassOf sw:Dataset .
 
-sw:HypothesisTest a rdfs:Class ;
-    rdfs:label "HypothesisTest" ;
-    rdfs:comment "A hypothesis test instance linking test statistic, p-value and alpha." ;
-    rdfs:subClassOf sw:MathematicalEntity .
+sw:Person a rdfs:Class ;
+    rdfs:label "Person" ;
+    rdfs:comment "A human person; FOAF-like person concept." ;
+    rdfs:subClassOf sw:Agent .
 
-sw:MathematicalEntity a rdfs:Class ;
-    rdfs:label "MathematicalEntity" ;
-    rdfs:comment "Root class for concepts introduced in the notebook (distributions, theorems, tools, etc.)." .
+sw:Protocol a rdfs:Class ;
+    rdfs:label "Protocol" ;
+    rdfs:comment "Network or access protocol (e.g., HTTP, SPARQL Protocol)." .
 
-sw:MathematicalExpression a rdfs:Class ;
-    rdfs:label "MathematicalExpression" ;
-    rdfs:comment "A node holding a formula or code snippet (LaTeX, MathML, R/Python code)." ;
-    rdfs:subClassOf sw:MathematicalEntity .
+sw:Resource a rdfs:Class ;
+    rdfs:label "Resource" ;
+    rdfs:comment "Generic information resource (datasets, documents, software)." .
 
-sw:NormalDistribution a rdfs:Class ;
-    rdfs:label "NormalDistribution" ;
-    rdfs:comment "Normal (Gaussian) distribution family; parameters typically µ and σ²." ;
-    rdfs:subClassOf sw:ContinuousDistribution .
+sw:Software a rdfs:Class ;
+    rdfs:label "Software" ;
+    rdfs:comment "Software artifact or product." ;
+    rdfs:subClassOf sw:Resource .
 
-sw:Parameter a rdfs:Class ;
-    rdfs:label "Parameter" ;
-    rdfs:comment "A model or distribution parameter (symbol and optional numeric value)." ;
-    rdfs:subClassOf sw:MathematicalEntity .
+sw:Triplestore a rdfs:Class ;
+    rdfs:label "Triplestore" ;
+    rdfs:comment "An RDF database / triplestore product." ;
+    rdfs:subClassOf sw:Software .
 
-sw:PoissonDistribution a rdfs:Class ;
-    rdfs:label "PoissonDistribution" ;
-    rdfs:comment "Poisson distribution family with rate parameter λ." ;
-    rdfs:subClassOf sw:DiscreteDistribution .
+sw:VegetarianDish a rdfs:Class ;
+    rdfs:label "VegetarianDish" ;
+    rdfs:comment "A Dish that contains no Meat items (intensional class in OWL examples)." ;
+    rdfs:subClassOf sw:Dish .
 
-sw:RandomVariable a rdfs:Class ;
-    rdfs:label "RandomVariable" ;
-    rdfs:comment "A random variable; linked to a distribution via sw:hasDistribution." ;
-    rdfs:subClassOf sw:MathematicalEntity .
+sw:broader a rdf:Property ;
+    rdfs:label "broader" ;
+    rdfs:comment "Taxonomy relation between Concepts (SKOS-style broader)." ;
+    rdfs:domain sw:Concept ;
+    rdfs:range sw:Concept .
 
-sw:SemanticWebConcept a rdfs:Class ;
-    rdfs:label "SemanticWebConcept" ;
-    rdfs:comment "Concepts related to the semantic web discussed in the notebook (RDF, RDFS, OWL, ALC)." ;
-    rdfs:subClassOf sw:MathematicalEntity .
+sw:createdDate a rdf:Property ;
+    rdfs:label "created date" ;
+    rdfs:comment "Creation date of the resource." ;
+    rdfs:domain sw:Resource ;
+    rdfs:range xsd:date .
 
-sw:Statistic a rdfs:Class ;
-    rdfs:label "Statistic" ;
-    rdfs:comment "A computed statistic (sample mean, variance, test statistic)." ;
-    rdfs:subClassOf sw:MathematicalEntity .
+sw:creator a rdf:Property ;
+    rdfs:label "creator" ;
+    rdfs:comment "Agent that created a resource." ;
+    rdfs:domain sw:Resource ;
+    rdfs:range sw:Agent .
 
-sw:StudentTDistribution a rdfs:Class ;
-    rdfs:label "StudentTDistribution" ;
-    rdfs:comment "Student's t distribution family (continuous), used in small-sample inference." ;
-    rdfs:subClassOf sw:ContinuousDistribution .
+sw:exposesAPI a rdf:Property ;
+    rdfs:label "exposes API" ;
+    rdfs:comment "Link to API nodes that the triplestore exposes." ;
+    rdfs:domain sw:Triplestore ;
+    rdfs:range sw:API .
 
-sw:Theorem a rdfs:Class ;
-    rdfs:label "Theorem" ;
-    rdfs:comment "A named mathematical or statistical theorem (e.g., CLT, LLN)." ;
-    rdfs:subClassOf sw:MathematicalEntity .
-
-sw:Tool a rdfs:Class ;
-    rdfs:label "Tool" ;
-    rdfs:comment "Software tool or package (R, Python, numpy, scipy, R packages)." ;
-    rdfs:subClassOf sw:MathematicalEntity .
-
-sw:appliesTo a rdf:Property ;
-    rdfs:label "appliesTo" ;
-    rdfs:comment "Indicates the primary domain of a Theorem (e.g., distribution or RandomVariable it concerns)." ;
-    rdfs:domain sw:Theorem ;
-    rdfs:range sw:MathematicalEntity .
-
-sw:assumesCondition a rdf:Property ;
-    rdfs:label "assumesCondition" ;
-    rdfs:comment "Links a Theorem to a Condition (assumption) such as iid, finite variance." ;
-    rdfs:domain sw:Theorem ;
-    rdfs:range sw:Condition .
-
-sw:computedFrom a rdf:Property ;
-    rdfs:label "computedFrom" ;
-    rdfs:comment "Indicates the RandomVariable or sample from which a Statistic is computed." ;
-    rdfs:domain sw:Statistic ;
-    rdfs:range sw:RandomVariable .
-
-sw:documentedIn a rdf:Property ;
-    rdfs:label "documentedIn" ;
-    rdfs:comment "Provenance link: where the concept or formula is described (Document)." ;
-    rdfs:domain sw:MathematicalEntity ;
-    rdfs:range sw:Document .
-
-sw:estimates a rdf:Property ;
-    rdfs:label "estimates" ;
-    rdfs:comment "Links an Estimator to the Parameter(s) it targets." ;
-    rdfs:domain sw:Estimator ;
-    rdfs:range sw:Parameter .
-
-sw:hasCDF a rdf:Property ;
-    rdfs:label "hasCDF" ;
-    rdfs:comment "Link to a MathematicalExpression node containing the CDF formula." ;
-    rdfs:domain sw:Distribution ;
-    rdfs:range sw:MathematicalExpression .
-
-sw:hasConfidenceLevel a rdf:Property ;
-    rdfs:label "hasConfidenceLevel" ;
-    rdfs:comment "Confidence level associated with a ConfidenceInterval (e.g., 0.95)." ;
-    rdfs:domain sw:ConfidenceInterval ;
-    rdfs:range xsd:double .
-
-sw:hasDistribution a rdf:Property ;
-    rdfs:label "hasDistribution" ;
-    rdfs:comment "Links a RandomVariable to its Distribution." ;
-    rdfs:domain sw:RandomVariable ;
-    rdfs:range sw:Distribution .
-
-sw:hasFormula a rdf:Property ;
-    rdfs:label "hasFormula" ;
-    rdfs:comment "Holds the text of a mathematical expression (LaTeX, MathML, or code snippet)." ;
-    rdfs:domain sw:MathematicalExpression ;
+sw:featureName a rdf:Property ;
+    rdfs:label "feature name" ;
+    rdfs:comment "Short textual name for a Feature." ;
+    rdfs:domain sw:Feature ;
     rdfs:range xsd:string .
 
-sw:hasMean a rdf:Property ;
-    rdfs:label "hasMean" ;
-    rdfs:comment "Mean value associated with a distribution (numeric)." ;
-    rdfs:domain sw:Distribution ;
-    rdfs:range xsd:double .
-
-sw:hasPDF a rdf:Property ;
-    rdfs:label "hasPDF" ;
-    rdfs:comment "Link to a MathematicalExpression node containing the PDF formula (for continuous distributions)." ;
-    rdfs:domain sw:Distribution ;
-    rdfs:range sw:MathematicalExpression .
-
-sw:hasPMF a rdf:Property ;
-    rdfs:label "hasPMF" ;
-    rdfs:comment "Link to a MathematicalExpression node containing the PMF formula (for discrete distributions)." ;
-    rdfs:domain sw:Distribution ;
-    rdfs:range sw:MathematicalExpression .
-
-sw:hasPValue a rdf:Property ;
-    rdfs:label "hasPValue" ;
-    rdfs:comment "P-value resulting from a hypothesis test (numeric in [0,1])." ;
-    rdfs:domain sw:HypothesisTest ;
-    rdfs:range xsd:double .
-
-sw:hasParameter a rdf:Property ;
-    rdfs:label "hasParameter" ;
-    rdfs:comment "Links a Distribution to one of its Parameters." ;
-    rdfs:domain sw:Distribution ;
-    rdfs:range sw:Parameter .
-
-sw:hasSignificanceLevel a rdf:Property ;
-    rdfs:label "hasSignificanceLevel" ;
-    rdfs:comment "Significance level (alpha) used in a hypothesis test (numeric in (0,1])." ;
-    rdfs:domain sw:HypothesisTest ;
-    rdfs:range xsd:double .
-
-sw:hasStatement a rdf:Property ;
-    rdfs:label "hasStatement" ;
-    rdfs:comment "Human-readable statement text for a Theorem." ;
-    rdfs:domain sw:Theorem ;
+sw:format a rdf:Property ;
+    rdfs:label "format" ;
+    rdfs:comment "Textual format or media type for a resource (e.g., Turtle)." ;
+    rdfs:domain sw:Resource ;
     rdfs:range xsd:string .
 
-sw:hasTestStatistic a rdf:Property ;
-    rdfs:label "hasTestStatistic" ;
-    rdfs:comment "The Statistic node used as the test statistic in a HypothesisTest." ;
-    rdfs:domain sw:HypothesisTest ;
-    rdfs:range sw:Statistic .
+sw:hasComponent a rdf:Property ;
+    rdfs:label "has component" ;
+    rdfs:comment "Alternate predicate for dish components; normalized to hasIngredient." ;
+    rdfs:domain sw:Dish ;
+    rdfs:range sw:FoodItem ;
+    rdfs:subPropertyOf sw:hasIngredient .
 
-sw:hasVariance a rdf:Property ;
-    rdfs:label "hasVariance" ;
-    rdfs:comment "Variance value associated with a distribution (numeric)." ;
-    rdfs:domain sw:Distribution ;
-    rdfs:range xsd:double .
+sw:hasConcept a rdf:Property ;
+    rdfs:label "has concept" ;
+    rdfs:comment "Links an Ontology to Concepts it declares." ;
+    rdfs:domain sw:Ontology ;
+    rdfs:range sw:Concept .
 
-sw:implementedIn a rdf:Property ;
-    rdfs:label "implementedIn" ;
-    rdfs:comment "Links an Estimator or method to a software Tool or package implementation." ;
-    rdfs:domain sw:Estimator ;
-    rdfs:range sw:Tool .
+sw:hasFeature a rdf:Property ;
+    rdfs:label "has feature" ;
+    rdfs:comment "Attach a Feature node describing a capability to a Triplestore." ;
+    rdfs:domain sw:Triplestore ;
+    rdfs:range sw:Feature .
 
-sw:isSpecialCaseOf a rdf:Property ;
-    rdfs:label "isSpecialCaseOf" ;
-    rdfs:comment "Relates a Distribution to another Distribution it is a special case or limit of (e.g., Poisson limit of Binomial)." ;
-    rdfs:domain sw:Distribution ;
-    rdfs:range sw:Distribution .
+sw:homepage a rdf:Property ;
+    rdfs:label "homepage" ;
+    rdfs:comment "Canonical homepage or product URL." ;
+    rdfs:domain sw:Triplestore ;
+    rdfs:range xsd:anyURI .
 
-sw:mentionsSemanticWebConcept a rdf:Property ;
-    rdfs:label "mentionsSemanticWebConcept" ;
-    rdfs:comment "Indicates that a Document discusses a semantic-web concept (RDF, RDFS, OWL, ALC)." ;
-    rdfs:domain sw:Document ;
-    rdfs:range sw:SemanticWebConcept .
+sw:isOpenSource a rdf:Property ;
+    rdfs:label "is open source" ;
+    rdfs:comment "Whether the triplestore product is open-source." ;
+    rdfs:domain sw:Triplestore ;
+    rdfs:range xsd:boolean .
 
-sw:parameterSymbol a rdf:Property ;
-    rdfs:label "parameterSymbol" ;
-    rdfs:comment "Symbol used for a parameter in the notebook (e.g., 'µ', 'σ2', 'λ', 'p')." ;
-    rdfs:domain sw:Parameter ;
+sw:license a rdf:Property ;
+    rdfs:label "license" ;
+    rdfs:comment "License of the triplestore product." ;
+    rdfs:domain sw:Triplestore ;
+    rdfs:range sw:License .
+
+sw:prefLabel a rdf:Property ;
+    rdfs:label "preferred label" ;
+    rdfs:comment "Human-readable preferred label (convenience property)." ;
+    rdfs:domain sw:Resource ;
     rdfs:range xsd:string .
 
-sw:parameterValue a rdf:Property ;
-    rdfs:label "parameterValue" ;
-    rdfs:comment "Numeric value for a parameter when known (use xsd:double). Constraints like λ>0 are documented, validation is external." ;
-    rdfs:domain sw:Parameter ;
-    rdfs:range xsd:double .
+sw:publisher a rdf:Property ;
+    rdfs:label "publisher" ;
+    rdfs:comment "Agent that published or distributes the resource." ;
+    rdfs:domain sw:Resource ;
+    rdfs:range sw:Agent .
+
+sw:storageType a rdf:Property ;
+    rdfs:label "storage type" ;
+    rdfs:comment "Textual description of storage/persistence type (e.g., native, federated)." ;
+    rdfs:domain sw:Triplestore ;
+    rdfs:range xsd:string .
+
+sw:supportsProtocol a rdf:Property ;
+    rdfs:label "supports protocol" ;
+    rdfs:comment "Protocol supported by the triplestore (e.g., HTTP)." ;
+    rdfs:domain sw:Triplestore ;
+    rdfs:range sw:Protocol .
+
+sw:supportsReasoning a rdf:Property ;
+    rdfs:label "supports reasoning" ;
+    rdfs:comment "Whether the triplestore advertises built-in inference/reasoning support." ;
+    rdfs:domain sw:Triplestore ;
+    rdfs:range xsd:boolean .
+
+sw:supportsSPARQL a rdf:Property ;
+    rdfs:label "supports SPARQL" ;
+    rdfs:comment "Whether the triplestore exposes a SPARQL endpoint." ;
+    rdfs:domain sw:Triplestore ;
+    rdfs:range xsd:boolean .
+
+sw:supportsTransactions a rdf:Property ;
+    rdfs:label "supports transactions" ;
+    rdfs:comment "Whether the triplestore supports transactional updates." ;
+    rdfs:domain sw:Triplestore ;
+    rdfs:range xsd:boolean .
+
+sw:vendor a rdf:Property ;
+    rdfs:label "vendor" ;
+    rdfs:comment "Vendor or organization providing the triplestore." ;
+    rdfs:domain sw:Triplestore ;
+    rdfs:range xsd:string .
+
+sw:hasIngredient a rdf:Property ;
+    rdfs:label "has ingredient" ;
+    rdfs:comment "Links a Dish to the FoodItems it contains." ;
+    rdfs:domain sw:Dish ;
+    rdfs:range sw:FoodItem .
 

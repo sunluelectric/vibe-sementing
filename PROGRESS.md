@@ -408,13 +408,13 @@ Implementation checklist:
 - [x] Add importer workflow tests with stubbed mapping-planner output and a CSV
   fixture with enough rows to prove row conversion is deterministic and not
   model-per-row.
-- [ ] Run a clean CSV end-to-end validation: stop Fuseki, delete generated
+- [x] Run a clean CSV end-to-end validation: stop Fuseki, delete generated
   outputs, run designer, run importer, start viewer, ask representative CSV
   questions, verify Turtle export parses, and run `uv run pytest`.
-- [ ] Update `README.md`, `PROGRESS.md`, and `AGENTS.md` with CSV profiling,
+- [x] Update `README.md`, `PROGRESS.md`, and `AGENTS.md` with CSV profiling,
   mapping, deterministic import behavior, configuration notes, limitations, and
   validation results.
-- [ ] Commit the CSV-aware design/import milestone.
+- [x] Commit the CSV-aware design/import milestone.
 
 ## Milestone 11: Long-Document Coverage Scale-Up
 
@@ -715,16 +715,21 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   202 ontology triples, 108 instance triples, 310 combined/Fuseki triples,
   grounded viewer answers for distribution, theorem, and sample-mean questions,
   parsed Turtle export, and `uv run pytest` reported 63 passed and 2 skipped.
+- CSV-aware end-to-end validation on 2026-06-01 succeeded. The current
+  generated semantic web is based on semantic-web and ontology markdown files
+  plus `data/commonly seen triplestores.csv`: 165 ontology triples, 16 RDFS
+  classes, 21 RDF properties, 241 instance triples, 406 combined/Fuseki triples,
+  11 triplestore instances, and 157 deterministic CSV triples from one
+  validated CSV mapping. Viewer status, chat session creation, question
+  answering about open-source triplestores and Apache Jena TDB APIs/protocols,
+  and Turtle export passed. `uv run pytest` reported 72 passed and 2 skipped.
 - The designer milestone commit has been made.
 - The importer milestone commit has been made.
 - The viewer milestone commit has been made.
 
 ### Immediate Next Step
 
-- Start `Milestone 10: CSV-Aware Design And Deterministic Import` when ready.
-  CSV handling should be improved before long-document scale-up because
-  structured rows should be imported deterministically from a validated mapping,
-  not converted row-by-row by an LLM.
+- Start `Milestone 11: Long-Document Coverage Scale-Up` when ready.
 
 ## Handoff For Next Codex Instance
 
@@ -741,8 +746,8 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   - Fuseki data graph `http://example.org/semantic-web/graph/data` unless overridden by `.env`
 - Current tests:
   - `uv run pytest`
-  - latest local result after non-DnD PDF validation:
-    `63 passed, 2 skipped`
+  - latest local result after CSV-aware validation:
+    `72 passed, 2 skipped`
 - Current runtime notes:
   - Fuseki may already be running on port `3030`.
   - If not, use the project-local Fuseki base `db/fuseki-run`.
@@ -755,12 +760,12 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
     data.
   - Importer uses iterative model-planned import batches for large data and
     writes progressive run status to `import.md`.
+  - Importer uses deterministic CSV import for CSV sources: profile the CSV,
+    plan a constrained mapping JSON, validate the mapping, loop over every row
+    in Python, and merge those triples with unstructured-source imports.
   - The viewer uses Fuseki as its runtime data source and does not read
     `db/semantic_web.ttl` directly.
-  - The next implementation priority is CSV-aware design/import. The designer
-    should inspect CSV profiles such as headers, inferred types, row counts, and
-    sample rows. The importer should ask the LLM for a constrained mapping spec
-    and use deterministic Python code to convert all CSV rows to RDF instances.
-  - The current non-DnD PDF graph is intentionally compact and should be treated
-    as proof of concept. Scaling toward comprehensive long-document coverage is
-    the next major product direction after CSV handling is validated.
+  - The next implementation priority is long-document coverage scale-up.
+  - The current semantic-web/ontology/triplestore graph validates the
+    CSV-aware architecture, while unstructured markdown/PDF extraction remains
+    compact and should be expanded through Milestone 11.

@@ -217,6 +217,12 @@ def test_importer_iterative_retrieval_merges_model_planned_slices(tmp_path) -> N
         def _progress_markdown(self):
             return ""
 
+        def _record_progress(self, progress_path, entry):
+            if progress_path is None:
+                return
+            existing = progress_path.read_text(encoding="utf-8") if progress_path.exists() else ""
+            progress_path.write_text((existing + "\n\n" + entry.strip()).strip() + "\n", encoding="utf-8")
+
     result = workflow.run_iterative_retrieval_import(
         agent=StubAgent(),
         ontology_graph=ontology_graph,
@@ -348,6 +354,12 @@ inst:semantic-web-notes a sw:Topic ;
 
         def _progress_markdown(self):
             return ""
+
+        def _record_progress(self, progress_path, entry):
+            if progress_path is None:
+                return
+            existing = progress_path.read_text(encoding="utf-8") if progress_path.exists() else ""
+            progress_path.write_text((existing + "\n\n" + entry.strip()).strip() + "\n", encoding="utf-8")
 
     monkeypatch.setattr("src.importer.workflow.ImporterAgent", StubAgent)
 

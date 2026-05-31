@@ -3,393 +3,527 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-ns1:BinomialDistribution a rdfs:Class ;
-    rdfs:label "BinomialDistribution" ;
-    rdfs:comment "Binomial distribution family with parameters n and p." ;
-    rdfs:subClassOf ns1:DiscreteDistribution .
+ns1:API a rdfs:Class ;
+    rdfs:label "API" ;
+    rdfs:comment "API type or interface exposed by a triplestore (e.g., REST)." .
 
-ns1:Condition a rdfs:Class ;
-    rdfs:label "Condition" ;
-    rdfs:comment "An assumption or condition for a theorem (e.g., iid, finite variance)." ;
-    rdfs:subClassOf ns1:MathematicalEntity .
+ns1:Agent a rdfs:Class ;
+    rdfs:label "Agent" ;
+    rdfs:comment "Actor or agent (person or organization)." ;
+    rdfs:subClassOf ns1:Resource .
 
-ns1:ConfidenceInterval a rdfs:Class ;
-    rdfs:label "ConfidenceInterval" ;
-    rdfs:comment "A confidence interval with a confidence level and bounds." ;
-    rdfs:subClassOf ns1:MathematicalEntity .
+ns1:Concept a rdfs:Class ;
+    rdfs:label "Concept" ;
+    rdfs:comment "A conceptual term suitable for lightweight taxonomies (SKOS-like)." ;
+    rdfs:subClassOf ns1:Resource .
 
-ns1:ContinuousDistribution a rdfs:Class ;
-    rdfs:label "ContinuousDistribution" ;
-    rdfs:comment "Continuous distribution family (has PDF)." ;
-    rdfs:subClassOf ns1:Distribution .
+ns1:Dataset a rdfs:Class ;
+    rdfs:label "Dataset" ;
+    rdfs:comment "A collection of RDF data or resources." ;
+    rdfs:subClassOf ns1:Resource .
 
-ns1:DiscreteDistribution a rdfs:Class ;
-    rdfs:label "DiscreteDistribution" ;
-    rdfs:comment "Discrete distribution family (has PMF)." ;
-    rdfs:subClassOf ns1:Distribution .
+ns1:Dish a rdfs:Class ;
+    rdfs:label "Dish" ;
+    rdfs:comment "A prepared food item or recipe." ;
+    rdfs:subClassOf ns1:Resource .
 
-ns1:Distribution a rdfs:Class ;
-    rdfs:label "Distribution" ;
-    rdfs:comment "A probability distribution family (e.g., Normal, Poisson)." ;
-    rdfs:subClassOf ns1:MathematicalEntity .
+ns1:Feature a rdfs:Class ;
+    rdfs:label "Feature" ;
+    rdfs:comment "A named capability or feature of a triplestore." .
 
-ns1:Document a rdfs:Class ;
-    rdfs:label "Document" ;
-    rdfs:comment "A document, notebook page, or PDF from which content is sourced." ;
-    rdfs:subClassOf ns1:MathematicalEntity .
+ns1:FoodItem a rdfs:Class ;
+    rdfs:label "FoodItem" ;
+    rdfs:comment "An ingredient or food item." ;
+    rdfs:subClassOf ns1:Resource .
 
-ns1:Estimator a rdfs:Class ;
-    rdfs:label "Estimator" ;
-    rdfs:comment "An estimation method (MLE, Bayesian estimator, etc.)." ;
-    rdfs:subClassOf ns1:MathematicalEntity .
+ns1:License a rdfs:Class ;
+    rdfs:label "License" ;
+    rdfs:comment "License resource for software products (e.g., Apache-2.0)." .
 
-ns1:ExponentialDistribution a rdfs:Class ;
-    rdfs:label "ExponentialDistribution" ;
-    rdfs:comment "Exponential distribution family (continuous), often parametrized by rate λ." ;
-    rdfs:subClassOf ns1:ContinuousDistribution .
+ns1:Meat a rdfs:Class ;
+    rdfs:label "Meat" ;
+    rdfs:comment "Animal-based food item." ;
+    rdfs:subClassOf ns1:FoodItem .
 
-ns1:GammaDistribution a rdfs:Class ;
-    rdfs:label "GammaDistribution" ;
-    rdfs:comment "Gamma distribution family (continuous)." ;
-    rdfs:subClassOf ns1:ContinuousDistribution .
+ns1:Ontology a rdfs:Class ;
+    rdfs:label "Ontology" ;
+    rdfs:comment "A schema or ontology document describing classes and properties." ;
+    rdfs:subClassOf ns1:Dataset .
 
-ns1:HypothesisTest a rdfs:Class ;
-    rdfs:label "HypothesisTest" ;
-    rdfs:comment "A hypothesis test instance linking test statistic, p-value and alpha." ;
-    rdfs:subClassOf ns1:MathematicalEntity .
+ns1:Person a rdfs:Class ;
+    rdfs:label "Person" ;
+    rdfs:comment "A human person; FOAF-like person concept." ;
+    rdfs:subClassOf ns1:Agent .
 
-ns1:MathematicalEntity a rdfs:Class ;
-    rdfs:label "MathematicalEntity" ;
-    rdfs:comment "Root class for concepts introduced in the notebook (distributions, theorems, tools, etc.)." .
+ns1:Protocol a rdfs:Class ;
+    rdfs:label "Protocol" ;
+    rdfs:comment "Network or access protocol (e.g., HTTP, SPARQL Protocol)." .
 
-ns1:MathematicalExpression a rdfs:Class ;
-    rdfs:label "MathematicalExpression" ;
-    rdfs:comment "A node holding a formula or code snippet (LaTeX, MathML, R/Python code)." ;
-    rdfs:subClassOf ns1:MathematicalEntity .
+ns1:Resource a rdfs:Class ;
+    rdfs:label "Resource" ;
+    rdfs:comment "Generic information resource (datasets, documents, software)." .
 
-ns1:NormalDistribution a rdfs:Class ;
-    rdfs:label "NormalDistribution" ;
-    rdfs:comment "Normal (Gaussian) distribution family; parameters typically µ and σ²." ;
-    rdfs:subClassOf ns1:ContinuousDistribution .
+ns1:Software a rdfs:Class ;
+    rdfs:label "Software" ;
+    rdfs:comment "Software artifact or product." ;
+    rdfs:subClassOf ns1:Resource .
 
-ns1:Parameter a rdfs:Class ;
-    rdfs:label "Parameter" ;
-    rdfs:comment "A model or distribution parameter (symbol and optional numeric value)." ;
-    rdfs:subClassOf ns1:MathematicalEntity .
+ns1:Triplestore a rdfs:Class ;
+    rdfs:label "Triplestore" ;
+    rdfs:comment "An RDF database / triplestore product." ;
+    rdfs:subClassOf ns1:Software .
 
-ns1:PoissonDistribution a rdfs:Class ;
-    rdfs:label "PoissonDistribution" ;
-    rdfs:comment "Poisson distribution family with rate parameter λ." ;
-    rdfs:subClassOf ns1:DiscreteDistribution .
+ns1:VegetarianDish a rdfs:Class ;
+    rdfs:label "VegetarianDish" ;
+    rdfs:comment "A Dish that contains no Meat items (intensional class in OWL examples)." ;
+    rdfs:subClassOf ns1:Dish .
 
-ns1:RandomVariable a rdfs:Class ;
-    rdfs:label "RandomVariable" ;
-    rdfs:comment "A random variable; linked to a distribution via sw:hasDistribution." ;
-    rdfs:subClassOf ns1:MathematicalEntity .
+ns1:broader a rdf:Property ;
+    rdfs:label "broader" ;
+    rdfs:comment "Taxonomy relation between Concepts (SKOS-style broader)." ;
+    rdfs:domain ns1:Concept ;
+    rdfs:range ns1:Concept .
 
-ns1:SemanticWebConcept a rdfs:Class ;
-    rdfs:label "SemanticWebConcept" ;
-    rdfs:comment "Concepts related to the semantic web discussed in the notebook (RDF, RDFS, OWL, ALC)." ;
-    rdfs:subClassOf ns1:MathematicalEntity .
+ns1:createdDate a rdf:Property ;
+    rdfs:label "created date" ;
+    rdfs:comment "Creation date of the resource." ;
+    rdfs:domain ns1:Resource ;
+    rdfs:range xsd:date .
 
-ns1:Statistic a rdfs:Class ;
-    rdfs:label "Statistic" ;
-    rdfs:comment "A computed statistic (sample mean, variance, test statistic)." ;
-    rdfs:subClassOf ns1:MathematicalEntity .
+ns1:creator a rdf:Property ;
+    rdfs:label "creator" ;
+    rdfs:comment "Agent that created a resource." ;
+    rdfs:domain ns1:Resource ;
+    rdfs:range ns1:Agent .
 
-ns1:StudentTDistribution a rdfs:Class ;
-    rdfs:label "StudentTDistribution" ;
-    rdfs:comment "Student's t distribution family (continuous), used in small-sample inference." ;
-    rdfs:subClassOf ns1:ContinuousDistribution .
+ns1:exposesAPI a rdf:Property ;
+    rdfs:label "exposes API" ;
+    rdfs:comment "Link to API nodes that the triplestore exposes." ;
+    rdfs:domain ns1:Triplestore ;
+    rdfs:range ns1:API .
 
-ns1:Theorem a rdfs:Class ;
-    rdfs:label "Theorem" ;
-    rdfs:comment "A named mathematical or statistical theorem (e.g., CLT, LLN)." ;
-    rdfs:subClassOf ns1:MathematicalEntity .
-
-ns1:Tool a rdfs:Class ;
-    rdfs:label "Tool" ;
-    rdfs:comment "Software tool or package (R, Python, numpy, scipy, R packages)." ;
-    rdfs:subClassOf ns1:MathematicalEntity .
-
-<http://example.org/instance/binomial_dist_1> a ns1:BinomialDistribution ;
-    rdfs:label "Binomial distribution (R dbinom/pbinom)" ;
-    ns1:documentedIn <http://example.org/instance/doc_main> ;
-    ns1:hasParameter <http://example.org/instance/binom_param_p>,
-        <http://example.org/instance/binom_param_size> .
-
-<http://example.org/instance/exponential_dist_1> a ns1:ExponentialDistribution ;
-    rdfs:label "Exponential distribution" ;
-    ns1:documentedIn <http://example.org/instance/doc_main> ;
-    ns1:hasCDF <http://example.org/instance/exp_cdf_expr> ;
-    ns1:hasPDF <http://example.org/instance/exp_pdf_expr> ;
-    ns1:hasParameter <http://example.org/instance/exp_param_lambda> ;
-    ns1:isSpecialCaseOf <http://example.org/instance/gamma_dist_1> .
-
-<http://example.org/instance/expr_fibonacci_py> a ns1:MathematicalExpression ;
-    rdfs:label "Fibonacci (Python snippet)" ;
-    ns1:documentedIn <http://example.org/instance/doc_main> ;
-    ns1:hasFormula """This is a piece of code written in Python.
-ax = []
-for i in range(20):
-if i<=1:
-ax.append(i)
-else:
-ax.append(ax[i-1]+ax[i-2])""" .
-
-<http://example.org/instance/normal_dist_1> a ns1:NormalDistribution ;
-    rdfs:label "Normal distribution (R dnorm defaults)" ;
-    ns1:documentedIn <http://example.org/instance/doc_main> ;
-    ns1:hasParameter <http://example.org/instance/normal_param_m>,
-        <http://example.org/instance/normal_param_std> .
-
-<http://example.org/instance/poisson_dist_1> a ns1:PoissonDistribution ;
-    rdfs:label "Poisson distribution (R dpois/ppois)" ;
-    ns1:documentedIn <http://example.org/instance/doc_main> ;
-    ns1:hasPMF <http://example.org/instance/poisson_pmf_expr> ;
-    ns1:hasParameter <http://example.org/instance/poisson_param_lambda> .
-
-<http://example.org/instance/studentt_dist_1> a ns1:StudentTDistribution ;
-    rdfs:label "Student's t distribution" ;
-    ns1:documentedIn <http://example.org/instance/doc_main> ;
-    ns1:hasPDF <http://example.org/instance/studentt_pdf_expr> ;
-    ns1:hasParameter <http://example.org/instance/studentt_param_nu> .
-
-<http://example.org/instance/theorem_clt> a ns1:Theorem ;
-    rdfs:label "Central Limit Theorem" ;
-    ns1:assumesCondition <http://example.org/instance/cond_finite_variance>,
-        <http://example.org/instance/cond_iid> ;
-    ns1:documentedIn <http://example.org/instance/doc_main> ;
-    ns1:hasStatement "If X1,...,Xn are independent and identically distributed (iid) random variables with finite mean μ and finite variance σ^2, then the standardized sample mean converges in distribution to a standard normal as n → ∞ (equivalently, sqrt(n)(̅X - μ) -> N(0,σ^2))." .
-
-<http://example.org/instance/theorem_lln> a ns1:Theorem ;
-    rdfs:label "Law of Large Numbers" ;
-    ns1:assumesCondition <http://example.org/instance/cond_finite_mean>,
-        <http://example.org/instance/cond_iid> ;
-    ns1:documentedIn <http://example.org/instance/doc_main> ;
-    ns1:hasStatement "If X1,...,Xn are independent and identically distributed (iid) with finite mean μ, then the sample mean X̅ converges in probability to μ as n → ∞ (i.e., X̅ ->p μ)." .
-
-<http://example.org/instance/tool_python> a ns1:Tool ;
-    rdfs:label "Python" ;
-    ns1:documentedIn <http://example.org/instance/doc_main> .
-
-ns1:appliesTo a rdf:Property ;
-    rdfs:label "appliesTo" ;
-    rdfs:comment "Indicates the primary domain of a Theorem (e.g., distribution or RandomVariable it concerns)." ;
-    rdfs:domain ns1:Theorem ;
-    rdfs:range ns1:MathematicalEntity .
-
-ns1:assumesCondition a rdf:Property ;
-    rdfs:label "assumesCondition" ;
-    rdfs:comment "Links a Theorem to a Condition (assumption) such as iid, finite variance." ;
-    rdfs:domain ns1:Theorem ;
-    rdfs:range ns1:Condition .
-
-ns1:computedFrom a rdf:Property ;
-    rdfs:label "computedFrom" ;
-    rdfs:comment "Indicates the RandomVariable or sample from which a Statistic is computed." ;
-    rdfs:domain ns1:Statistic ;
-    rdfs:range ns1:RandomVariable .
-
-ns1:documentedIn a rdf:Property ;
-    rdfs:label "documentedIn" ;
-    rdfs:comment "Provenance link: where the concept or formula is described (Document)." ;
-    rdfs:domain ns1:MathematicalEntity ;
-    rdfs:range ns1:Document .
-
-ns1:estimates a rdf:Property ;
-    rdfs:label "estimates" ;
-    rdfs:comment "Links an Estimator to the Parameter(s) it targets." ;
-    rdfs:domain ns1:Estimator ;
-    rdfs:range ns1:Parameter .
-
-ns1:hasCDF a rdf:Property ;
-    rdfs:label "hasCDF" ;
-    rdfs:comment "Link to a MathematicalExpression node containing the CDF formula." ;
-    rdfs:domain ns1:Distribution ;
-    rdfs:range ns1:MathematicalExpression .
-
-ns1:hasConfidenceLevel a rdf:Property ;
-    rdfs:label "hasConfidenceLevel" ;
-    rdfs:comment "Confidence level associated with a ConfidenceInterval (e.g., 0.95)." ;
-    rdfs:domain ns1:ConfidenceInterval ;
-    rdfs:range xsd:double .
-
-ns1:hasDistribution a rdf:Property ;
-    rdfs:label "hasDistribution" ;
-    rdfs:comment "Links a RandomVariable to its Distribution." ;
-    rdfs:domain ns1:RandomVariable ;
-    rdfs:range ns1:Distribution .
-
-ns1:hasFormula a rdf:Property ;
-    rdfs:label "hasFormula" ;
-    rdfs:comment "Holds the text of a mathematical expression (LaTeX, MathML, or code snippet)." ;
-    rdfs:domain ns1:MathematicalExpression ;
+ns1:featureName a rdf:Property ;
+    rdfs:label "feature name" ;
+    rdfs:comment "Short textual name for a Feature." ;
+    rdfs:domain ns1:Feature ;
     rdfs:range xsd:string .
 
-ns1:hasMean a rdf:Property ;
-    rdfs:label "hasMean" ;
-    rdfs:comment "Mean value associated with a distribution (numeric)." ;
-    rdfs:domain ns1:Distribution ;
-    rdfs:range xsd:double .
-
-ns1:hasPDF a rdf:Property ;
-    rdfs:label "hasPDF" ;
-    rdfs:comment "Link to a MathematicalExpression node containing the PDF formula (for continuous distributions)." ;
-    rdfs:domain ns1:Distribution ;
-    rdfs:range ns1:MathematicalExpression .
-
-ns1:hasPMF a rdf:Property ;
-    rdfs:label "hasPMF" ;
-    rdfs:comment "Link to a MathematicalExpression node containing the PMF formula (for discrete distributions)." ;
-    rdfs:domain ns1:Distribution ;
-    rdfs:range ns1:MathematicalExpression .
-
-ns1:hasPValue a rdf:Property ;
-    rdfs:label "hasPValue" ;
-    rdfs:comment "P-value resulting from a hypothesis test (numeric in [0,1])." ;
-    rdfs:domain ns1:HypothesisTest ;
-    rdfs:range xsd:double .
-
-ns1:hasParameter a rdf:Property ;
-    rdfs:label "hasParameter" ;
-    rdfs:comment "Links a Distribution to one of its Parameters." ;
-    rdfs:domain ns1:Distribution ;
-    rdfs:range ns1:Parameter .
-
-ns1:hasSignificanceLevel a rdf:Property ;
-    rdfs:label "hasSignificanceLevel" ;
-    rdfs:comment "Significance level (alpha) used in a hypothesis test (numeric in (0,1])." ;
-    rdfs:domain ns1:HypothesisTest ;
-    rdfs:range xsd:double .
-
-ns1:hasStatement a rdf:Property ;
-    rdfs:label "hasStatement" ;
-    rdfs:comment "Human-readable statement text for a Theorem." ;
-    rdfs:domain ns1:Theorem ;
+ns1:format a rdf:Property ;
+    rdfs:label "format" ;
+    rdfs:comment "Textual format or media type for a resource (e.g., Turtle)." ;
+    rdfs:domain ns1:Resource ;
     rdfs:range xsd:string .
 
-ns1:hasTestStatistic a rdf:Property ;
-    rdfs:label "hasTestStatistic" ;
-    rdfs:comment "The Statistic node used as the test statistic in a HypothesisTest." ;
-    rdfs:domain ns1:HypothesisTest ;
-    rdfs:range ns1:Statistic .
+ns1:hasComponent a rdf:Property ;
+    rdfs:label "has component" ;
+    rdfs:comment "Alternate predicate for dish components; normalized to hasIngredient." ;
+    rdfs:domain ns1:Dish ;
+    rdfs:range ns1:FoodItem ;
+    rdfs:subPropertyOf ns1:hasIngredient .
 
-ns1:hasVariance a rdf:Property ;
-    rdfs:label "hasVariance" ;
-    rdfs:comment "Variance value associated with a distribution (numeric)." ;
-    rdfs:domain ns1:Distribution ;
-    rdfs:range xsd:double .
+ns1:hasConcept a rdf:Property ;
+    rdfs:label "has concept" ;
+    rdfs:comment "Links an Ontology to Concepts it declares." ;
+    rdfs:domain ns1:Ontology ;
+    rdfs:range ns1:Concept .
 
-ns1:implementedIn a rdf:Property ;
-    rdfs:label "implementedIn" ;
-    rdfs:comment "Links an Estimator or method to a software Tool or package implementation." ;
-    rdfs:domain ns1:Estimator ;
-    rdfs:range ns1:Tool .
+ns1:hasFeature a rdf:Property ;
+    rdfs:label "has feature" ;
+    rdfs:comment "Attach a Feature node describing a capability to a Triplestore." ;
+    rdfs:domain ns1:Triplestore ;
+    rdfs:range ns1:Feature .
 
-ns1:isSpecialCaseOf a rdf:Property ;
-    rdfs:label "isSpecialCaseOf" ;
-    rdfs:comment "Relates a Distribution to another Distribution it is a special case or limit of (e.g., Poisson limit of Binomial)." ;
-    rdfs:domain ns1:Distribution ;
-    rdfs:range ns1:Distribution .
+ns1:homepage a rdf:Property ;
+    rdfs:label "homepage" ;
+    rdfs:comment "Canonical homepage or product URL." ;
+    rdfs:domain ns1:Triplestore ;
+    rdfs:range xsd:anyURI .
 
-ns1:mentionsSemanticWebConcept a rdf:Property ;
-    rdfs:label "mentionsSemanticWebConcept" ;
-    rdfs:comment "Indicates that a Document discusses a semantic-web concept (RDF, RDFS, OWL, ALC)." ;
-    rdfs:domain ns1:Document ;
-    rdfs:range ns1:SemanticWebConcept .
+ns1:isOpenSource a rdf:Property ;
+    rdfs:label "is open source" ;
+    rdfs:comment "Whether the triplestore product is open-source." ;
+    rdfs:domain ns1:Triplestore ;
+    rdfs:range xsd:boolean .
 
-ns1:parameterSymbol a rdf:Property ;
-    rdfs:label "parameterSymbol" ;
-    rdfs:comment "Symbol used for a parameter in the notebook (e.g., 'µ', 'σ2', 'λ', 'p')." ;
-    rdfs:domain ns1:Parameter ;
+ns1:license a rdf:Property ;
+    rdfs:label "license" ;
+    rdfs:comment "License of the triplestore product." ;
+    rdfs:domain ns1:Triplestore ;
+    rdfs:range ns1:License .
+
+ns1:prefLabel a rdf:Property ;
+    rdfs:label "preferred label" ;
+    rdfs:comment "Human-readable preferred label (convenience property)." ;
+    rdfs:domain ns1:Resource ;
     rdfs:range xsd:string .
 
-ns1:parameterValue a rdf:Property ;
-    rdfs:label "parameterValue" ;
-    rdfs:comment "Numeric value for a parameter when known (use xsd:double). Constraints like λ>0 are documented, validation is external." ;
-    rdfs:domain ns1:Parameter ;
-    rdfs:range xsd:double .
+ns1:publisher a rdf:Property ;
+    rdfs:label "publisher" ;
+    rdfs:comment "Agent that published or distributes the resource." ;
+    rdfs:domain ns1:Resource ;
+    rdfs:range ns1:Agent .
 
-<http://example.org/instance/binom_param_p> a ns1:Parameter ;
-    rdfs:label "Binomial probability parameter (p)" ;
-    ns1:parameterSymbol "p" .
+ns1:storageType a rdf:Property ;
+    rdfs:label "storage type" ;
+    rdfs:comment "Textual description of storage/persistence type (e.g., native, federated)." ;
+    rdfs:domain ns1:Triplestore ;
+    rdfs:range xsd:string .
 
-<http://example.org/instance/binom_param_size> a ns1:Parameter ;
-    rdfs:label "Binomial size parameter" ;
-    ns1:parameterSymbol "size" .
+ns1:supportsProtocol a rdf:Property ;
+    rdfs:label "supports protocol" ;
+    rdfs:comment "Protocol supported by the triplestore (e.g., HTTP)." ;
+    rdfs:domain ns1:Triplestore ;
+    rdfs:range ns1:Protocol .
 
-<http://example.org/instance/cond_finite_mean> a ns1:Condition ;
-    rdfs:label "finite mean" .
+ns1:supportsReasoning a rdf:Property ;
+    rdfs:label "supports reasoning" ;
+    rdfs:comment "Whether the triplestore advertises built-in inference/reasoning support." ;
+    rdfs:domain ns1:Triplestore ;
+    rdfs:range xsd:boolean .
 
-<http://example.org/instance/cond_finite_variance> a ns1:Condition ;
-    rdfs:label "finite variance" .
+ns1:supportsSPARQL a rdf:Property ;
+    rdfs:label "supports SPARQL" ;
+    rdfs:comment "Whether the triplestore exposes a SPARQL endpoint." ;
+    rdfs:domain ns1:Triplestore ;
+    rdfs:range xsd:boolean .
 
-<http://example.org/instance/exp_cdf_expr> a ns1:MathematicalExpression ;
-    rdfs:label "Exponential CDF" ;
-    ns1:hasFormula "F(x; λ) = 1 - e^{-λ x}, x ≥ 0" .
+ns1:supportsTransactions a rdf:Property ;
+    rdfs:label "supports transactions" ;
+    rdfs:comment "Whether the triplestore supports transactional updates." ;
+    rdfs:domain ns1:Triplestore ;
+    rdfs:range xsd:boolean .
 
-<http://example.org/instance/exp_param_lambda> a ns1:Parameter ;
-    rdfs:label "rate parameter" ;
-    ns1:parameterSymbol "λ" .
+ns1:vendor a rdf:Property ;
+    rdfs:label "vendor" ;
+    rdfs:comment "Vendor or organization providing the triplestore." ;
+    rdfs:domain ns1:Triplestore ;
+    rdfs:range xsd:string .
 
-<http://example.org/instance/exp_pdf_expr> a ns1:MathematicalExpression ;
-    rdfs:label "Exponential PDF" ;
-    ns1:hasFormula "f(x; λ) = λ e^{-λ x}, x ≥ 0" .
+<http://example.org/semantic-web/instance/albert-einstein> a ns1:Person ;
+    ns1:prefLabel "Albert Einstein" .
 
-<http://example.org/instance/gamma_cdf_expr> a ns1:MathematicalExpression ;
-    rdfs:label "Gamma CDF" ;
-    ns1:hasFormula "F(x; α, β) = γ(α, β x) / Γ(α)" .
+<http://example.org/semantic-web/instance/chicken-sandwich> a ns1:Dish ;
+    ns1:hasIngredient <http://example.org/semantic-web/instance/bread>,
+        <http://example.org/semantic-web/instance/chicken> ;
+    ns1:prefLabel "Chicken Sandwich" .
 
-<http://example.org/instance/gamma_dist_1> a ns1:GammaDistribution ;
-    rdfs:label "Gamma distribution" ;
-    ns1:documentedIn <http://example.org/instance/doc_main> ;
-    ns1:hasCDF <http://example.org/instance/gamma_cdf_expr> ;
-    ns1:hasPDF <http://example.org/instance/gamma_pdf_expr> ;
-    ns1:hasParameter <http://example.org/instance/gamma_param_alpha>,
-        <http://example.org/instance/gamma_param_beta> .
+<http://example.org/semantic-web/instance/margherita-pizza> a ns1:Dish ;
+    ns1:hasIngredient <http://example.org/semantic-web/instance/cheese>,
+        <http://example.org/semantic-web/instance/tomato> ;
+    ns1:prefLabel "Margherita Pizza" .
 
-<http://example.org/instance/gamma_param_alpha> a ns1:Parameter ;
-    rdfs:label "shape parameter" ;
-    ns1:parameterSymbol "α" .
+<http://example.org/semantic-web/instance/ontology-intro> a ns1:Ontology ;
+    ns1:hasConcept <http://example.org/semantic-web/instance/concept-attributes>,
+        <http://example.org/semantic-web/instance/concept-axioms>,
+        <http://example.org/semantic-web/instance/concept-classes>,
+        <http://example.org/semantic-web/instance/concept-individuals>,
+        <http://example.org/semantic-web/instance/concept-reasoning>,
+        <http://example.org/semantic-web/instance/concept-relationships>,
+        <http://example.org/semantic-web/instance/owl2-el>,
+        <http://example.org/semantic-web/instance/owl2-ql>,
+        <http://example.org/semantic-web/instance/owl2-rl> ;
+    ns1:prefLabel "Comprehensive Introduction to Ontologies in Information Science" .
 
-<http://example.org/instance/gamma_param_beta> a ns1:Parameter ;
-    rdfs:label "rate parameter" ;
-    ns1:parameterSymbol "β" .
+<http://example.org/semantic-web/instance/semanticweb-article> a ns1:Dataset ;
+    ns1:hasConcept <http://example.org/semantic-web/instance/concept-enterprise-kg>,
+        <http://example.org/semantic-web/instance/concept-identifiers>,
+        <http://example.org/semantic-web/instance/concept-linked-open-data>,
+        <http://example.org/semantic-web/instance/concept-nuna>,
+        <http://example.org/semantic-web/instance/concept-owa>,
+        <http://example.org/semantic-web/instance/concept-owl>,
+        <http://example.org/semantic-web/instance/concept-rdf>,
+        <http://example.org/semantic-web/instance/concept-rdfs>,
+        <http://example.org/semantic-web/instance/concept-schemaorg>,
+        <http://example.org/semantic-web/instance/concept-syntax>,
+        <http://example.org/semantic-web/instance/sparql> ;
+    ns1:prefLabel "The Semantic Web: Architecture, Logic, and Engineering" .
 
-<http://example.org/instance/gamma_pdf_expr> a ns1:MathematicalExpression ;
-    rdfs:label "Gamma PDF" ;
-    ns1:hasFormula "f(x; α, β) = (β^α / Γ(α)) x^{α-1} e^{-β x}, x ≥ 0" .
+<http://example.org/semantic-web/instance/the-matrix> a ns1:Resource ;
+    ns1:prefLabel "The Matrix (example: Movie)" .
 
-<http://example.org/instance/normal_param_m> a ns1:Parameter ;
-    rdfs:label "Normal mean parameter (m)" ;
-    ns1:parameterSymbol "m" ;
-    ns1:parameterValue 0e+00 .
+<http://example.org/triplestore/allegrograph> a ns1:Triplestore ;
+    rdfs:label "AllegroGraph" ;
+    ns1:exposesAPI <http://example.org/api/sparql-1-1-python-java-lisp> ;
+    ns1:hasFeature <http://example.org/feature/document-graph-database-with-advanced-temporal> ;
+    ns1:license <http://example.org/license/commercial> ;
+    ns1:prefLabel "AllegroGraph"^^xsd:string ;
+    ns1:publisher <http://example.org/agent/franz-inc> .
 
-<http://example.org/instance/normal_param_std> a ns1:Parameter ;
-    rdfs:label "Normal std parameter (std)" ;
-    ns1:parameterSymbol "std" ;
-    ns1:parameterValue 1e+00 .
+<http://example.org/triplestore/amazon-neptune> a ns1:Triplestore ;
+    rdfs:label "Amazon Neptune" ;
+    ns1:exposesAPI <http://example.org/api/sparql-apache-tinkerpop-gremlin-opencypher> ;
+    ns1:hasFeature <http://example.org/feature/fully-managed-cloud-database> ;
+    ns1:license <http://example.org/license/commercial-managed-service> ;
+    ns1:prefLabel "Amazon Neptune"^^xsd:string ;
+    ns1:publisher <http://example.org/agent/amazon-web-services-aws> .
 
-<http://example.org/instance/poisson_param_lambda> a ns1:Parameter ;
-    rdfs:label "Poisson rate parameter (lambda)" ;
-    ns1:parameterSymbol "lambda" .
+<http://example.org/triplestore/anzograph> a ns1:Triplestore ;
+    rdfs:label "AnzoGraph" ;
+    ns1:exposesAPI <http://example.org/api/sparql-1-1-cypher-c-api> ;
+    ns1:hasFeature <http://example.org/feature/massively-parallel-processing-mpp-native-graph-database-designed-for-distributed-analytics> ;
+    ns1:license <http://example.org/license/commercial> ;
+    ns1:prefLabel "AnzoGraph"^^xsd:string ;
+    ns1:publisher <http://example.org/agent/cambridge-semantics> .
 
-<http://example.org/instance/poisson_pmf_expr> a ns1:MathematicalExpression ;
-    rdfs:label "Poisson PMF" ;
-    ns1:hasFormula "P(X=k; λ) = e^{-λ} λ^k / k!, k = 0,1,2, ..." .
+<http://example.org/triplestore/apache-jena-tdb> a ns1:Triplestore ;
+    rdfs:label "Apache Jena TDB" ;
+    ns1:exposesAPI <http://example.org/api/sparql-1-1-native-jena-api> ;
+    ns1:hasFeature <http://example.org/feature/component-of-the-apache-jena-framework-a-native> ;
+    ns1:license <http://example.org/license/open-source-apache-2-0> ;
+    ns1:prefLabel "Apache Jena TDB"^^xsd:string ;
+    ns1:publisher <http://example.org/agent/apache-software-foundation> .
 
-<http://example.org/instance/studentt_param_nu> a ns1:Parameter ;
-    rdfs:label "degrees of freedom" ;
-    ns1:parameterSymbol "ν" .
+<http://example.org/triplestore/blazegraph> a ns1:Triplestore ;
+    rdfs:label "Blazegraph" ;
+    ns1:exposesAPI <http://example.org/api/sparql-1-1-blueprint-rdf4j> ;
+    ns1:hasFeature <http://example.org/feature/high-performance-graph-database-historically-powered-wikidata-query-service> ;
+    ns1:license <http://example.org/license/open-source-gplv3-commercial> ;
+    ns1:prefLabel "Blazegraph"^^xsd:string ;
+    ns1:publisher <http://example.org/agent/systap-acquired-by-amazon> .
 
-<http://example.org/instance/studentt_pdf_expr> a ns1:MathematicalExpression ;
-    rdfs:label "Student-t PDF" ;
-    ns1:hasFormula "f(t; ν) = Γ((ν+1)/2) / (√(νπ) Γ(ν/2)) (1 + t^2/ν)^{-(ν+1)/2}" .
+<http://example.org/triplestore/graphdb> a ns1:Triplestore ;
+    rdfs:label "GraphDB" ;
+    ns1:exposesAPI <http://example.org/api/sparql-1-1-rdf4j-graphdb-workbench> ;
+    ns1:hasFeature <http://example.org/feature/advanced-rdf-owl-reasoning> ;
+    ns1:license <http://example.org/license/commercial-free-edition> ;
+    ns1:prefLabel "GraphDB"^^xsd:string ;
+    ns1:publisher <http://example.org/agent/ontotext> .
 
-<http://example.org/instance/cond_iid> a ns1:Condition ;
-    rdfs:label "iid" .
+<http://example.org/triplestore/marklogic> a ns1:Triplestore ;
+    rdfs:label "MarkLogic" ;
+    ns1:exposesAPI <http://example.org/api/sparql-1-1-rest-java-node-js> ;
+    ns1:hasFeature <http://example.org/feature/multi-model-nosql-database-integrating-xml> ;
+    ns1:license <http://example.org/license/commercial> ;
+    ns1:prefLabel "MarkLogic"^^xsd:string ;
+    ns1:publisher <http://example.org/agent/progress-software> .
 
-<http://example.org/instance/doc_main> a ns1:Document ;
-    rdfs:label "main.pdf (notebook)" .
+<http://example.org/triplestore/oracle-spatial-and-graph> a ns1:Triplestore ;
+    rdfs:label "Oracle Spatial and Graph" ;
+    ns1:exposesAPI <http://example.org/api/sparql-1-1-sql-property-graph> ;
+    ns1:hasFeature <http://example.org/feature/enterprise-rdf-semantic-graph-support-built-natively-into-oracle-database> ;
+    ns1:license <http://example.org/license/commercial> ;
+    ns1:prefLabel "Oracle Spatial and Graph"^^xsd:string ;
+    ns1:publisher <http://example.org/agent/oracle> .
+
+<http://example.org/triplestore/rdf4j-formerly-sesame> a ns1:Triplestore ;
+    rdfs:label "RDF4J (formerly Sesame)" ;
+    ns1:exposesAPI <http://example.org/api/sparql-1-1-rdf4j-api> ;
+    ns1:hasFeature <http://example.org/feature/java-framework-for-processing-rdf-data-that-includes-an-in-memory-and-disk-based-triplestore> ;
+    ns1:license <http://example.org/license/open-source-edl> ;
+    ns1:prefLabel "RDF4J (formerly Sesame)"^^xsd:string ;
+    ns1:publisher <http://example.org/agent/eclipse-foundation> .
+
+<http://example.org/triplestore/stardog> a ns1:Triplestore ;
+    rdfs:label "Stardog" ;
+    ns1:exposesAPI <http://example.org/api/sparql-1-1-graphql-java-api> ;
+    ns1:hasFeature <http://example.org/feature/enterprise-knowledge-graph-platform-with-virtual-graphs-data-virtualization-and-logic-reasoning> ;
+    ns1:license <http://example.org/license/commercial> ;
+    ns1:prefLabel "Stardog"^^xsd:string ;
+    ns1:publisher <http://example.org/agent/stardog-union> .
+
+<http://example.org/triplestore/virtuoso> a ns1:Triplestore ;
+    rdfs:label "Virtuoso" ;
+    ns1:exposesAPI <http://example.org/api/sparql-sql-odbc-jdbc> ;
+    ns1:hasFeature <http://example.org/feature/hybrid-relational-rdf-engine> ;
+    ns1:license <http://example.org/license/open-source-gplv2-commercial> ;
+    ns1:prefLabel "Virtuoso"^^xsd:string ;
+    ns1:publisher <http://example.org/agent/openlink-software> .
+
+<http://example.org/agent/amazon-web-services-aws> a ns1:Agent ;
+    rdfs:label "Amazon Web Services (AWS)" .
+
+<http://example.org/agent/apache-software-foundation> a ns1:Agent ;
+    rdfs:label "Apache Software Foundation" .
+
+<http://example.org/agent/cambridge-semantics> a ns1:Agent ;
+    rdfs:label "Cambridge Semantics" .
+
+<http://example.org/agent/eclipse-foundation> a ns1:Agent ;
+    rdfs:label "Eclipse Foundation" .
+
+<http://example.org/agent/franz-inc> a ns1:Agent ;
+    rdfs:label "Franz Inc." .
+
+<http://example.org/agent/ontotext> a ns1:Agent ;
+    rdfs:label "Ontotext" .
+
+<http://example.org/agent/openlink-software> a ns1:Agent ;
+    rdfs:label "OpenLink Software" .
+
+<http://example.org/agent/oracle> a ns1:Agent ;
+    rdfs:label "Oracle" .
+
+<http://example.org/agent/progress-software> a ns1:Agent ;
+    rdfs:label "Progress Software" .
+
+<http://example.org/agent/stardog-union> a ns1:Agent ;
+    rdfs:label "Stardog Union" .
+
+<http://example.org/agent/systap-acquired-by-amazon> a ns1:Agent ;
+    rdfs:label "Systap (acquired by Amazon)" .
+
+<http://example.org/api/sparql-1-1-blueprint-rdf4j> a ns1:API ;
+    rdfs:label "SPARQL 1.1 / Blueprint / RDF4J" .
+
+<http://example.org/api/sparql-1-1-cypher-c-api> a ns1:API ;
+    rdfs:label "SPARQL 1.1 / Cypher / C++ API" .
+
+<http://example.org/api/sparql-1-1-graphql-java-api> a ns1:API ;
+    rdfs:label "SPARQL 1.1 / GraphQL / Java API" .
+
+<http://example.org/api/sparql-1-1-native-jena-api> a ns1:API ;
+    rdfs:label "SPARQL 1.1 / Native Jena API" .
+
+<http://example.org/api/sparql-1-1-python-java-lisp> a ns1:API ;
+    rdfs:label "SPARQL 1.1 / Python / Java / Lisp" .
+
+<http://example.org/api/sparql-1-1-rdf4j-api> a ns1:API ;
+    rdfs:label "SPARQL 1.1 / RDF4J API" .
+
+<http://example.org/api/sparql-1-1-rdf4j-graphdb-workbench> a ns1:API ;
+    rdfs:label "SPARQL 1.1 / RDF4J / GraphDB Workbench" .
+
+<http://example.org/api/sparql-1-1-rest-java-node-js> a ns1:API ;
+    rdfs:label "SPARQL 1.1 / REST / Java / Node.js" .
+
+<http://example.org/api/sparql-1-1-sql-property-graph> a ns1:API ;
+    rdfs:label "SPARQL 1.1 / SQL / Property Graph" .
+
+<http://example.org/api/sparql-apache-tinkerpop-gremlin-opencypher> a ns1:API ;
+    rdfs:label "SPARQL / Apache TinkerPop Gremlin / openCypher" .
+
+<http://example.org/api/sparql-sql-odbc-jdbc> a ns1:API ;
+    rdfs:label "SPARQL / SQL / ODBC / JDBC" .
+
+<http://example.org/feature/advanced-rdf-owl-reasoning> a ns1:Feature ;
+    rdfs:label "Advanced RDF/OWL reasoning" .
+
+<http://example.org/feature/component-of-the-apache-jena-framework-a-native> a ns1:Feature ;
+    rdfs:label "Component of the Apache Jena framework; a native" .
+
+<http://example.org/feature/document-graph-database-with-advanced-temporal> a ns1:Feature ;
+    rdfs:label "Document-Graph database with advanced temporal" .
+
+<http://example.org/feature/enterprise-knowledge-graph-platform-with-virtual-graphs-data-virtualization-and-logic-reasoning> a ns1:Feature ;
+    rdfs:label "Enterprise knowledge graph platform with virtual graphs (data virtualization) and logic reasoning." .
+
+<http://example.org/feature/enterprise-rdf-semantic-graph-support-built-natively-into-oracle-database> a ns1:Feature ;
+    rdfs:label "Enterprise RDF semantic graph support built natively into Oracle Database." .
+
+<http://example.org/feature/fully-managed-cloud-database> a ns1:Feature ;
+    rdfs:label "Fully managed cloud database" .
+
+<http://example.org/feature/high-performance-graph-database-historically-powered-wikidata-query-service> a ns1:Feature ;
+    rdfs:label "High-performance graph database (historically powered Wikidata Query Service)." .
+
+<http://example.org/feature/hybrid-relational-rdf-engine> a ns1:Feature ;
+    rdfs:label "Hybrid relational/RDF engine" .
+
+<http://example.org/feature/java-framework-for-processing-rdf-data-that-includes-an-in-memory-and-disk-based-triplestore> a ns1:Feature ;
+    rdfs:label "Java framework for processing RDF data that includes an in-memory and disk-based triplestore." .
+
+<http://example.org/feature/massively-parallel-processing-mpp-native-graph-database-designed-for-distributed-analytics> a ns1:Feature ;
+    rdfs:label "Massively Parallel Processing (MPP) native graph database designed for distributed analytics." .
+
+<http://example.org/feature/multi-model-nosql-database-integrating-xml> a ns1:Feature ;
+    rdfs:label "Multi-model NoSQL database integrating XML" .
+
+<http://example.org/license/commercial-free-edition> a ns1:License ;
+    rdfs:label "Commercial / Free Edition" .
+
+<http://example.org/license/commercial-managed-service> a ns1:License ;
+    rdfs:label "Commercial (Managed Service)" .
+
+<http://example.org/license/open-source-apache-2-0> a ns1:License ;
+    rdfs:label "Open Source (Apache 2.0)" .
+
+<http://example.org/license/open-source-edl> a ns1:License ;
+    rdfs:label "Open Source (EDL)" .
+
+<http://example.org/license/open-source-gplv2-commercial> a ns1:License ;
+    rdfs:label "Open Source (GPLv2) / Commercial" .
+
+<http://example.org/license/open-source-gplv3-commercial> a ns1:License ;
+    rdfs:label "Open Source (GPLv3) / Commercial" .
+
+ns1:hasIngredient a rdf:Property ;
+    rdfs:label "has ingredient" ;
+    rdfs:comment "Links a Dish to the FoodItems it contains." ;
+    rdfs:domain ns1:Dish ;
+    rdfs:range ns1:FoodItem .
+
+<http://example.org/semantic-web/instance/bread> a ns1:FoodItem ;
+    ns1:prefLabel "Bread" .
+
+<http://example.org/semantic-web/instance/cheese> a ns1:FoodItem ;
+    ns1:prefLabel "Cheese" .
+
+<http://example.org/semantic-web/instance/chicken> a ns1:Meat ;
+    ns1:prefLabel "Chicken (meat)" .
+
+<http://example.org/semantic-web/instance/concept-attributes> a ns1:Concept ;
+    ns1:prefLabel "Attributes (Datatype Properties)" .
+
+<http://example.org/semantic-web/instance/concept-axioms> a ns1:Concept ;
+    ns1:prefLabel "Axioms (Constraints & Rules)" .
+
+<http://example.org/semantic-web/instance/concept-classes> a ns1:Concept ;
+    ns1:prefLabel "Classes (Concepts)" .
+
+<http://example.org/semantic-web/instance/concept-enterprise-kg> a ns1:Concept ;
+    ns1:prefLabel "Enterprise Knowledge Graphs (EKG)" .
+
+<http://example.org/semantic-web/instance/concept-identifiers> a ns1:Concept ;
+    ns1:prefLabel "IRIs / Identifiers" .
+
+<http://example.org/semantic-web/instance/concept-individuals> a ns1:Concept ;
+    ns1:prefLabel "Individuals (Instances)" .
+
+<http://example.org/semantic-web/instance/concept-linked-open-data> a ns1:Concept ;
+    ns1:prefLabel "Linked Open Data (LOD)" .
+
+<http://example.org/semantic-web/instance/concept-nuna> a ns1:Concept ;
+    ns1:prefLabel "Non-Unique Name Assumption (NUNA)" .
+
+<http://example.org/semantic-web/instance/concept-owa> a ns1:Concept ;
+    ns1:prefLabel "Open World Assumption (OWA)" .
+
+<http://example.org/semantic-web/instance/concept-owl> a ns1:Concept ;
+    ns1:prefLabel "OWL (Ontologies & Description Logics)" .
+
+<http://example.org/semantic-web/instance/concept-rdf> a ns1:Concept ;
+    ns1:prefLabel "RDF (Data Model)" .
+
+<http://example.org/semantic-web/instance/concept-rdfs> a ns1:Concept ;
+    ns1:prefLabel "RDFS (Schema & Hierarchies)" .
+
+<http://example.org/semantic-web/instance/concept-reasoning> a ns1:Concept ;
+    ns1:prefLabel "Semantic Reasoning (classification, consistency checking)" .
+
+<http://example.org/semantic-web/instance/concept-relationships> a ns1:Concept ;
+    ns1:prefLabel "Relationships (Object Properties)" .
+
+<http://example.org/semantic-web/instance/concept-schemaorg> a ns1:Concept ;
+    ns1:prefLabel "schema.org & Embedded Semantics (JSON-LD)" .
+
+<http://example.org/semantic-web/instance/concept-syntax> a ns1:Concept ;
+    ns1:prefLabel "Syntax & Serialization (Turtle, JSON-LD, RDF/XML)" .
+
+<http://example.org/semantic-web/instance/owl2-el> a ns1:Concept ;
+    ns1:prefLabel "OWL 2 EL" .
+
+<http://example.org/semantic-web/instance/owl2-ql> a ns1:Concept ;
+    ns1:prefLabel "OWL 2 QL" .
+
+<http://example.org/semantic-web/instance/owl2-rl> a ns1:Concept ;
+    ns1:prefLabel "OWL 2 RL" .
+
+<http://example.org/semantic-web/instance/sparql> a ns1:Concept ;
+    ns1:prefLabel "SPARQL (Query Language)" .
+
+<http://example.org/semantic-web/instance/tomato> a ns1:FoodItem ;
+    ns1:prefLabel "Tomato" .
+
+<http://example.org/license/commercial> a ns1:License ;
+    rdfs:label "Commercial" .
 

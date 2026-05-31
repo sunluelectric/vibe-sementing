@@ -3,10 +3,10 @@
 This project builds a semantic web from local structured and unstructured data,
 stores it in Apache Jena Fuseki, and provides a browser-based viewer.
 
-The current implemented milestones are the semantic web designer, importer, and
-viewer. The latest end-to-end result is a proof-of-concept semantic web for a
-large probability, statistics, and data-science notebook PDF, not an exhaustive
-knowledge graph for every fact in that document.
+The current implemented milestones are the semantic web designer, importer,
+viewer, semantic-search integration, and CSV-aware deterministic import. The
+latest end-to-end result is a semantic web for semantic-web and ontology
+markdown documents plus a CSV of commonly seen triplestores.
 
 ## Current Handoff State
 
@@ -18,10 +18,13 @@ knowledge graph for every fact in that document.
 - Semantic-search integration, iterative retrieval-guided designer/importer
   workflows, and importer progressive logging are complete, tested, documented,
   and committed.
-- Non-DnD end-to-end validation is complete against a probability, statistics,
-  and data-science notebook PDF.
+- Non-DnD end-to-end validation is complete against semantic-web and ontology
+  markdown documents plus a triplestore CSV.
 - Product PDF ingestion is supported through PyMuPDF for direct source loading
   and semantic-search chunking.
+- CSV-aware design and deterministic import are complete, tested, and
+  documented. CSV files are summarized for design prompts, then imported
+  through validated row-to-RDF mappings instead of model-generated Turtle rows.
 - Do not manually change the ontology to make importer work easier. The importer
   must fit instances into the existing designer output unless the user approves
   a new designer run.
@@ -118,10 +121,10 @@ Known future scale-up work:
   stages and quality-oriented constraints instead of fixed class/property/triple
   limits.
 - Designer and importer now use shared semantic-search retrieval when source or
-  schema context exceeds configured thresholds. The non-DnD PDF validation shows
-  this works beyond the original DnD sample, but the current settings still
-  sample selected focus areas rather than covering every section of a long
-  document.
+  schema context exceeds configured thresholds. The non-DnD PDF and CSV-aware
+  validations show this works beyond the original DnD sample, but the current
+  settings still sample selected focus areas rather than covering every section
+  of a long document.
 - A richer semantic web should be possible by scaling the workflow up: use a
   stronger model, ask explicitly for comprehensive coverage, raise retrieval
   focus and importer batch limits, relax compact ontology limits, and add
@@ -149,10 +152,13 @@ Known future scale-up work:
 
 The importer reads the generated design document, the generated ontology, and
 the source data. It creates instance Turtle using only the ontology terms that
-already exist. It validates that the instance graph does not define new
-`rdfs:Class` or `rdf:Property` terms, writes local artifacts, combines ontology
-and instances for review, and loads the instance graph into Fuseki when
-available.
+already exist. For markdown, text, and PDF sources it uses the existing
+retrieval-guided LLM import path. For CSV sources it asks the model for a
+constrained row-to-RDF mapping JSON, validates that mapping, then deterministic
+Python code loops over all rows and emits RDF instances. It validates that the
+instance graph does not define new `rdfs:Class` or `rdf:Property` terms, writes
+local artifacts, combines ontology and instances for review, and loads the
+instance graph into Fuseki when available.
 
 The importer workflow performs these steps:
 
@@ -160,12 +166,18 @@ The importer workflow performs these steps:
 2. Start Fuseki if needed, using the same project-local runtime directory.
 3. Read `design.md`, `db/ontology.ttl`, and files under `data/`.
 4. Inspect ontology classes and properties.
-5. Use a direct OpenAI API call to generate instance Turtle.
-6. Validate the generated Turtle with `rdflib` and ontology-driven checks.
-7. Retry with validation feedback when needed.
-8. Write `db/instances.ttl`.
-9. Write `db/semantic_web.ttl` by combining ontology and instances.
-10. Load instances into Fuseki as the configured data named graph.
+5. Profile CSV files and ask the model for constrained CSV-to-RDF mapping JSON
+   when CSV files are present.
+6. Validate CSV mappings against source columns and existing ontology terms.
+7. Deterministically convert CSV rows into RDF instances.
+8. Use a direct OpenAI API call to generate instance Turtle for unstructured
+   markdown, text, and PDF sources.
+9. Validate generated and deterministic Turtle with `rdflib` and
+   ontology-driven checks.
+10. Retry with validation feedback when needed.
+11. Write `db/instances.ttl`.
+12. Write `db/semantic_web.ttl` by combining ontology and instances.
+13. Load instances into Fuseki as the configured data named graph.
 
 The importer writes a progressive run log to:
 
@@ -178,6 +190,9 @@ retrieval settings, each import-focus planning call, each batch retrieval, each
 instance-slice generation and validation result, and the final persistence/load
 summary. It is intended to make iterative importer runs observable in the same
 way `design.md` makes designer runs observable.
+
+For CSV import, `import.md` also records CSV mapping planning and deterministic
+CSV import summaries, including mapping count and deterministic triple count.
 
 For large importer runs, retrieval can be iterative and model-planned:
 
@@ -336,6 +351,32 @@ The standalone semantic-search tool under `tools/semantic-search` can index
 PDF, HTML, markdown, text, and CSV files. It remains useful as an experimental
 document QA tool, while the product workflows use the shared retrieval layer in
 `src/common`.
+
+## CSV-Aware Design And Import
+
+CSV files are handled as structured data rather than as unstructured text.
+
+The designer receives CSV profile summaries from `src/common/csv_profile.py`.
+Profiles include file name, row count, column names, inferred datatypes, null
+counts, capped distinct/example values, and a few sample rows. This lets the
+designer include tabular structure in the ontology without prompt-stuffing all
+rows.
+
+The importer uses `src/importer/csv_import.py` for deterministic CSV import:
+
+1. The model receives `design.md`, ontology terms, and CSV profiles.
+2. The model returns mapping JSON: row class, subject URI template, label
+   template, literal column mappings, relationship mappings, datatypes, and
+   null handling.
+3. Python validates the mapping against CSV headers, ontology classes,
+   ontology properties, property ranges, supported datatypes, and URI template
+   placeholders.
+4. Python iterates through the CSV rows and emits RDF with `rdflib`.
+5. The deterministic CSV graph is merged with the unstructured-source import
+   graph and validated as one instance graph.
+
+This keeps CSV bulk conversion repeatable and testable while still using the
+LLM for the semantic mapping decision.
 
 ## Fuseki Usage Notes
 
@@ -525,15 +566,16 @@ Expected importer outputs:
 ## Current Designer Result
 
 The current generated ontology was produced from a clean iterative
-retrieval-guided run against `data/main.pdf`, a probability, statistics, and
-data-science notebook:
+retrieval-guided run against semantic-web and ontology markdown files plus
+`data/commonly seen triplestores.csv`:
 
-- 202 RDF triples.
-- 22 RDFS classes.
-- 23 RDF properties.
+- 165 RDF triples.
+- 16 RDFS classes.
+- 21 RDF properties.
 - RDF validation passed.
 - The designer used 4 model-planned semantic-search focuses.
-- The source PDF extracted to about 305,000 characters and 132 PDF chunks.
+- The CSV source was represented to the designer as a profile instead of full
+  row text.
 - Fuseki loaded the ontology into the named ontology graph.
 
 ## Current Importer Result
@@ -541,51 +583,53 @@ data-science notebook:
 The current generated instance graph was produced from the fresh iterative
 designer output and source data:
 
-- 108 instance RDF triples.
-- 310 combined ontology and instance triples.
 - Instance RDF validation passed.
 - Fuseki instance graph load target: `fuseki`.
 - Importer ontology source: `fuseki`.
-- The importer used 4 model-planned import batches and stopped at the configured
-  batch limit.
-- The imported notebook facts cover named distributions, parameters/formulas,
-  CLT/LLN theorem assumptions, and selected estimator/tool facts.
+- The importer produced 241 instance RDF triples and 406 combined ontology and
+  instance triples.
+- Deterministic CSV import produced 157 triples from one validated CSV mapping.
+- The generated graph includes 11 triplestore instances and related API,
+  license, maintainer, and feature resources.
+- The markdown import path added 84 additional instance triples from the
+  semantic-web and ontology documents.
 
 ## Current Viewer Result
 
 The viewer was verified against the fresh persistent Fuseki data from the
 iterative designer/importer run:
 
-- Fuseki status endpoint reported 310 triples.
-- Multiple chatbot questions in one session returned grounded answers about
-  probability distributions, Poisson parameters/formulas, CLT/LLN assumptions,
-  and a reasoning question about sample means.
+- Fuseki status endpoint reported 406 triples.
+- A chatbot question about open-source triplestores and Apache Jena TDB APIs
+  returned a grounded answer using queried graph facts.
 - FastAPI endpoint checks for status, chat session creation, question answering,
   and Turtle export passed.
-- Turtle export from Fuseki parsed with `rdflib` and contained 310 triples.
-- Latest local test result after non-DnD PDF validation:
-  `63 passed, 2 skipped`.
+- Turtle export from Fuseki parsed with `rdflib` and contained 406 triples.
+- Latest local test result after CSV-aware validation:
+  `72 passed, 2 skipped`.
 
 ## Proof-Of-Concept Boundary
 
 The current non-DnD semantic web is intentionally a proof of concept. It proves
-that the designer, importer, Fuseki storage, viewer, PDF ingestion, retrieval,
-and export path work outside the original DnD example. It does not attempt to
-capture every concept, formula, theorem, code example, table, figure, package,
-and cross-reference from the 200+ page notebook.
+that the designer, importer, deterministic CSV import, Fuseki storage, viewer,
+retrieval, and export paths work outside the original DnD example. It does not
+attempt to capture every concept, example, standard, modeling rule, or
+triplestore capability from the source documents.
 
 This limitation is expected from the current settings:
 
 - The designer prompt asks for a compact first-pass RDF/RDFS ontology.
 - Validation rejects overly large first-pass ontologies.
 - Retrieval uses a small number of model-planned focus areas.
-- The importer stops at `IMPORTER_RETRIEVAL_BATCHES`, currently 4 by default.
+- CSV import now covers every row in the CSV once the mapping is validated, but
+  markdown and PDF import still use bounded LLM extraction.
 - PDF text extraction is less structured than markdown or hand-authored text,
   especially for equations, tables, code, page headings, and captions.
 
-The architecture can be scaled toward richer coverage by using stronger models,
-more comprehensive prompts, higher iteration limits, section-aware retrieval,
-coverage ledgers, ontology refinement passes, and better PDF preprocessing.
+The architecture can be scaled toward richer unstructured-source coverage by
+using stronger models, more comprehensive prompts, higher iteration limits,
+section-aware retrieval, coverage ledgers, ontology refinement passes, and
+better PDF preprocessing.
 
 ## Next Milestones
 

@@ -315,7 +315,8 @@ class ImporterWorkflow:
             if validation.ok:
                 break
             feedback = f"Attempt {attempt} failed validation: {'; '.join(validation.errors)}"
-            self.record_import_progress(
+            agent._record_progress(
+                self.settings.import_doc_path,
                 "## CSV Mapping Validation\n\n"
                 f"- Status: failed\n"
                 f"- Attempt: {attempt}\n"
@@ -330,7 +331,8 @@ class ImporterWorkflow:
             "mapping_count": len(plan.mappings),
             "triple_count": len(graph),
         }
-        self.record_import_progress(
+        agent._record_progress(
+            self.settings.import_doc_path,
             "## Deterministic CSV Import\n\n"
             f"- Status: success\n"
             f"- Mapping count: {len(plan.mappings)}\n"
