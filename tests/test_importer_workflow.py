@@ -50,6 +50,7 @@ def _workflow_with_temp_paths(tmp_path):
         data_dir=data_dir,
         design_doc_path=design_path,
         ontology_path=ontology_path,
+        import_doc_path=tmp_path / "import.md",
         instances_path=tmp_path / "instances.ttl",
         combined_path=tmp_path / "semantic_web.ttl",
         db_dir=tmp_path,
@@ -163,7 +164,14 @@ def test_importer_iterative_retrieval_merges_model_planned_slices(tmp_path) -> N
         def __init__(self) -> None:
             self.calls = 0
 
-        def plan_import_focus(self, design_text, ontology_graph, data_inventory, existing_instances):
+        def plan_import_focus(
+            self,
+            design_text,
+            ontology_graph,
+            data_inventory,
+            existing_instances,
+            progress_path=None,
+        ):
             self.calls += 1
             assert "source=source.md" in data_inventory
             if self.calls == 1:
@@ -183,6 +191,7 @@ def test_importer_iterative_retrieval_merges_model_planned_slices(tmp_path) -> N
             focus,
             existing_instances,
             max_attempts=2,
+            progress_path=None,
         ):
             assert len(source_data) <= 700
             assert len(ontology_turtle) <= 700
@@ -216,6 +225,9 @@ def test_importer_iterative_retrieval_merges_model_planned_slices(tmp_path) -> N
     assert workflow.last_retrieval_summary["iterative"]["used"] is True
     assert workflow.last_retrieval_summary["iterative"]["stop_reason"] == "model_complete"
     assert workflow.last_retrieval_summary["iterative"]["batch_count"] == 2
+    progress = workflow.settings.import_doc_path.read_text(encoding="utf-8")
+    assert "Import Batch Retrieval" in progress
+    assert "Record 1 Source 1" in progress
 
 
 def test_importer_inspects_ontology_from_fuseki_when_available(tmp_path) -> None:
@@ -254,6 +266,8 @@ def test_importer_persistence_writes_instances_and_combined_fallback(tmp_path) -
     assert result["load_target"] == "file"
     assert workflow.settings.instances_path.exists()
     assert workflow.settings.combined_path.exists()
+    assert workflow.settings.import_doc_path.exists()
+    assert "Import Persistence Summary" in workflow.settings.import_doc_path.read_text(encoding="utf-8")
     assert len(load_graph(workflow.settings.instances_path)) >= 4
     assert len(load_graph(workflow.settings.combined_path)) > len(load_graph(workflow.settings.instances_path))
 

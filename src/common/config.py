@@ -19,6 +19,7 @@ class Settings:
     tests_dir: Path = ROOT_DIR / "tests"
     design_requirements_path: Path = ROOT_DIR / "design-requirements.md"
     design_doc_path: Path = ROOT_DIR / "design.md"
+    import_doc_path: Path = ROOT_DIR / "import.md"
     ontology_path: Path = ROOT_DIR / "db" / "ontology.ttl"
     instances_path: Path = ROOT_DIR / "db" / "instances.ttl"
     combined_path: Path = ROOT_DIR / "db" / "semantic_web.ttl"

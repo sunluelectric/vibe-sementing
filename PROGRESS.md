@@ -274,6 +274,23 @@ instance graph response.
 - [x] Run `uv run pytest`.
 - [x] Commit the iterative importer improvement.
 
+## Milestone 8: Importer Progressive Logging
+
+Goal: make the slower iterative importer observable by writing progressive
+status, planning, retrieval, generation, validation, and final summary details
+to `import.md` during the run.
+
+- [x] Add importer configuration for the progressive import log path.
+- [x] Write `import.md` at importer start with model, retry, batch, and
+  retrieval settings.
+- [x] Update `import.md` for each planned import batch and each generated
+  instance slice.
+- [x] Record final importer persistence/load summary in `import.md`.
+- [x] Add tests for importer progress logging.
+- [x] Update `README.md` with importer progress-log behavior.
+- [x] Run `uv run pytest`.
+- [x] Commit the importer progressive logging improvement.
+
 ## Current Notes
 
 - Initial dependency installation succeeded.

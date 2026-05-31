@@ -7,6 +7,7 @@ from agents import Agent, function_tool, trace
 
 from src.common.config import Settings, get_settings
 from src.common.files import load_project_data, read_text
+from src.common.files import write_text
 from src.common.fuseki import client_from_settings, load_graph_to_fuseki_or_file
 from src.common.fuseki_manager import FusekiManager
 from rdflib import Graph
@@ -52,6 +53,13 @@ class ImporterWorkflow:
         self.last_stop_result: dict[str, Any] | None = None
         self.last_retrieval_summary: dict[str, Any] = {}
 
+    def record_import_progress(self, entry: str) -> None:
+        existing = ""
+        if self.settings.import_doc_path.exists():
+            existing = self.settings.import_doc_path.read_text(encoding="utf-8").strip()
+        content = f"{existing}\n\n{entry.strip()}" if existing else entry.strip()
+        write_text(self.settings.import_doc_path, content + "\n")
+
     def build_agent(self) -> Agent:
         return Agent(
             name="Semantic Web Importer Workflow Agent",
@@ -82,6 +90,7 @@ class ImporterWorkflow:
             self.build_agent()
             with trace("Semantic Web Importer Workflow"):
                 print("Importer step: checking Fuseki status", flush=True)
+                self.start_import_progress_log()
                 status_before = self.check_fuseki_status()
                 print(f"Importer Fuseki status: {status_before}", flush=True)
 
@@ -250,13 +259,36 @@ class ImporterWorkflow:
                 ontology_graph=ontology_graph,
                 source_data=source_data,
                 max_attempts=self.settings.importer_iterations,
+                progress_path=self.settings.import_doc_path,
+                reset_progress=False,
             )
-        return {
+        result = {
             "status": "success",
             "triple_count": len(self.last_import.graph),
             "iterations_allowed": self.settings.importer_iterations,
             "ontology_source": ontology_source,
         }
+        self.record_import_progress(
+            "## Import Generation Summary\n\n"
+            f"- Status: success\n"
+            f"- Triple count: {len(self.last_import.graph)}\n"
+            f"- Ontology source: {ontology_source}\n"
+            f"- Retrieval summary: `{self.last_retrieval_summary}`\n"
+        )
+        return result
+
+    def start_import_progress_log(self) -> None:
+        write_text(
+            self.settings.import_doc_path,
+            "# Semantic Web Importer Progress\n\n"
+            f"- Model: `{self.settings.llm_model}`\n"
+            f"- Max validation attempts per generation: {self.settings.importer_iterations}\n"
+            f"- Semantic search enabled: {self.settings.semantic_search_enabled}\n"
+            f"- Semantic search provider: `{self.settings.semantic_search_provider}`\n"
+            f"- Semantic context max chars: {self.settings.semantic_context_max_chars}\n"
+            f"- Importer retrieval batch limit: {self.settings.importer_retrieval_batches}\n"
+            f"- Importer slice context max chars: {self.settings.importer_slice_context_max_chars}\n",
+        )
 
     def should_use_iterative_import(self, ontology_graph: Graph) -> bool:
         if not self.settings.semantic_search_enabled:
@@ -290,6 +322,7 @@ class ImporterWorkflow:
                 ontology_graph=ontology_graph,
                 data_inventory=_data_inventory(source_chunks),
                 existing_instances=existing_summary,
+                progress_path=self.settings.import_doc_path,
             )
             if focus.complete:
                 stop_reason = "model_complete"
@@ -304,6 +337,14 @@ class ImporterWorkflow:
                 break
             source_data = select_context(source_chunks, focus.query, slice_settings)
             ontology_turtle = select_context(schema_chunks, focus.query, slice_settings)
+            self.record_import_progress(
+                "## Import Batch Retrieval\n\n"
+                f"- Batch: {batch_number}\n"
+                f"- Query: {focus.query}\n"
+                f"- Purpose: {focus.purpose}\n"
+                f"- Source context characters: {len(source_data)}\n"
+                f"- Schema context characters: {len(ontology_turtle)}\n"
+            )
             slice_result = agent.generate_instance_slice(
                 design_text=design_text,
                 ontology_turtle=ontology_turtle,
@@ -312,6 +353,7 @@ class ImporterWorkflow:
                 focus=focus,
                 existing_instances=existing_summary,
                 max_attempts=self.settings.importer_iterations,
+                progress_path=self.settings.import_doc_path,
             )
             for triple in slice_result.graph:
                 merged_graph.add(triple)
@@ -337,6 +379,8 @@ class ImporterWorkflow:
                 ontology_graph=ontology_graph,
                 source_data=source_data,
                 max_attempts=self.settings.importer_iterations,
+                progress_path=self.settings.import_doc_path,
+                reset_progress=False,
             )
             self.last_retrieval_summary["iterative"] = {
                 "used": False,
@@ -409,7 +453,7 @@ class ImporterWorkflow:
             self.settings.combined_path,
         )
         self.last_combined_triple_count = len(combined_graph)
-        return {
+        result = {
             "status": "success",
             "instances_path": str(self.settings.instances_path),
             "combined_path": str(self.settings.combined_path),
@@ -417,6 +461,16 @@ class ImporterWorkflow:
             "combined_triple_count": self.last_combined_triple_count,
             "load_target": self.last_load_target,
         }
+        self.record_import_progress(
+            "## Import Persistence Summary\n\n"
+            f"- Status: success\n"
+            f"- Instances path: `{self.settings.instances_path}`\n"
+            f"- Combined path: `{self.settings.combined_path}`\n"
+            f"- Instance triples: {len(self.last_import.graph)}\n"
+            f"- Combined triples: {self.last_combined_triple_count}\n"
+            f"- Load target: {self.last_load_target}\n"
+        )
+        return result
 
 
 def _workflow() -> ImporterWorkflow:

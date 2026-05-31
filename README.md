@@ -139,6 +139,18 @@ The importer workflow performs these steps:
 9. Write `db/semantic_web.ttl` by combining ontology and instances.
 10. Load instances into Fuseki as the configured data named graph.
 
+The importer writes a progressive run log to:
+
+```text
+import.md
+```
+
+This log is updated during long importer runs. It records the model, retry and
+retrieval settings, each import-focus planning call, each batch retrieval, each
+instance-slice generation and validation result, and the final persistence/load
+summary. It is intended to make iterative importer runs observable in the same
+way `design.md` makes designer runs observable.
+
 For large importer runs, retrieval can be iterative and model-planned:
 
 1. The importer keeps the full ontology graph locally for validation.
@@ -469,6 +481,7 @@ a generated review/export artifact.
 Expected designer outputs:
 
 - `design.md`: human-readable ontology design document.
+- `import.md`: progressive importer run log.
 - `db/ontology.ttl`: validated intermediate Turtle ontology.
 - Fuseki named graph: the configured `ONTOLOGY_GRAPH_URI`.
 

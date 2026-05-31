@@ -173,6 +173,44 @@ def test_importer_agent_generates_valid_instance_slice() -> None:
     assert len(result.graph) >= 4
 
 
+def test_importer_agent_writes_progress_for_planning_and_slice(tmp_path) -> None:
+    class StubImporter(ImporterAgent):
+        def __init__(self) -> None:
+            super().__init__("test-model")
+            self.calls = 0
+
+        def _run_direct_import_call(self, prompt: str) -> str:
+            self.calls += 1
+            if self.calls == 1:
+                return '{"complete": false, "query": "records", "purpose": "Import records."}'
+            return VALID_IMPORT_RESPONSE
+
+    progress_path = tmp_path / "import.md"
+    agent = StubImporter()
+    focus = agent.plan_import_focus(
+        design_text="# Design",
+        ontology_graph=parse_turtle(VALID_ONTOLOGY_TURTLE),
+        data_inventory="source.md contains records",
+        existing_instances="- No instances imported yet.",
+        progress_path=progress_path,
+    )
+    agent.generate_instance_slice(
+        design_text="# Design",
+        ontology_turtle=VALID_ONTOLOGY_TURTLE,
+        ontology_graph=parse_turtle(VALID_ONTOLOGY_TURTLE),
+        source_data="Record 1 from Source 1.",
+        focus=focus,
+        existing_instances="- No instances imported yet.",
+        max_attempts=1,
+        progress_path=progress_path,
+    )
+
+    progress = progress_path.read_text(encoding="utf-8")
+    assert "Import Focus Planning" in progress
+    assert "Import Slice Generation" in progress
+    assert "Import Slice Validation" in progress
+
+
 def test_importer_agent_retries_invalid_instance_slice() -> None:
     class StubImporter(ImporterAgent):
         def __init__(self) -> None:

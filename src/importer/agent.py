@@ -262,9 +262,11 @@ class ImporterAgent:
         source_data: str,
         max_attempts: int = 3,
         progress_path: Path | None = None,
+        reset_progress: bool = True,
     ) -> ImportResult:
         feedback = ""
-        self.progress_entries = []
+        if reset_progress:
+            self.progress_entries = []
         self._record_progress(
             progress_path,
             "# Semantic Web Importer Progress\n\n"
