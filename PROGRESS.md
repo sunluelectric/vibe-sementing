@@ -138,6 +138,11 @@ Goal: the semantic web importer reads `design.md`, `db/ontology.ttl`, and
 - [ ] Add tests for Fuseki ontology inspection with local Turtle fallback.
 - [ ] Replace whole-ontology Turtle prompt input with query-based ontology summaries and relevant schema slices so large ontologies do not have to fit in the LLM context.
 - [ ] Prefer Fuseki query inspection for large graphs, with local RDF/SPARQL fallback when Fuseki is unavailable.
+- [ ] Move inter-application handoff to persistent Fuseki storage. Designer and
+  importer may still generate Turtle as internal validation/loading artifacts,
+  but Fuseki should become the durable source of truth that bridges designer,
+  importer, and viewer. `design.md` remains reference documentation for the
+  importer; Turtle should not be the primary cross-application contract.
 
 ## Milestone 3: Viewer Framework
 
@@ -329,8 +334,10 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
 - Consider adding a separate schema review/refinement agent step that evaluates
   whether new classes or properties are justified by the data.
 - Treat Fuseki as the long-term source of truth for implemented ontology and
-  instance graphs. `design.md` should remain reference documentation for humans
-  and agents, not the only machine-readable contract.
+  instance graphs. Future work should use persistent Fuseki storage rather than
+  the current in-memory `--mem` server so graph data survives machine shutdown.
+  `design.md` should remain reference documentation for humans and agents, not
+  the only machine-readable contract.
 - Future importer/viewer agents should query Fuseki for relevant graph slices
   when available, with local RDF/Turtle fallback for portability and tests.
 

@@ -92,6 +92,13 @@ tests, portability, and fallback, but agents should consume relevant graph
 slices through Fuseki or local RDF/SPARQL queries instead of sending large
 Turtle files wholesale to an LLM.
 
+Future persistence goal: Fuseki should use durable storage and become the
+golden source of truth that bridges the designer, importer, and viewer. The
+designer and importer can continue writing Turtle as intermediate validation,
+review, and loading artifacts, but long-term cross-application handoff should
+not depend on Turtle files. `design.md` should remain a reference document for
+humans and the importer.
+
 Known future scale-up work:
 
 - The current designer prompt and validation limits intentionally keep the first
@@ -104,6 +111,9 @@ Known future scale-up work:
   frameworks when available. `design.md` should remain a reference document, and
   Turtle should remain useful for portability, review, tests, export, and
   fallback.
+- Fuseki should move from the current in-memory development mode to persistent
+  storage so graph data survives machine shutdown and can serve as the bridge
+  between designer, importer, and viewer.
 
 ## Semantic Web Importer
 
@@ -412,5 +422,5 @@ ontology and source data:
 
 - Run full end-to-end product validation from clean generated outputs.
 - Keep the documented future improvements for semantic-search integration,
-  query-first designer/importer handoff, and large-graph operation as later
-  work.
+  persistent Fuseki storage, query-first designer/importer handoff, and
+  large-graph operation as later work.
