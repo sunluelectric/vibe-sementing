@@ -24,6 +24,15 @@ class FakeFusekiClient:
             return [{"count": "11"}]
         if "COUNT(*)" in sparql:
             return [{"count": "12"}]
+        if "subjectLabel" in sparql and "CONTAINS(LCASE" in sparql:
+            return [
+                {
+                    "subject": "http://example.org/instances#scene1",
+                    "subjectLabel": "Cave Entrance",
+                    "predicateLabel": "name",
+                    "object": "Cave Entrance",
+                }
+            ]
         if "rdfs:Class" in sparql and "?class" in sparql:
             return [{"class": "http://example.org/schema#Scene", "label": "Scene"}]
         return [{"instance": "http://example.org/instances#scene1", "label": "Cave Entrance"}]
@@ -59,14 +68,16 @@ def test_viewer_query_helpers_execute_named_graph_queries() -> None:
     classes = service.classes()
     instances = service.class_instances_by_label("Scene")
     count = service.class_instance_count_by_label("Scene")
+    subject_facts = service.subject_facts_matching_question_labels("Tell me about Cave Entrance")
     turtle = service.export_turtle()
 
     assert classes[0]["label"] == "Scene"
     assert instances[0]["label"] == "Scene"
     assert count == 11
+    assert subject_facts[0]["subjectLabel"] == "Cave Entrance"
     assert "CONSTRUCT" in client.constructed[0]
     assert "GRAPH ?graph" in client.selected[0]
-    assert "GRAPH ?schemaGraph" in client.selected[-1]
+    assert any("GRAPH ?schemaGraph" in query for query in client.selected)
     assert turtle.startswith("@prefix")
 
 

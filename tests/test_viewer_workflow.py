@@ -41,6 +41,18 @@ class FakeQueryService:
             }
         ]
 
+    def subject_facts_matching_question_labels(self, question: str) -> list[dict[str, str]]:
+        if "Record 1" not in question:
+            return []
+        return [
+            {
+                "subject": "http://example.org/instances#record1",
+                "subjectLabel": "Record 1",
+                "predicateLabel": "description",
+                "object": "Exact record facts are prioritized.",
+            }
+        ]
+
     def class_instances_by_label(self, class_label: str, limit: int = 50) -> list[dict[str, str]]:
         self.class_lookups.append(class_label)
         return [
@@ -120,6 +132,21 @@ def test_viewer_agent_includes_class_instance_count_for_count_questions(monkeypa
     ViewerAgent(model="test-model").answer("How many records are there?", query_service)
 
     assert "classInstanceCount=1" in prompts[0]
+
+
+def test_viewer_agent_prioritizes_exact_subject_label_facts(monkeypatch) -> None:
+    prompts: list[str] = []
+
+    def fake_get_text_response(model: str, prompt: str, timeout_seconds: int) -> str:
+        prompts.append(prompt)
+        return "Record 1 has exact facts."
+
+    monkeypatch.setattr("src.viewer.agent.get_text_response", fake_get_text_response)
+
+    result = ViewerAgent(model="test-model").answer("Tell me about Record 1", FakeQueryService())
+
+    assert result.facts[0]["predicateLabel"] == "description"
+    assert "Exact record facts are prioritized" in prompts[0]
 
 
 def test_viewer_workflow_answer_question_with_stubbed_agent(monkeypatch, tmp_path) -> None:

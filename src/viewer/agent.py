@@ -79,7 +79,12 @@ class ViewerAgent:
             raise RuntimeError(status.message)
 
         summary = query_service.graph_summary()
-        facts = query_service.search_facts(question)
+        facts = []
+        if hasattr(query_service, "subject_facts_matching_question_labels"):
+            facts.extend(query_service.subject_facts_matching_question_labels(question))
+        for fact in query_service.search_facts(question):
+            if fact not in facts:
+                facts.append(fact)
         if hasattr(query_service, "semantic_search_facts"):
             for fact in query_service.semantic_search_facts(question):
                 if fact not in facts:

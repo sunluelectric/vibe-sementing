@@ -221,6 +221,32 @@ class ViewerQueryService:
             """
         )
 
+    def subject_facts_matching_question_labels(self, question: str, limit: int = 120) -> list[dict[str, str]]:
+        question_text = _sparql_string(question)
+        return self.select(
+            f"""
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+            SELECT DISTINCT ?subject ?subjectLabel ?predicate ?predicateLabel ?object ?objectLabel WHERE {{
+              GRAPH ?labelGraph {{
+                ?subject rdfs:label ?subjectLabel .
+                FILTER(STRLEN(STR(?subjectLabel)) >= 4)
+                FILTER(CONTAINS(LCASE({question_text}), LCASE(STR(?subjectLabel))))
+                FILTER NOT EXISTS {{ ?subject a rdfs:Class . }}
+                FILTER NOT EXISTS {{ ?subject a rdf:Property . }}
+              }}
+              GRAPH ?factGraph {{
+                ?subject ?predicate ?object .
+                OPTIONAL {{ ?predicate rdfs:label ?predicateLabel . }}
+                OPTIONAL {{ ?object rdfs:label ?objectLabel . }}
+              }}
+            }}
+            ORDER BY LCASE(STR(?subjectLabel)) LCASE(STR(COALESCE(?predicateLabel, ?predicate)))
+            LIMIT {int(limit)}
+            """
+        )
+
     def semantic_search_facts(self, question: str, limit: int = 200) -> list[dict[str, str]]:
         self._require_available()
         rows = self.select(
