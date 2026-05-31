@@ -208,6 +208,12 @@ Important settings:
 - `LLM_TIMEOUT_SECONDS`: defaults to `90`.
 - `DESIGNER_ITERATIONS`: defaults to `2`.
 - `IMPORTER_ITERATIONS`: defaults to `2`.
+- `SEMANTIC_SEARCH_ENABLED`: defaults to `true`.
+- `SEMANTIC_SEARCH_PROVIDER`: defaults to `local`. Use `openai` to use the
+  configured OpenAI embedding model for retrieval.
+- `EMBEDDING_MODEL`: defaults to `text-embedding-3-small`.
+- `SEMANTIC_SEARCH_TOP_K`: defaults to `8`.
+- `SEMANTIC_CONTEXT_MAX_CHARS`: defaults to `16000`.
 - `FUSEKI_BASE_URL`: defaults to `http://localhost:3030`.
 - `FUSEKI_DATASET`: defaults to `semantic-web-processor`.
 - `FUSEKI_HOME`: defaults to `/opt/apache-jena-fuseki-6.1.0`.
@@ -220,6 +226,36 @@ Important settings:
 Fuseki runtime files are written under `db/fuseki-run/`, persistent graph data
 is written under `db/fuseki-data/`, and Fuseki logs are written to
 `db/fuseki.log`. These local runtime files are ignored by git.
+
+## Semantic Search And Graph Slicing
+
+The designer, importer, and viewer now have a shared semantic-search foundation
+in `src/common/semantic_search.py`.
+
+The retrieval layer can chunk:
+
+- Markdown and plain-text files.
+- CSV files, including column names and row content.
+- RDF graphs, grouped into readable subject-centered chunks.
+- SPARQL result rows for viewer fact ranking.
+
+Small data still uses the previous full-context path. When source data,
+ontology Turtle, or bounded viewer facts exceed `SEMANTIC_CONTEXT_MAX_CHARS`,
+the workflows retrieve the most relevant chunks instead of sending the whole
+input to the model.
+
+Retrieval providers:
+
+- `SEMANTIC_SEARCH_PROVIDER=local` uses deterministic local vector search. This
+  is the default because it is fast, testable, and does not add embedding API
+  cost.
+- `SEMANTIC_SEARCH_PROVIDER=openai` uses `EMBEDDING_MODEL` through the OpenAI
+  embeddings API. This is the preferred option for larger real datasets.
+
+The standalone semantic-search tool under `tools/semantic-search` can now index
+markdown, text, and CSV files in addition to PDF and HTML. It remains useful as
+an experimental document QA tool, while the product workflows use the shared
+retrieval layer in `src/common`.
 
 ## Fuseki Usage Notes
 

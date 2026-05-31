@@ -5,6 +5,7 @@ from typing import Protocol
 
 from src.common.config import Settings
 from src.common.fuseki import FusekiUnavailable
+from src.common.semantic_search import rows_to_chunks, search_chunks
 
 
 class ViewerFusekiClient(Protocol):
@@ -190,6 +191,28 @@ class ViewerQueryService:
             LIMIT {int(limit)}
             """
         )
+
+    def semantic_search_facts(self, question: str, limit: int = 200) -> list[dict[str, str]]:
+        self._require_available()
+        rows = self.select(
+            f"""
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+            SELECT DISTINCT ?subject ?subjectLabel ?predicate ?predicateLabel ?object ?objectLabel WHERE {{
+              GRAPH ?graph {{
+                ?subject ?predicate ?object .
+                OPTIONAL {{ ?subject rdfs:label ?subjectLabel . }}
+                OPTIONAL {{ ?predicate rdfs:label ?predicateLabel . }}
+                OPTIONAL {{ ?object rdfs:label ?objectLabel . }}
+              }}
+            }}
+            ORDER BY LCASE(STR(COALESCE(?subjectLabel, ?subject))) LCASE(STR(COALESCE(?predicateLabel, ?predicate)))
+            LIMIT {int(limit)}
+            """
+        )
+        chunks = rows_to_chunks(rows, source="fuseki-facts")
+        results = search_chunks(chunks, question, self.settings)
+        return [result.chunk.metadata for result in results]
 
     def export_turtle(self) -> str:
         self._require_available()

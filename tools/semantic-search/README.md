@@ -27,8 +27,10 @@ Persistent state:
 
 ## What It Does
 
-1. Scans `DOC_PATH` for top-level `.pdf`, `.html`, and `.htm` files.
-2. Extracts PDF text with PyMuPDF and HTML text with BeautifulSoup.
+1. Scans `DOC_PATH` for top-level `.pdf`, `.html`, `.htm`, `.md`, `.txt`, and
+   `.csv` files.
+2. Extracts PDF text with PyMuPDF, HTML text with BeautifulSoup, markdown and
+   text files directly, and CSV content with pandas.
 3. Splits text into chunks using `tiktoken`.
 4. Embeds chunks with the configured OpenAI embedding model.
 5. Caches chunks and embeddings locally.
@@ -89,7 +91,10 @@ Place documents directly inside `DOC_PATH`:
 docs/
 ├── paper.pdf
 ├── manual.html
-└── notes.htm
+├── notes.htm
+├── requirements.md
+├── records.csv
+└── notes.txt
 ```
 
 Current limitation: `DOC_PATH` is not scanned recursively. Put files directly in `./docs`, or set `DOC_PATH` to the exact directory containing the files.

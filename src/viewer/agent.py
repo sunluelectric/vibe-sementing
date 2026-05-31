@@ -80,6 +80,10 @@ class ViewerAgent:
 
         summary = query_service.graph_summary()
         facts = query_service.search_facts(question)
+        if hasattr(query_service, "semantic_search_facts"):
+            for fact in query_service.semantic_search_facts(question):
+                if fact not in facts:
+                    facts.append(fact)
         facts.extend(_class_label_facts(question, summary, query_service))
         prompt = VIEWER_PROMPT.format(
             question=question,

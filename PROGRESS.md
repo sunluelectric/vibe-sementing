@@ -206,6 +206,28 @@ importer workflows, but not as the viewer's data source.
 - [x] Document known limitations and configuration options in `README.md`.
 - [x] Commit the end-to-end milestone.
 
+## Milestone 5: Semantic Search And Graph Slicing
+
+Goal: improve the standalone semantic-search tool and integrate retrieval-backed
+context selection into the designer, importer, and viewer without removing the
+current small-data full-context path.
+
+- [x] Add a reusable semantic-search foundation for chunking text files, CSV
+  files, and RDF graph content.
+- [x] Add deterministic local vector search for tests and optional OpenAI
+  embedding search for configured product runs.
+- [x] Improve `tools/semantic-search` so it can index markdown, text, and CSV
+  files in addition to PDF and HTML.
+- [x] Integrate retrieval-backed source context into the designer workflow.
+- [x] Integrate retrieval-backed source and ontology context into the importer
+  workflow.
+- [x] Integrate retrieval-backed graph fact context into the viewer answer path.
+- [x] Add focused tests for semantic chunking, search ranking, and workflow
+  retrieval integration.
+- [x] Update `README.md` with semantic-search configuration and behavior.
+- [x] Run `uv run pytest`.
+- [x] Commit the semantic-search improvement milestone.
+
 ## Current Notes
 
 - Initial dependency installation succeeded.

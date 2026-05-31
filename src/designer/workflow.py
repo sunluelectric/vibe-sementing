@@ -9,6 +9,7 @@ from src.common.config import Settings, get_settings
 from src.common.files import load_project_data, read_text, write_text
 from src.common.fuseki import client_from_settings, load_graph_to_fuseki_or_file
 from src.common.fuseki_manager import FusekiManager
+from src.common.semantic_search import chunks_from_data_dir, select_context
 from src.designer.agent import DesignerAgent, DesignResult
 
 
@@ -56,6 +57,7 @@ class DesignerWorkflow:
             tools=[
                 check_fuseki_status,
                 start_fuseki,
+                retrieve_design_context,
                 run_iterative_design,
                 persist_and_load_ontology,
             ],
@@ -126,7 +128,7 @@ class DesignerWorkflow:
 
     def run_iterative_design(self) -> dict[str, Any]:
         requirements = read_text(self.settings.design_requirements_path)
-        data = load_project_data(self.settings.data_dir)
+        data = self.retrieve_design_context(requirements)
         self.last_design = DesignerAgent(
             model=self.settings.llm_model,
             timeout_seconds=self.settings.llm_timeout_seconds,
@@ -142,6 +144,17 @@ class DesignerWorkflow:
             "triple_count": len(self.last_design.graph),
             "iterations_allowed": self.settings.designer_iterations,
         }
+
+    def retrieve_design_context(self, requirements: str | None = None) -> str:
+        full_data = load_project_data(self.settings.data_dir)
+        if not self.settings.semantic_search_enabled:
+            return full_data
+        if len(full_data) <= self.settings.semantic_context_max_chars:
+            return full_data
+        query = requirements or read_text(self.settings.design_requirements_path)
+        chunks = chunks_from_data_dir(self.settings.data_dir)
+        context = select_context(chunks, query, self.settings)
+        return context or full_data[: self.settings.semantic_context_max_chars]
 
     def persist_and_load_ontology(self) -> dict[str, Any]:
         if self.last_design is None:
@@ -185,6 +198,12 @@ def check_fuseki_status() -> dict[str, Any]:
 def start_fuseki() -> dict[str, Any]:
     """Start Apache Jena Fuseki for the configured dataset if it is not reachable."""
     return _workflow().start_fuseki()
+
+
+@function_tool
+def retrieve_design_context(requirements: str = "") -> str:
+    """Retrieve source-data context relevant to ontology design."""
+    return _workflow().retrieve_design_context(requirements or None)
 
 
 @function_tool

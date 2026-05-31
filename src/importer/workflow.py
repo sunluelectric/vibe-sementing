@@ -12,6 +12,7 @@ from src.common.fuseki_manager import FusekiManager
 from rdflib import Graph
 
 from src.common.rdf import combine_turtle_files, load_graph, parse_turtle, serialize_graph
+from src.common.semantic_search import chunks_from_data_dir, chunks_from_graph, select_context
 from src.importer.agent import ImporterAgent, ImportResult
 from src.importer.validation import inspect_ontology_terms
 
@@ -62,6 +63,8 @@ class ImporterWorkflow:
             tools=[
                 read_design_text,
                 read_source_data,
+                retrieve_import_context,
+                retrieve_schema_context,
                 inspect_ontology,
                 run_iterative_import,
                 persist_and_load_instances,
@@ -143,6 +146,29 @@ class ImporterWorkflow:
     def read_source_data(self) -> str:
         return load_project_data(self.settings.data_dir)
 
+    def retrieve_import_context(self, query: str | None = None) -> str:
+        full_data = self.read_source_data()
+        if not self.settings.semantic_search_enabled:
+            return full_data
+        if len(full_data) <= self.settings.semantic_context_max_chars:
+            return full_data
+        chunks = chunks_from_data_dir(self.settings.data_dir)
+        search_query = query or self.read_design_text()
+        context = select_context(chunks, search_query, self.settings)
+        return context or full_data[: self.settings.semantic_context_max_chars]
+
+    def retrieve_schema_context(self, query: str | None = None) -> str:
+        ontology_graph, _source = self.load_ontology_graph_for_import()
+        ontology_turtle = serialize_graph(ontology_graph)
+        if not self.settings.semantic_search_enabled:
+            return ontology_turtle
+        if len(ontology_turtle) <= self.settings.semantic_context_max_chars:
+            return ontology_turtle
+        chunks = chunks_from_graph(ontology_graph, source="ontology")
+        search_query = query or self.retrieve_import_context()
+        context = select_context(chunks, search_query, self.settings)
+        return context or ontology_turtle[: self.settings.semantic_context_max_chars]
+
     def inspect_ontology(self) -> dict[str, Any]:
         ontology_graph, source = self.load_ontology_graph_for_import()
         terms = inspect_ontology_terms(ontology_graph)
@@ -156,7 +182,8 @@ class ImporterWorkflow:
 
     def run_iterative_import(self) -> dict[str, Any]:
         ontology_graph, ontology_source = self.load_ontology_graph_for_import()
-        ontology_turtle = serialize_graph(ontology_graph)
+        source_data = self.retrieve_import_context()
+        ontology_turtle = self.retrieve_schema_context(source_data)
         self.last_import = ImporterAgent(
             model=self.settings.llm_model,
             timeout_seconds=self.settings.llm_timeout_seconds,
@@ -164,7 +191,7 @@ class ImporterWorkflow:
             design_text=self.read_design_text(),
             ontology_turtle=ontology_turtle,
             ontology_graph=ontology_graph,
-            source_data=self.read_source_data(),
+            source_data=source_data,
             max_attempts=self.settings.importer_iterations,
         )
         return {
@@ -247,6 +274,18 @@ def read_design_text() -> str:
 def read_source_data() -> str:
     """Read structured and unstructured project source data."""
     return _workflow().read_source_data()
+
+
+@function_tool
+def retrieve_import_context(query: str = "") -> str:
+    """Retrieve source-data context relevant to instance import."""
+    return _workflow().retrieve_import_context(query or None)
+
+
+@function_tool
+def retrieve_schema_context(query: str = "") -> str:
+    """Retrieve ontology context relevant to instance import."""
+    return _workflow().retrieve_schema_context(query or None)
 
 
 @function_tool

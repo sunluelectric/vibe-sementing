@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 import fitz
 from bs4 import BeautifulSoup
+import pandas as pd
 import tiktoken
 from agents import Agent, function_tool, Runner, trace
 import asyncio
@@ -75,19 +76,35 @@ class DocumentExplainer:
     def chunk_documents(self):
         chunks = []
         for filename in os.listdir(DOC_PATH):
-            if filename.endswith('.pdf'):
+            if filename.startswith('.'):
+                continue
+            doc_path = os.path.join(DOC_PATH, filename)
+            lower_filename = filename.lower()
+            if lower_filename.endswith('.pdf'):
                 doc_path = os.path.join(DOC_PATH, filename)
                 doc = fitz.open(doc_path)
                 text = ""
                 for page in doc:
                     text += page.get_text()
                 doc.close()
-                chunks.extend(self.chunk_text(text))
-            elif filename.endswith('.html') or filename.endswith('.htm'):
-                with open(os.path.join(DOC_PATH, filename), 'r', encoding='utf-8') as f:
+                chunks.extend(self.chunk_text(f"Source file: {filename}\n\n{text}"))
+            elif lower_filename.endswith('.html') or lower_filename.endswith('.htm'):
+                with open(doc_path, 'r', encoding='utf-8') as f:
                     soup = BeautifulSoup(f.read(), 'html.parser')
                     text = soup.get_text()
-                    chunks.extend(self.chunk_text(text))
+                    chunks.extend(self.chunk_text(f"Source file: {filename}\n\n{text}"))
+            elif lower_filename.endswith('.md') or lower_filename.endswith('.txt'):
+                with open(doc_path, 'r', encoding='utf-8') as f:
+                    text = f.read()
+                    chunks.extend(self.chunk_text(f"Source file: {filename}\n\n{text}"))
+            elif lower_filename.endswith('.csv'):
+                dataframe = pd.read_csv(doc_path)
+                text = (
+                    f"Source file: {filename}\n\n"
+                    f"Columns: {', '.join(dataframe.columns)}\n\n"
+                    f"{dataframe.to_csv(index=False)}"
+                )
+                chunks.extend(self.chunk_text(text))
         return chunks
     
     def generate_embeddings(self, chunks):

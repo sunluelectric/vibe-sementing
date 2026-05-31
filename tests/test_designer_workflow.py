@@ -19,6 +19,7 @@ def test_designer_workflow_builds_agents_sdk_shell() -> None:
     assert {tool.name for tool in agent.tools} == {
         "check_fuseki_status",
         "start_fuseki",
+        "retrieve_design_context",
         "run_iterative_design",
         "persist_and_load_ontology",
     }
@@ -89,3 +90,30 @@ def test_designer_persistence_loads_fuseki_when_available(tmp_path) -> None:
     graph_uri, turtle = client.loaded[0]
     assert graph_uri == workflow.settings.ontology_graph_uri
     assert len(parse_turtle(turtle)) >= 20
+
+
+def test_designer_retrieves_context_for_large_data(tmp_path) -> None:
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    (data_dir / "places.md").write_text(
+        "# Places\n\n"
+        + "Harbor records describe docks, boats, and tides.\n\n" * 200
+        + "Archive records describe invoices and unrelated accounting.\n\n" * 200,
+        encoding="utf-8",
+    )
+    requirements = tmp_path / "design-requirements.md"
+    requirements.write_text("Design an ontology for harbor docks and boats.", encoding="utf-8")
+    settings = replace(
+        get_settings(),
+        data_dir=data_dir,
+        design_requirements_path=requirements,
+        semantic_context_max_chars=900,
+        semantic_search_top_k=2,
+    )
+    workflow = DesignerWorkflow(settings)
+
+    context = workflow.retrieve_design_context("harbor docks boats tides")
+
+    assert len(context) <= 900
+    assert "Harbor records" in context
+    assert "Source chunk: places.md" in context

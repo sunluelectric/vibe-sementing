@@ -53,6 +53,13 @@ class Settings:
     app_port: int = int(os.getenv("VIEWER_PORT", "8000"))
     designer_iterations: int = int(os.getenv("DESIGNER_ITERATIONS", "2"))
     importer_iterations: int = int(os.getenv("IMPORTER_ITERATIONS", "2"))
+    semantic_search_enabled: bool = (
+        os.getenv("SEMANTIC_SEARCH_ENABLED", "true").lower() not in {"0", "false", "no"}
+    )
+    semantic_search_provider: str = os.getenv("SEMANTIC_SEARCH_PROVIDER", "local")
+    embedding_model: str = os.getenv("EMBEDDING_MODEL", "text-embedding-3-small")
+    semantic_search_top_k: int = int(os.getenv("SEMANTIC_SEARCH_TOP_K", "8"))
+    semantic_context_max_chars: int = int(os.getenv("SEMANTIC_CONTEXT_MAX_CHARS", "16000"))
 
     @property
     def sparql_query_url(self) -> str:

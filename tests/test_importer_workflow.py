@@ -72,6 +72,8 @@ def test_importer_workflow_builds_agents_sdk_shell() -> None:
     assert {tool.name for tool in agent.tools} == {
         "read_design_text",
         "read_source_data",
+        "retrieve_import_context",
+        "retrieve_schema_context",
         "inspect_ontology",
         "run_iterative_import",
         "persist_and_load_instances",
@@ -88,6 +90,51 @@ def test_importer_workflow_reads_inputs_and_inspects_ontology(tmp_path) -> None:
     assert terms["source"] == "file"
     assert terms["class_count"] == 2
     assert terms["property_count"] == 2
+
+
+def test_importer_retrieves_source_context_for_large_data(tmp_path) -> None:
+    workflow = _workflow_with_temp_paths(tmp_path)
+    (workflow.settings.data_dir / "source.md").write_text(
+        "# Source\n\n"
+        + "Relevant records mention Record 1 and value details.\n\n" * 200
+        + "Unrelated records mention archive storage.\n\n" * 200,
+        encoding="utf-8",
+    )
+    workflow.settings = replace(
+        workflow.settings,
+        semantic_context_max_chars=900,
+        semantic_search_top_k=2,
+    )
+
+    context = workflow.retrieve_import_context("Record 1 value details")
+
+    assert len(context) <= 900
+    assert "Relevant records" in context
+    assert "Source chunk: source.md" in context
+
+
+def test_importer_retrieves_schema_context_for_large_ontology(tmp_path) -> None:
+    workflow = _workflow_with_temp_paths(tmp_path)
+    extra_terms = "\n".join(
+        f"sw:ExtraClass{index} a rdfs:Class ; rdfs:label \"Extra Class {index}\" ."
+        for index in range(80)
+    )
+    workflow.settings.ontology_path.write_text(
+        VALID_ONTOLOGY_TURTLE + "\n" + extra_terms,
+        encoding="utf-8",
+    )
+    workflow.settings = replace(
+        workflow.settings,
+        semantic_context_max_chars=900,
+        semantic_search_top_k=2,
+    )
+    workflow.fuseki_client = OfflineFusekiClient()
+
+    context = workflow.retrieve_schema_context("record name value")
+
+    assert len(context) <= 900
+    assert "Record" in context
+    assert "Source chunk: ontology" in context
 
 
 def test_importer_inspects_ontology_from_fuseki_when_available(tmp_path) -> None:
