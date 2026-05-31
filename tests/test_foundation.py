@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from types import SimpleNamespace
 from pathlib import Path
 
 from rdflib import RDF, RDFS, Namespace
@@ -20,6 +21,33 @@ def test_load_project_data_reads_markdown_and_csv(tmp_path: Path) -> None:
     assert "Markdown text" in loaded
     assert "Source file: table.csv" in loaded
     assert "name,value" in loaded
+
+
+def test_load_project_data_reads_pdf(tmp_path: Path, monkeypatch) -> None:
+    class Document:
+        def __iter__(self):
+            return iter(
+                [
+                    SimpleNamespace(get_text=lambda: "Probability page."),
+                    SimpleNamespace(get_text=lambda: "Statistics page."),
+                ]
+            )
+
+        def close(self):
+            pass
+
+    monkeypatch.setitem(
+        __import__("sys").modules,
+        "fitz",
+        SimpleNamespace(open=lambda path: Document()),
+    )
+    (tmp_path / "notebook.pdf").write_bytes(b"%PDF fixture")
+
+    loaded = load_project_data(tmp_path)
+
+    assert "Source file: notebook.pdf" in loaded
+    assert "Probability page." in loaded
+    assert "Statistics page." in loaded
 
 
 def test_rdf_parse_combine_and_query(tmp_path: Path) -> None:

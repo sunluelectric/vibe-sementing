@@ -2,144 +2,146 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<http://example.org/adventure/character-aldric-thorn> a ns1:Npc ;
-    rdfs:label "Aldric Thorn" ;
-    ns1:canonicalId "aldric-thorn" ;
-    ns1:description "Arranges for the village healer to tend injured players; contributes 10 gold from his personal purse." ;
-    ns1:locatedIn <http://example.org/adventure/settlement-millhaven> ;
-    ns1:name "Aldric Thorn" ;
-    ns1:occursInScene <http://example.org/adventure/scene-goblin-cave-ashenvale>,
-        <http://example.org/adventure/scene-victory-condition> ;
-    ns1:roleLabel "merchant" .
+<http://example.org/instance/binomial_dist_1> a ns1:BinomialDistribution ;
+    rdfs:label "Binomial distribution (R dbinom/pbinom)" ;
+    ns1:documentedIn <http://example.org/instance/doc_main> ;
+    ns1:hasParameter <http://example.org/instance/binom_param_p>,
+        <http://example.org/instance/binom_param_size> .
 
-<http://example.org/adventure/dungeon-ashenvale-burrows> a ns1:Dungeon ;
-    ns1:canonicalId "ashenvale-burrows" ;
-    ns1:description "Cave system to the north, rumored to be inhabited by goblins." ;
-    ns1:name "Ashenvale Burrows" ;
-    ns1:occursInScene <http://example.org/adventure/scene-goblin-cave-ashenvale>,
-        <http://example.org/adventure/scene-hillside-trail> .
+<http://example.org/instance/exponential_dist_1> a ns1:ExponentialDistribution ;
+    rdfs:label "Exponential distribution" ;
+    ns1:documentedIn <http://example.org/instance/doc_main> ;
+    ns1:hasCDF <http://example.org/instance/exp_cdf_expr> ;
+    ns1:hasPDF <http://example.org/instance/exp_pdf_expr> ;
+    ns1:hasParameter <http://example.org/instance/exp_param_lambda> ;
+    ns1:isSpecialCaseOf <http://example.org/instance/gamma_dist_1> .
 
-<http://example.org/adventure/item-healing-potion-hillside> a ns1:Item ;
-    ns1:canonicalId "item-healing-potion-hillside" ;
-    ns1:count 1 ;
-    ns1:description "Healing Potion tucked inside a small sack near the post; included in the sentries' loot if they are defeated." ;
-    ns1:name "Healing Potion (in sack near post)" ;
-    ns1:occursInScene <http://example.org/adventure/scene-hillside-trail> .
+<http://example.org/instance/expr_fibonacci_py> a ns1:MathematicalExpression ;
+    rdfs:label "Fibonacci (Python snippet)" ;
+    ns1:documentedIn <http://example.org/instance/doc_main> ;
+    ns1:hasFormula """This is a piece of code written in Python.
+ax = []
+for i in range(20):
+if i<=1:
+ax.append(i)
+else:
+ax.append(ax[i-1]+ax[i-2])""" .
 
-<http://example.org/adventure/item-wooden-chest> a ns1:Container ;
-    rdfs:label "Wooden chest" ;
-    ns1:canonicalId "wooden-chest" ;
-    ns1:containsItem <http://example.org/adventure/treasure-200gp>,
-        <http://example.org/adventure/weapon-heirloom-dagger> ;
-    ns1:name "Wooden chest" ;
-    ns1:occursInScene <http://example.org/adventure/scene-goblin-cave-ashenvale>,
-        <http://example.org/adventure/scene-victory-condition> .
+<http://example.org/instance/normal_dist_1> a ns1:NormalDistribution ;
+    rdfs:label "Normal distribution (R dnorm defaults)" ;
+    ns1:documentedIn <http://example.org/instance/doc_main> ;
+    ns1:hasParameter <http://example.org/instance/normal_param_m>,
+        <http://example.org/instance/normal_param_std> .
 
-<http://example.org/adventure/location-north-road> a ns1:Location ;
-    ns1:canonicalId "north-road" ;
-    ns1:name "North road" ;
-    ns1:occursInScene <http://example.org/adventure/scene-hillside-trail> .
+<http://example.org/instance/poisson_dist_1> a ns1:PoissonDistribution ;
+    rdfs:label "Poisson distribution (R dpois/ppois)" ;
+    ns1:documentedIn <http://example.org/instance/doc_main> ;
+    ns1:hasPMF <http://example.org/instance/poisson_pmf_expr> ;
+    ns1:hasParameter <http://example.org/instance/poisson_param_lambda> .
 
-<http://example.org/adventure/monster-goblin> a ns1:Monster ;
-    rdfs:label "Goblin" ;
-    ns1:canonicalId "goblin" ;
-    ns1:description "Each Goblin defeated: 50 XP each (up to 6)" ;
-    ns1:name "Goblin" ;
-    ns1:occursInScene <http://example.org/adventure/scene-xp-summary> .
+<http://example.org/instance/studentt_dist_1> a ns1:StudentTDistribution ;
+    rdfs:label "Student's t distribution" ;
+    ns1:documentedIn <http://example.org/instance/doc_main> ;
+    ns1:hasPDF <http://example.org/instance/studentt_pdf_expr> ;
+    ns1:hasParameter <http://example.org/instance/studentt_param_nu> .
 
-<http://example.org/adventure/monster-goblin-hillside> a ns1:Monster ;
-    ns1:canonicalId "goblin-hillside-ambush" ;
-    ns1:count 4,
-        5 ;
-    ns1:description "Goblins reported in the Ashenvale Burrows; ambush party near the Hillside Trail." ;
-    ns1:name "Goblin ambush party" ;
-    ns1:occursInScene <http://example.org/adventure/scene-hillside-trail> .
+<http://example.org/instance/theorem_clt> a ns1:Theorem ;
+    rdfs:label "Central Limit Theorem" ;
+    ns1:assumesCondition <http://example.org/instance/cond_finite_variance>,
+        <http://example.org/instance/cond_iid> ;
+    ns1:documentedIn <http://example.org/instance/doc_main> ;
+    ns1:hasStatement "If X1,...,Xn are independent and identically distributed (iid) random variables with finite mean μ and finite variance σ^2, then the standardized sample mean converges in distribution to a standard normal as n → ∞ (equivalently, sqrt(n)(̅X - μ) -> N(0,σ^2))." .
 
-<http://example.org/adventure/monster-grix> a ns1:Monster ;
-    rdfs:label "Grix (Goblin Boss)" ;
-    ns1:canonicalId "grix" ;
-    ns1:description "Goblin Boss Grix defeated: 200 XP" ;
-    ns1:name "Grix" ;
-    ns1:occursInScene <http://example.org/adventure/scene-xp-summary> ;
-    ns1:roleLabel "Goblin Boss" .
+<http://example.org/instance/theorem_lln> a ns1:Theorem ;
+    rdfs:label "Law of Large Numbers" ;
+    ns1:assumesCondition <http://example.org/instance/cond_finite_mean>,
+        <http://example.org/instance/cond_iid> ;
+    ns1:documentedIn <http://example.org/instance/doc_main> ;
+    ns1:hasStatement "If X1,...,Xn are independent and identically distributed (iid) with finite mean μ, then the sample mean X̅ converges in probability to μ as n → ∞ (i.e., X̅ ->p μ)." .
 
-<http://example.org/adventure/quest-return-heirloom> a ns1:Quest ;
-    rdfs:label "Return the Heirloom" ;
-    ns1:canonicalId "return-the-heirloom" ;
-    ns1:description "Quest offering a reward (noted in the source as 50–60 gold possible; canonical reward link set to 50 gp)." ;
-    ns1:name "Return the Heirloom" ;
-    ns1:occursInScene <http://example.org/adventure/scene-victory-condition> ;
-    ns1:reward <http://example.org/adventure/treasure-50gp> .
+<http://example.org/instance/tool_python> a ns1:Tool ;
+    rdfs:label "Python" ;
+    ns1:documentedIn <http://example.org/instance/doc_main> .
 
-<http://example.org/adventure/treasure-10gp> a ns1:Treasure ;
-    ns1:canonicalId "treasure-10gp-aldric" ;
-    ns1:currency "gp" ;
-    ns1:description "A small personal payment of 10 gold from Aldric Thorn." ;
-    ns1:goldAmount 10 ;
-    ns1:name "Personal payment (Aldric Thorn)" ;
-    ns1:occursInScene <http://example.org/adventure/scene-hillside-trail> .
+<http://example.org/instance/binom_param_p> a ns1:Parameter ;
+    rdfs:label "Binomial probability parameter (p)" ;
+    ns1:parameterSymbol "p" .
 
-<http://example.org/adventure/treasure-hillside-3gp> a ns1:Treasure ;
-    ns1:canonicalId "treasure-hillside-3gp" ;
-    ns1:currency "gp" ;
-    ns1:description "Loot from the 2 goblin sentries (3 gold pieces total); awarded only if the sentries are defeated." ;
-    ns1:goldAmount 3 ;
-    ns1:name "Hillside sentries' gold" ;
-    ns1:occursInScene <http://example.org/adventure/scene-hillside-trail> .
+<http://example.org/instance/binom_param_size> a ns1:Parameter ;
+    rdfs:label "Binomial size parameter" ;
+    ns1:parameterSymbol "size" .
 
-<http://example.org/adventure/settlement-millhaven> a ns1:Settlement ;
-    rdfs:label "Millhaven" ;
-    ns1:canonicalId "millhaven" ;
-    ns1:name "Millhaven" .
+<http://example.org/instance/cond_finite_mean> a ns1:Condition ;
+    rdfs:label "finite mean" .
 
-<http://example.org/adventure/treasure-200gp> a ns1:Treasure ;
-    rdfs:label "200 gp (chest)" ;
-    ns1:canonicalId "treasure-200gp" ;
-    ns1:currency "gp" ;
-    ns1:description "200 gold pieces found in the chest" ;
-    ns1:goldAmount 200 ;
-    ns1:occursInScene <http://example.org/adventure/scene-goblin-cave-ashenvale>,
-        <http://example.org/adventure/scene-victory-condition> .
+<http://example.org/instance/cond_finite_variance> a ns1:Condition ;
+    rdfs:label "finite variance" .
 
-<http://example.org/adventure/treasure-50gp> a ns1:Treasure ;
-    rdfs:label "50 gp (quest reward)" ;
-    ns1:canonicalId "treasure-50gp" ;
-    ns1:currency "gp" ;
-    ns1:goldAmount 50 .
+<http://example.org/instance/exp_cdf_expr> a ns1:MathematicalExpression ;
+    rdfs:label "Exponential CDF" ;
+    ns1:hasFormula "F(x; λ) = 1 - e^{-λ x}, x ≥ 0" .
 
-<http://example.org/adventure/weapon-heirloom-dagger> a ns1:Weapon ;
-    rdfs:label "Heirloom dagger" ;
-    ns1:canonicalId "heirloom-dagger" ;
-    ns1:description "Family heirloom dagger recovered from the chest" ;
-    ns1:name "Heirloom dagger" ;
-    ns1:occursInScene <http://example.org/adventure/scene-goblin-cave-ashenvale>,
-        <http://example.org/adventure/scene-victory-condition> .
+<http://example.org/instance/exp_param_lambda> a ns1:Parameter ;
+    rdfs:label "rate parameter" ;
+    ns1:parameterSymbol "λ" .
 
-<http://example.org/adventure/scene-xp-summary> a ns1:Scene ;
-    rdfs:label "Experience Points Summary" ;
-    ns1:provenanceDocument <http://example.org/adventure/doc-sample-adventure-md> ;
-    ns1:sourceSceneHeading "Experience Points Summary" .
+<http://example.org/instance/exp_pdf_expr> a ns1:MathematicalExpression ;
+    rdfs:label "Exponential PDF" ;
+    ns1:hasFormula "f(x; λ) = λ e^{-λ x}, x ≥ 0" .
 
-<http://example.org/adventure/doc-sample-adventure-md> a ns1:SourceDocument ;
-    rdfs:label "sample_adventure.md" ;
-    ns1:sourceFile "sample_adventure.md" .
+<http://example.org/instance/gamma_cdf_expr> a ns1:MathematicalExpression ;
+    rdfs:label "Gamma CDF" ;
+    ns1:hasFormula "F(x; α, β) = γ(α, β x) / Γ(α)" .
 
-<http://example.org/adventure/scene-goblin-cave-ashenvale> a ns1:Scene ;
-    ns1:canonicalId "goblin-cave-ashenvale" ;
-    ns1:description "At dusk the party learns that Aldric Thorn was ambushed by goblins about 2 hours ago. His crude wooden chest was taken in the attack; the chest contained 200 gold pieces (200 gp) and a family heirloom dagger. Players can ask Aldric questions: he knows the direction (north, toward the hills), the approximate number of goblins (4–5), and that the time of attack was dusk, roughly two hours prior." ;
-    ns1:name "The Goblin Cave of Ashenvale" ;
-    ns1:provenanceDocument <http://example.org/adventure/doc-sample-adventure-md> ;
-    ns1:sourceSceneHeading "The Goblin Cave of Ashenvale" .
+<http://example.org/instance/gamma_dist_1> a ns1:GammaDistribution ;
+    rdfs:label "Gamma distribution" ;
+    ns1:documentedIn <http://example.org/instance/doc_main> ;
+    ns1:hasCDF <http://example.org/instance/gamma_cdf_expr> ;
+    ns1:hasPDF <http://example.org/instance/gamma_pdf_expr> ;
+    ns1:hasParameter <http://example.org/instance/gamma_param_alpha>,
+        <http://example.org/instance/gamma_param_beta> .
 
-<http://example.org/adventure/scene-victory-condition> a ns1:Scene ;
-    rdfs:label "Victory Condition" ;
-    ns1:description "Quest complete. Total possible reward: 50–60 gold + XP." ;
-    ns1:provenanceDocument <http://example.org/adventure/doc-sample-adventure-md> ;
-    ns1:sourceSceneHeading "Victory Condition" .
+<http://example.org/instance/gamma_param_alpha> a ns1:Parameter ;
+    rdfs:label "shape parameter" ;
+    ns1:parameterSymbol "α" .
 
-<http://example.org/adventure/scene-hillside-trail> a ns1:Scene ;
-    ns1:description "Ambush site near Millhaven; tracks lead north toward the Ashenvale Burrows." ;
-    ns1:name "The Hillside Trail" ;
-    ns1:provenanceDocument <http://example.org/adventure/doc-sample-adventure-md> ;
-    ns1:sourceSceneHeading "The Hillside Trail" .
+<http://example.org/instance/gamma_param_beta> a ns1:Parameter ;
+    rdfs:label "rate parameter" ;
+    ns1:parameterSymbol "β" .
+
+<http://example.org/instance/gamma_pdf_expr> a ns1:MathematicalExpression ;
+    rdfs:label "Gamma PDF" ;
+    ns1:hasFormula "f(x; α, β) = (β^α / Γ(α)) x^{α-1} e^{-β x}, x ≥ 0" .
+
+<http://example.org/instance/normal_param_m> a ns1:Parameter ;
+    rdfs:label "Normal mean parameter (m)" ;
+    ns1:parameterSymbol "m" ;
+    ns1:parameterValue 0e+00 .
+
+<http://example.org/instance/normal_param_std> a ns1:Parameter ;
+    rdfs:label "Normal std parameter (std)" ;
+    ns1:parameterSymbol "std" ;
+    ns1:parameterValue 1e+00 .
+
+<http://example.org/instance/poisson_param_lambda> a ns1:Parameter ;
+    rdfs:label "Poisson rate parameter (lambda)" ;
+    ns1:parameterSymbol "lambda" .
+
+<http://example.org/instance/poisson_pmf_expr> a ns1:MathematicalExpression ;
+    rdfs:label "Poisson PMF" ;
+    ns1:hasFormula "P(X=k; λ) = e^{-λ} λ^k / k!, k = 0,1,2, ..." .
+
+<http://example.org/instance/studentt_param_nu> a ns1:Parameter ;
+    rdfs:label "degrees of freedom" ;
+    ns1:parameterSymbol "ν" .
+
+<http://example.org/instance/studentt_pdf_expr> a ns1:MathematicalExpression ;
+    rdfs:label "Student-t PDF" ;
+    ns1:hasFormula "f(t; ν) = Γ((ν+1)/2) / (√(νπ) Γ(ν/2)) (1 + t^2/ν)^{-(ν+1)/2}" .
+
+<http://example.org/instance/cond_iid> a ns1:Condition ;
+    rdfs:label "iid" .
+
+<http://example.org/instance/doc_main> a ns1:Document ;
+    rdfs:label "main.pdf (notebook)" .
 

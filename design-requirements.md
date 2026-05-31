@@ -1,1 +1,5 @@
-Design a semantic web for the DnD advanture. Use your domain knowledge about DnD to design the semantic web, such as to have class Npc, Player, Monster, Weapon, etc, with approperate properties. Later, add the advanture data to the semantic web.
+The document is a notebook on probability, statistics and data science. It introduces a lot of mathematical concepts, discussed quite a lot of PDF types, and so on. It also introduces hypothesis tests, etc. It introduces commonly used tools such as R language and Python packages. It introduces semantic web terminologies such as RDF, RDFS, OWL, etc.
+
+The table of contents list down all the key contents introduced in the notebook.
+
+I want to build a semantic web that serve as a knowledge base for the knowledge in this notebook.

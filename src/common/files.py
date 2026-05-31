@@ -9,6 +9,16 @@ def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
+def read_pdf_text(path: Path) -> str:
+    import fitz
+
+    document = fitz.open(path)
+    try:
+        return "\n".join(page.get_text() for page in document)
+    finally:
+        document.close()
+
+
 def write_text(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8")
@@ -21,6 +31,8 @@ def load_project_data(data_dir: Path) -> str:
             continue
         if path.suffix.lower() in {".md", ".txt"}:
             parts.append(f"# Source file: {path.name}\n\n{read_text(path)}")
+        elif path.suffix.lower() == ".pdf":
+            parts.append(f"# Source file: {path.name}\n\n{read_pdf_text(path)}")
         elif path.suffix.lower() == ".csv":
             dataframe = pd.read_csv(path)
             parts.append(

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import replace
+from types import SimpleNamespace
 
 from rdflib import Namespace, RDF, RDFS
 
@@ -25,6 +26,27 @@ def test_semantic_search_chunks_markdown_text_and_csv(tmp_path) -> None:
     assert {chunk.kind for chunk in chunks} == {"md", "txt", "csv"}
     assert any("Docks and boats" in chunk.text for chunk in chunks)
     assert any("Row 1: name: Boat" in chunk.text for chunk in chunks)
+
+
+def test_semantic_search_chunks_pdf(tmp_path, monkeypatch) -> None:
+    class Document:
+        def __iter__(self):
+            return iter([SimpleNamespace(get_text=lambda: "Bayesian inference notes.")])
+
+        def close(self):
+            pass
+
+    monkeypatch.setitem(
+        __import__("sys").modules,
+        "fitz",
+        SimpleNamespace(open=lambda path: Document()),
+    )
+    (tmp_path / "notebook.pdf").write_bytes(b"%PDF fixture")
+
+    chunks = chunks_from_data_dir(tmp_path)
+
+    assert [chunk.kind for chunk in chunks] == ["pdf"]
+    assert "Bayesian inference notes." in chunks[0].text
 
 
 def test_local_semantic_index_ranks_matching_chunk_first() -> None:

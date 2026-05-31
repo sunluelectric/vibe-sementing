@@ -3,325 +3,393 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-ns1:Character a rdfs:Class ;
-    rdfs:label "Character" ;
-    rdfs:comment "Person-like game entities: players, NPCs, monsters." ;
-    rdfs:subClassOf ns1:Entity .
+ns1:BinomialDistribution a rdfs:Class ;
+    rdfs:label "BinomialDistribution" ;
+    rdfs:comment "Binomial distribution family with parameters n and p." ;
+    rdfs:subClassOf ns1:DiscreteDistribution .
 
-ns1:Container a rdfs:Class ;
-    rdfs:label "Container" ;
-    rdfs:comment "Items that can contain other items (chests, sacks)." ;
-    rdfs:subClassOf ns1:Item .
+ns1:Condition a rdfs:Class ;
+    rdfs:label "Condition" ;
+    rdfs:comment "An assumption or condition for a theorem (e.g., iid, finite variance)." ;
+    rdfs:subClassOf ns1:MathematicalEntity .
 
-ns1:Dungeon a rdfs:Class ;
-    rdfs:label "Dungeon" ;
-    rdfs:comment "Caves, dungeons, burrows." ;
-    rdfs:subClassOf ns1:Location .
+ns1:ConfidenceInterval a rdfs:Class ;
+    rdfs:label "ConfidenceInterval" ;
+    rdfs:comment "A confidence interval with a confidence level and bounds." ;
+    rdfs:subClassOf ns1:MathematicalEntity .
 
-ns1:Entity a rdfs:Class ;
-    rdfs:label "Entity" ;
-    rdfs:comment "Top-level class for named things in an adventure (characters, items, quests, scenes, locations)." .
+ns1:ContinuousDistribution a rdfs:Class ;
+    rdfs:label "ContinuousDistribution" ;
+    rdfs:comment "Continuous distribution family (has PDF)." ;
+    rdfs:subClassOf ns1:Distribution .
 
-ns1:Item a rdfs:Class ;
-    rdfs:label "Item" ;
-    rdfs:comment "Physical objects: weapons, treasures, containers." ;
-    rdfs:subClassOf ns1:Entity .
+ns1:DiscreteDistribution a rdfs:Class ;
+    rdfs:label "DiscreteDistribution" ;
+    rdfs:comment "Discrete distribution family (has PMF)." ;
+    rdfs:subClassOf ns1:Distribution .
 
-ns1:Location a rdfs:Class ;
-    rdfs:label "Location" ;
-    rdfs:comment "Places in the adventure: villages, caves, dungeons." ;
-    rdfs:subClassOf ns1:Entity .
+ns1:Distribution a rdfs:Class ;
+    rdfs:label "Distribution" ;
+    rdfs:comment "A probability distribution family (e.g., Normal, Poisson)." ;
+    rdfs:subClassOf ns1:MathematicalEntity .
 
-ns1:Monster a rdfs:Class ;
-    rdfs:label "Monster" ;
-    rdfs:comment "Hostile creatures (goblins, beasts)." ;
-    rdfs:subClassOf ns1:Character .
+ns1:Document a rdfs:Class ;
+    rdfs:label "Document" ;
+    rdfs:comment "A document, notebook page, or PDF from which content is sourced." ;
+    rdfs:subClassOf ns1:MathematicalEntity .
 
-ns1:Npc a rdfs:Class ;
-    rdfs:label "NPC" ;
-    rdfs:comment "Non-player characters (villagers, merchants, elders)." ;
-    rdfs:subClassOf ns1:Character .
+ns1:Estimator a rdfs:Class ;
+    rdfs:label "Estimator" ;
+    rdfs:comment "An estimation method (MLE, Bayesian estimator, etc.)." ;
+    rdfs:subClassOf ns1:MathematicalEntity .
 
-ns1:Player a rdfs:Class ;
-    rdfs:label "Player" ;
-    rdfs:comment "Player-controlled characters." ;
-    rdfs:subClassOf ns1:Character .
+ns1:ExponentialDistribution a rdfs:Class ;
+    rdfs:label "ExponentialDistribution" ;
+    rdfs:comment "Exponential distribution family (continuous), often parametrized by rate λ." ;
+    rdfs:subClassOf ns1:ContinuousDistribution .
 
-ns1:Quest a rdfs:Class ;
-    rdfs:label "Quest" ;
-    rdfs:comment "An objective or mission described in the adventure." ;
-    rdfs:subClassOf ns1:Entity .
+ns1:GammaDistribution a rdfs:Class ;
+    rdfs:label "GammaDistribution" ;
+    rdfs:comment "Gamma distribution family (continuous)." ;
+    rdfs:subClassOf ns1:ContinuousDistribution .
 
-ns1:Race a rdfs:Class ;
-    rdfs:label "Race" ;
-    rdfs:comment "Playable races (Human, Elf, Dwarf, etc.)." .
+ns1:HypothesisTest a rdfs:Class ;
+    rdfs:label "HypothesisTest" ;
+    rdfs:comment "A hypothesis test instance linking test statistic, p-value and alpha." ;
+    rdfs:subClassOf ns1:MathematicalEntity .
 
-ns1:Scene a rdfs:Class ;
-    rdfs:label "Scene" ;
-    rdfs:comment "A document section or scene heading grouping mentions in the source text." ;
-    rdfs:subClassOf ns1:Entity .
+ns1:MathematicalEntity a rdfs:Class ;
+    rdfs:label "MathematicalEntity" ;
+    rdfs:comment "Root class for concepts introduced in the notebook (distributions, theorems, tools, etc.)." .
 
-ns1:Settlement a rdfs:Class ;
-    rdfs:label "Settlement" ;
-    rdfs:comment "Villages or towns." ;
-    rdfs:subClassOf ns1:Location .
+ns1:MathematicalExpression a rdfs:Class ;
+    rdfs:label "MathematicalExpression" ;
+    rdfs:comment "A node holding a formula or code snippet (LaTeX, MathML, R/Python code)." ;
+    rdfs:subClassOf ns1:MathematicalEntity .
 
-ns1:SourceDocument a rdfs:Class ;
-    rdfs:label "SourceDocument" ;
-    rdfs:comment "Represents an input file or document (e.g., sample_adventure.md) used for provenance." .
+ns1:NormalDistribution a rdfs:Class ;
+    rdfs:label "NormalDistribution" ;
+    rdfs:comment "Normal (Gaussian) distribution family; parameters typically µ and σ²." ;
+    rdfs:subClassOf ns1:ContinuousDistribution .
 
-ns1:Treasure a rdfs:Class ;
-    rdfs:label "Treasure" ;
-    rdfs:comment "Monetary items or heirlooms (coins, family heirlooms)." ;
-    rdfs:subClassOf ns1:Item .
+ns1:Parameter a rdfs:Class ;
+    rdfs:label "Parameter" ;
+    rdfs:comment "A model or distribution parameter (symbol and optional numeric value)." ;
+    rdfs:subClassOf ns1:MathematicalEntity .
 
-ns1:Weapon a rdfs:Class ;
-    rdfs:label "Weapon" ;
-    rdfs:comment "Items primarily used as weapons (e.g., dagger)." ;
-    rdfs:subClassOf ns1:Item .
+ns1:PoissonDistribution a rdfs:Class ;
+    rdfs:label "PoissonDistribution" ;
+    rdfs:comment "Poisson distribution family with rate parameter λ." ;
+    rdfs:subClassOf ns1:DiscreteDistribution .
 
-<http://example.org/adventure/character-aldric-thorn> a ns1:Npc ;
-    rdfs:label "Aldric Thorn" ;
-    ns1:canonicalId "aldric-thorn" ;
-    ns1:description "Arranges for the village healer to tend injured players; contributes 10 gold from his personal purse." ;
-    ns1:locatedIn <http://example.org/adventure/settlement-millhaven> ;
-    ns1:name "Aldric Thorn" ;
-    ns1:occursInScene <http://example.org/adventure/scene-goblin-cave-ashenvale>,
-        <http://example.org/adventure/scene-victory-condition> ;
-    ns1:roleLabel "merchant" .
+ns1:RandomVariable a rdfs:Class ;
+    rdfs:label "RandomVariable" ;
+    rdfs:comment "A random variable; linked to a distribution via sw:hasDistribution." ;
+    rdfs:subClassOf ns1:MathematicalEntity .
 
-<http://example.org/adventure/dungeon-ashenvale-burrows> a ns1:Dungeon ;
-    ns1:canonicalId "ashenvale-burrows" ;
-    ns1:description "Cave system to the north, rumored to be inhabited by goblins." ;
-    ns1:name "Ashenvale Burrows" ;
-    ns1:occursInScene <http://example.org/adventure/scene-goblin-cave-ashenvale>,
-        <http://example.org/adventure/scene-hillside-trail> .
+ns1:SemanticWebConcept a rdfs:Class ;
+    rdfs:label "SemanticWebConcept" ;
+    rdfs:comment "Concepts related to the semantic web discussed in the notebook (RDF, RDFS, OWL, ALC)." ;
+    rdfs:subClassOf ns1:MathematicalEntity .
 
-<http://example.org/adventure/item-healing-potion-hillside> a ns1:Item ;
-    ns1:canonicalId "item-healing-potion-hillside" ;
-    ns1:count 1 ;
-    ns1:description "Healing Potion tucked inside a small sack near the post; included in the sentries' loot if they are defeated." ;
-    ns1:name "Healing Potion (in sack near post)" ;
-    ns1:occursInScene <http://example.org/adventure/scene-hillside-trail> .
+ns1:Statistic a rdfs:Class ;
+    rdfs:label "Statistic" ;
+    rdfs:comment "A computed statistic (sample mean, variance, test statistic)." ;
+    rdfs:subClassOf ns1:MathematicalEntity .
 
-<http://example.org/adventure/item-wooden-chest> a ns1:Container ;
-    rdfs:label "Wooden chest" ;
-    ns1:canonicalId "wooden-chest" ;
-    ns1:containsItem <http://example.org/adventure/treasure-200gp>,
-        <http://example.org/adventure/weapon-heirloom-dagger> ;
-    ns1:name "Wooden chest" ;
-    ns1:occursInScene <http://example.org/adventure/scene-goblin-cave-ashenvale>,
-        <http://example.org/adventure/scene-victory-condition> .
+ns1:StudentTDistribution a rdfs:Class ;
+    rdfs:label "StudentTDistribution" ;
+    rdfs:comment "Student's t distribution family (continuous), used in small-sample inference." ;
+    rdfs:subClassOf ns1:ContinuousDistribution .
 
-<http://example.org/adventure/location-north-road> a ns1:Location ;
-    ns1:canonicalId "north-road" ;
-    ns1:name "North road" ;
-    ns1:occursInScene <http://example.org/adventure/scene-hillside-trail> .
+ns1:Theorem a rdfs:Class ;
+    rdfs:label "Theorem" ;
+    rdfs:comment "A named mathematical or statistical theorem (e.g., CLT, LLN)." ;
+    rdfs:subClassOf ns1:MathematicalEntity .
 
-<http://example.org/adventure/monster-goblin> a ns1:Monster ;
-    rdfs:label "Goblin" ;
-    ns1:canonicalId "goblin" ;
-    ns1:description "Each Goblin defeated: 50 XP each (up to 6)" ;
-    ns1:name "Goblin" ;
-    ns1:occursInScene <http://example.org/adventure/scene-xp-summary> .
+ns1:Tool a rdfs:Class ;
+    rdfs:label "Tool" ;
+    rdfs:comment "Software tool or package (R, Python, numpy, scipy, R packages)." ;
+    rdfs:subClassOf ns1:MathematicalEntity .
 
-<http://example.org/adventure/monster-goblin-hillside> a ns1:Monster ;
-    ns1:canonicalId "goblin-hillside-ambush" ;
-    ns1:count 4,
-        5 ;
-    ns1:description "Goblins reported in the Ashenvale Burrows; ambush party near the Hillside Trail." ;
-    ns1:name "Goblin ambush party" ;
-    ns1:occursInScene <http://example.org/adventure/scene-hillside-trail> .
+<http://example.org/instance/binomial_dist_1> a ns1:BinomialDistribution ;
+    rdfs:label "Binomial distribution (R dbinom/pbinom)" ;
+    ns1:documentedIn <http://example.org/instance/doc_main> ;
+    ns1:hasParameter <http://example.org/instance/binom_param_p>,
+        <http://example.org/instance/binom_param_size> .
 
-<http://example.org/adventure/monster-grix> a ns1:Monster ;
-    rdfs:label "Grix (Goblin Boss)" ;
-    ns1:canonicalId "grix" ;
-    ns1:description "Goblin Boss Grix defeated: 200 XP" ;
-    ns1:name "Grix" ;
-    ns1:occursInScene <http://example.org/adventure/scene-xp-summary> ;
-    ns1:roleLabel "Goblin Boss" .
+<http://example.org/instance/exponential_dist_1> a ns1:ExponentialDistribution ;
+    rdfs:label "Exponential distribution" ;
+    ns1:documentedIn <http://example.org/instance/doc_main> ;
+    ns1:hasCDF <http://example.org/instance/exp_cdf_expr> ;
+    ns1:hasPDF <http://example.org/instance/exp_pdf_expr> ;
+    ns1:hasParameter <http://example.org/instance/exp_param_lambda> ;
+    ns1:isSpecialCaseOf <http://example.org/instance/gamma_dist_1> .
 
-<http://example.org/adventure/quest-return-heirloom> a ns1:Quest ;
-    rdfs:label "Return the Heirloom" ;
-    ns1:canonicalId "return-the-heirloom" ;
-    ns1:description "Quest offering a reward (noted in the source as 50–60 gold possible; canonical reward link set to 50 gp)." ;
-    ns1:name "Return the Heirloom" ;
-    ns1:occursInScene <http://example.org/adventure/scene-victory-condition> ;
-    ns1:reward <http://example.org/adventure/treasure-50gp> .
+<http://example.org/instance/expr_fibonacci_py> a ns1:MathematicalExpression ;
+    rdfs:label "Fibonacci (Python snippet)" ;
+    ns1:documentedIn <http://example.org/instance/doc_main> ;
+    ns1:hasFormula """This is a piece of code written in Python.
+ax = []
+for i in range(20):
+if i<=1:
+ax.append(i)
+else:
+ax.append(ax[i-1]+ax[i-2])""" .
 
-<http://example.org/adventure/treasure-10gp> a ns1:Treasure ;
-    ns1:canonicalId "treasure-10gp-aldric" ;
-    ns1:currency "gp" ;
-    ns1:description "A small personal payment of 10 gold from Aldric Thorn." ;
-    ns1:goldAmount 10 ;
-    ns1:name "Personal payment (Aldric Thorn)" ;
-    ns1:occursInScene <http://example.org/adventure/scene-hillside-trail> .
+<http://example.org/instance/normal_dist_1> a ns1:NormalDistribution ;
+    rdfs:label "Normal distribution (R dnorm defaults)" ;
+    ns1:documentedIn <http://example.org/instance/doc_main> ;
+    ns1:hasParameter <http://example.org/instance/normal_param_m>,
+        <http://example.org/instance/normal_param_std> .
 
-<http://example.org/adventure/treasure-hillside-3gp> a ns1:Treasure ;
-    ns1:canonicalId "treasure-hillside-3gp" ;
-    ns1:currency "gp" ;
-    ns1:description "Loot from the 2 goblin sentries (3 gold pieces total); awarded only if the sentries are defeated." ;
-    ns1:goldAmount 3 ;
-    ns1:name "Hillside sentries' gold" ;
-    ns1:occursInScene <http://example.org/adventure/scene-hillside-trail> .
+<http://example.org/instance/poisson_dist_1> a ns1:PoissonDistribution ;
+    rdfs:label "Poisson distribution (R dpois/ppois)" ;
+    ns1:documentedIn <http://example.org/instance/doc_main> ;
+    ns1:hasPMF <http://example.org/instance/poisson_pmf_expr> ;
+    ns1:hasParameter <http://example.org/instance/poisson_param_lambda> .
 
-ns1:canonicalId a rdf:Property ;
-    rdfs:label "canonicalId" ;
-    rdfs:comment "Normalized identifier or slug for an entity (useful when minting instance URIs)." ;
-    rdfs:domain ns1:Entity ;
+<http://example.org/instance/studentt_dist_1> a ns1:StudentTDistribution ;
+    rdfs:label "Student's t distribution" ;
+    ns1:documentedIn <http://example.org/instance/doc_main> ;
+    ns1:hasPDF <http://example.org/instance/studentt_pdf_expr> ;
+    ns1:hasParameter <http://example.org/instance/studentt_param_nu> .
+
+<http://example.org/instance/theorem_clt> a ns1:Theorem ;
+    rdfs:label "Central Limit Theorem" ;
+    ns1:assumesCondition <http://example.org/instance/cond_finite_variance>,
+        <http://example.org/instance/cond_iid> ;
+    ns1:documentedIn <http://example.org/instance/doc_main> ;
+    ns1:hasStatement "If X1,...,Xn are independent and identically distributed (iid) random variables with finite mean μ and finite variance σ^2, then the standardized sample mean converges in distribution to a standard normal as n → ∞ (equivalently, sqrt(n)(̅X - μ) -> N(0,σ^2))." .
+
+<http://example.org/instance/theorem_lln> a ns1:Theorem ;
+    rdfs:label "Law of Large Numbers" ;
+    ns1:assumesCondition <http://example.org/instance/cond_finite_mean>,
+        <http://example.org/instance/cond_iid> ;
+    ns1:documentedIn <http://example.org/instance/doc_main> ;
+    ns1:hasStatement "If X1,...,Xn are independent and identically distributed (iid) with finite mean μ, then the sample mean X̅ converges in probability to μ as n → ∞ (i.e., X̅ ->p μ)." .
+
+<http://example.org/instance/tool_python> a ns1:Tool ;
+    rdfs:label "Python" ;
+    ns1:documentedIn <http://example.org/instance/doc_main> .
+
+ns1:appliesTo a rdf:Property ;
+    rdfs:label "appliesTo" ;
+    rdfs:comment "Indicates the primary domain of a Theorem (e.g., distribution or RandomVariable it concerns)." ;
+    rdfs:domain ns1:Theorem ;
+    rdfs:range ns1:MathematicalEntity .
+
+ns1:assumesCondition a rdf:Property ;
+    rdfs:label "assumesCondition" ;
+    rdfs:comment "Links a Theorem to a Condition (assumption) such as iid, finite variance." ;
+    rdfs:domain ns1:Theorem ;
+    rdfs:range ns1:Condition .
+
+ns1:computedFrom a rdf:Property ;
+    rdfs:label "computedFrom" ;
+    rdfs:comment "Indicates the RandomVariable or sample from which a Statistic is computed." ;
+    rdfs:domain ns1:Statistic ;
+    rdfs:range ns1:RandomVariable .
+
+ns1:documentedIn a rdf:Property ;
+    rdfs:label "documentedIn" ;
+    rdfs:comment "Provenance link: where the concept or formula is described (Document)." ;
+    rdfs:domain ns1:MathematicalEntity ;
+    rdfs:range ns1:Document .
+
+ns1:estimates a rdf:Property ;
+    rdfs:label "estimates" ;
+    rdfs:comment "Links an Estimator to the Parameter(s) it targets." ;
+    rdfs:domain ns1:Estimator ;
+    rdfs:range ns1:Parameter .
+
+ns1:hasCDF a rdf:Property ;
+    rdfs:label "hasCDF" ;
+    rdfs:comment "Link to a MathematicalExpression node containing the CDF formula." ;
+    rdfs:domain ns1:Distribution ;
+    rdfs:range ns1:MathematicalExpression .
+
+ns1:hasConfidenceLevel a rdf:Property ;
+    rdfs:label "hasConfidenceLevel" ;
+    rdfs:comment "Confidence level associated with a ConfidenceInterval (e.g., 0.95)." ;
+    rdfs:domain ns1:ConfidenceInterval ;
+    rdfs:range xsd:double .
+
+ns1:hasDistribution a rdf:Property ;
+    rdfs:label "hasDistribution" ;
+    rdfs:comment "Links a RandomVariable to its Distribution." ;
+    rdfs:domain ns1:RandomVariable ;
+    rdfs:range ns1:Distribution .
+
+ns1:hasFormula a rdf:Property ;
+    rdfs:label "hasFormula" ;
+    rdfs:comment "Holds the text of a mathematical expression (LaTeX, MathML, or code snippet)." ;
+    rdfs:domain ns1:MathematicalExpression ;
     rdfs:range xsd:string .
 
-ns1:containsItem a rdf:Property ;
-    rdfs:label "containsItem" ;
-    rdfs:comment "Container contains items (container -> item)." ;
-    rdfs:domain ns1:Container ;
-    rdfs:range ns1:Item .
+ns1:hasMean a rdf:Property ;
+    rdfs:label "hasMean" ;
+    rdfs:comment "Mean value associated with a distribution (numeric)." ;
+    rdfs:domain ns1:Distribution ;
+    rdfs:range xsd:double .
 
-ns1:count a rdf:Property ;
-    rdfs:label "count" ;
-    rdfs:comment "Numeric count or quantity for items or creature groups." ;
-    rdfs:domain ns1:Item ;
-    rdfs:range xsd:integer .
+ns1:hasPDF a rdf:Property ;
+    rdfs:label "hasPDF" ;
+    rdfs:comment "Link to a MathematicalExpression node containing the PDF formula (for continuous distributions)." ;
+    rdfs:domain ns1:Distribution ;
+    rdfs:range ns1:MathematicalExpression .
 
-ns1:currency a rdf:Property ;
-    rdfs:label "currency" ;
-    rdfs:comment "Currency label for monetary amounts (e.g., 'gp')." ;
-    rdfs:domain ns1:Treasure ;
+ns1:hasPMF a rdf:Property ;
+    rdfs:label "hasPMF" ;
+    rdfs:comment "Link to a MathematicalExpression node containing the PMF formula (for discrete distributions)." ;
+    rdfs:domain ns1:Distribution ;
+    rdfs:range ns1:MathematicalExpression .
+
+ns1:hasPValue a rdf:Property ;
+    rdfs:label "hasPValue" ;
+    rdfs:comment "P-value resulting from a hypothesis test (numeric in [0,1])." ;
+    rdfs:domain ns1:HypothesisTest ;
+    rdfs:range xsd:double .
+
+ns1:hasParameter a rdf:Property ;
+    rdfs:label "hasParameter" ;
+    rdfs:comment "Links a Distribution to one of its Parameters." ;
+    rdfs:domain ns1:Distribution ;
+    rdfs:range ns1:Parameter .
+
+ns1:hasSignificanceLevel a rdf:Property ;
+    rdfs:label "hasSignificanceLevel" ;
+    rdfs:comment "Significance level (alpha) used in a hypothesis test (numeric in (0,1])." ;
+    rdfs:domain ns1:HypothesisTest ;
+    rdfs:range xsd:double .
+
+ns1:hasStatement a rdf:Property ;
+    rdfs:label "hasStatement" ;
+    rdfs:comment "Human-readable statement text for a Theorem." ;
+    rdfs:domain ns1:Theorem ;
     rdfs:range xsd:string .
 
-ns1:description a rdf:Property ;
-    rdfs:label "description" ;
-    rdfs:comment "Short descriptive text for an entity or scene." ;
-    rdfs:domain ns1:Entity ;
+ns1:hasTestStatistic a rdf:Property ;
+    rdfs:label "hasTestStatistic" ;
+    rdfs:comment "The Statistic node used as the test statistic in a HypothesisTest." ;
+    rdfs:domain ns1:HypothesisTest ;
+    rdfs:range ns1:Statistic .
+
+ns1:hasVariance a rdf:Property ;
+    rdfs:label "hasVariance" ;
+    rdfs:comment "Variance value associated with a distribution (numeric)." ;
+    rdfs:domain ns1:Distribution ;
+    rdfs:range xsd:double .
+
+ns1:implementedIn a rdf:Property ;
+    rdfs:label "implementedIn" ;
+    rdfs:comment "Links an Estimator or method to a software Tool or package implementation." ;
+    rdfs:domain ns1:Estimator ;
+    rdfs:range ns1:Tool .
+
+ns1:isSpecialCaseOf a rdf:Property ;
+    rdfs:label "isSpecialCaseOf" ;
+    rdfs:comment "Relates a Distribution to another Distribution it is a special case or limit of (e.g., Poisson limit of Binomial)." ;
+    rdfs:domain ns1:Distribution ;
+    rdfs:range ns1:Distribution .
+
+ns1:mentionsSemanticWebConcept a rdf:Property ;
+    rdfs:label "mentionsSemanticWebConcept" ;
+    rdfs:comment "Indicates that a Document discusses a semantic-web concept (RDF, RDFS, OWL, ALC)." ;
+    rdfs:domain ns1:Document ;
+    rdfs:range ns1:SemanticWebConcept .
+
+ns1:parameterSymbol a rdf:Property ;
+    rdfs:label "parameterSymbol" ;
+    rdfs:comment "Symbol used for a parameter in the notebook (e.g., 'µ', 'σ2', 'λ', 'p')." ;
+    rdfs:domain ns1:Parameter ;
     rdfs:range xsd:string .
 
-ns1:goldAmount a rdf:Property ;
-    rdfs:label "goldAmount" ;
-    rdfs:comment "Numeric amount of gold (unit gp implied)." ;
-    rdfs:domain ns1:Quest,
-        ns1:Treasure ;
-    rdfs:range xsd:integer .
+ns1:parameterValue a rdf:Property ;
+    rdfs:label "parameterValue" ;
+    rdfs:comment "Numeric value for a parameter when known (use xsd:double). Constraints like λ>0 are documented, validation is external." ;
+    rdfs:domain ns1:Parameter ;
+    rdfs:range xsd:double .
 
-ns1:hasRace a rdf:Property ;
-    rdfs:label "hasRace" ;
-    rdfs:comment "Player character's race (player -> race)." ;
-    rdfs:domain ns1:Player ;
-    rdfs:range ns1:Race .
+<http://example.org/instance/binom_param_p> a ns1:Parameter ;
+    rdfs:label "Binomial probability parameter (p)" ;
+    ns1:parameterSymbol "p" .
 
-ns1:hasResident a rdf:Property ;
-    rdfs:label "hasResident" ;
-    rdfs:comment "Location has resident characters (location -> character)." ;
-    rdfs:domain ns1:Location ;
-    rdfs:range ns1:Character .
+<http://example.org/instance/binom_param_size> a ns1:Parameter ;
+    rdfs:label "Binomial size parameter" ;
+    ns1:parameterSymbol "size" .
 
-ns1:level a rdf:Property ;
-    rdfs:label "level" ;
-    rdfs:comment "Level for characters or recommended quest level." ;
-    rdfs:domain ns1:Character,
-        ns1:Quest ;
-    rdfs:range xsd:integer .
+<http://example.org/instance/cond_finite_mean> a ns1:Condition ;
+    rdfs:label "finite mean" .
 
-ns1:locatedIn a rdf:Property ;
-    rdfs:label "locatedIn" ;
-    rdfs:comment "Spatial containment: where an entity is located (e.g., a character in a settlement or dungeon)." ;
-    rdfs:domain ns1:Entity ;
-    rdfs:range ns1:Location .
+<http://example.org/instance/cond_finite_variance> a ns1:Condition ;
+    rdfs:label "finite variance" .
 
-ns1:name a rdf:Property ;
-    rdfs:label "name" ;
-    rdfs:comment "Human-readable canonical name for an entity." ;
-    rdfs:domain ns1:Entity ;
-    rdfs:range xsd:string .
+<http://example.org/instance/exp_cdf_expr> a ns1:MathematicalExpression ;
+    rdfs:label "Exponential CDF" ;
+    ns1:hasFormula "F(x; λ) = 1 - e^{-λ x}, x ≥ 0" .
 
-ns1:occursInScene a rdf:Property ;
-    rdfs:label "occursInScene" ;
-    rdfs:comment "Links an entity (character, item, quest) to the scene in which it is mentioned." ;
-    rdfs:domain ns1:Entity ;
-    rdfs:range ns1:Scene .
+<http://example.org/instance/exp_param_lambda> a ns1:Parameter ;
+    rdfs:label "rate parameter" ;
+    ns1:parameterSymbol "λ" .
 
-ns1:provenanceDocument a rdf:Property ;
-    rdfs:label "provenanceDocument" ;
-    rdfs:comment "Links a Scene to the SourceDocument (file) it originates from." ;
-    rdfs:domain ns1:Scene ;
-    rdfs:range ns1:SourceDocument .
+<http://example.org/instance/exp_pdf_expr> a ns1:MathematicalExpression ;
+    rdfs:label "Exponential PDF" ;
+    ns1:hasFormula "f(x; λ) = λ e^{-λ x}, x ≥ 0" .
 
-ns1:reward a rdf:Property ;
-    rdfs:label "reward" ;
-    rdfs:comment "Quest reward, linked to a Treasure instance (quest -> treasure)." ;
-    rdfs:domain ns1:Quest ;
-    rdfs:range ns1:Treasure .
+<http://example.org/instance/gamma_cdf_expr> a ns1:MathematicalExpression ;
+    rdfs:label "Gamma CDF" ;
+    ns1:hasFormula "F(x; α, β) = γ(α, β x) / Γ(α)" .
 
-ns1:roleLabel a rdf:Property ;
-    rdfs:label "roleLabel" ;
-    rdfs:comment "Free-text role or occupational label for a character (e.g., 'merchant')." ;
-    rdfs:domain ns1:Character ;
-    rdfs:range xsd:string .
+<http://example.org/instance/gamma_dist_1> a ns1:GammaDistribution ;
+    rdfs:label "Gamma distribution" ;
+    ns1:documentedIn <http://example.org/instance/doc_main> ;
+    ns1:hasCDF <http://example.org/instance/gamma_cdf_expr> ;
+    ns1:hasPDF <http://example.org/instance/gamma_pdf_expr> ;
+    ns1:hasParameter <http://example.org/instance/gamma_param_alpha>,
+        <http://example.org/instance/gamma_param_beta> .
 
-ns1:sourceFile a rdf:Property ;
-    rdfs:label "sourceFile" ;
-    rdfs:comment "Filename of the source document (literal form)." ;
-    rdfs:domain ns1:SourceDocument ;
-    rdfs:range xsd:string .
+<http://example.org/instance/gamma_param_alpha> a ns1:Parameter ;
+    rdfs:label "shape parameter" ;
+    ns1:parameterSymbol "α" .
 
-ns1:sourceSceneHeading a rdf:Property ;
-    rdfs:label "sourceSceneHeading" ;
-    rdfs:comment "Heading text of the scene within the source document." ;
-    rdfs:domain ns1:Scene ;
-    rdfs:range xsd:string .
+<http://example.org/instance/gamma_param_beta> a ns1:Parameter ;
+    rdfs:label "rate parameter" ;
+    ns1:parameterSymbol "β" .
 
-<http://example.org/adventure/settlement-millhaven> a ns1:Settlement ;
-    rdfs:label "Millhaven" ;
-    ns1:canonicalId "millhaven" ;
-    ns1:name "Millhaven" .
+<http://example.org/instance/gamma_pdf_expr> a ns1:MathematicalExpression ;
+    rdfs:label "Gamma PDF" ;
+    ns1:hasFormula "f(x; α, β) = (β^α / Γ(α)) x^{α-1} e^{-β x}, x ≥ 0" .
 
-<http://example.org/adventure/treasure-200gp> a ns1:Treasure ;
-    rdfs:label "200 gp (chest)" ;
-    ns1:canonicalId "treasure-200gp" ;
-    ns1:currency "gp" ;
-    ns1:description "200 gold pieces found in the chest" ;
-    ns1:goldAmount 200 ;
-    ns1:occursInScene <http://example.org/adventure/scene-goblin-cave-ashenvale>,
-        <http://example.org/adventure/scene-victory-condition> .
+<http://example.org/instance/normal_param_m> a ns1:Parameter ;
+    rdfs:label "Normal mean parameter (m)" ;
+    ns1:parameterSymbol "m" ;
+    ns1:parameterValue 0e+00 .
 
-<http://example.org/adventure/treasure-50gp> a ns1:Treasure ;
-    rdfs:label "50 gp (quest reward)" ;
-    ns1:canonicalId "treasure-50gp" ;
-    ns1:currency "gp" ;
-    ns1:goldAmount 50 .
+<http://example.org/instance/normal_param_std> a ns1:Parameter ;
+    rdfs:label "Normal std parameter (std)" ;
+    ns1:parameterSymbol "std" ;
+    ns1:parameterValue 1e+00 .
 
-<http://example.org/adventure/weapon-heirloom-dagger> a ns1:Weapon ;
-    rdfs:label "Heirloom dagger" ;
-    ns1:canonicalId "heirloom-dagger" ;
-    ns1:description "Family heirloom dagger recovered from the chest" ;
-    ns1:name "Heirloom dagger" ;
-    ns1:occursInScene <http://example.org/adventure/scene-goblin-cave-ashenvale>,
-        <http://example.org/adventure/scene-victory-condition> .
+<http://example.org/instance/poisson_param_lambda> a ns1:Parameter ;
+    rdfs:label "Poisson rate parameter (lambda)" ;
+    ns1:parameterSymbol "lambda" .
 
-<http://example.org/adventure/scene-xp-summary> a ns1:Scene ;
-    rdfs:label "Experience Points Summary" ;
-    ns1:provenanceDocument <http://example.org/adventure/doc-sample-adventure-md> ;
-    ns1:sourceSceneHeading "Experience Points Summary" .
+<http://example.org/instance/poisson_pmf_expr> a ns1:MathematicalExpression ;
+    rdfs:label "Poisson PMF" ;
+    ns1:hasFormula "P(X=k; λ) = e^{-λ} λ^k / k!, k = 0,1,2, ..." .
 
-<http://example.org/adventure/doc-sample-adventure-md> a ns1:SourceDocument ;
-    rdfs:label "sample_adventure.md" ;
-    ns1:sourceFile "sample_adventure.md" .
+<http://example.org/instance/studentt_param_nu> a ns1:Parameter ;
+    rdfs:label "degrees of freedom" ;
+    ns1:parameterSymbol "ν" .
 
-<http://example.org/adventure/scene-goblin-cave-ashenvale> a ns1:Scene ;
-    ns1:canonicalId "goblin-cave-ashenvale" ;
-    ns1:description "At dusk the party learns that Aldric Thorn was ambushed by goblins about 2 hours ago. His crude wooden chest was taken in the attack; the chest contained 200 gold pieces (200 gp) and a family heirloom dagger. Players can ask Aldric questions: he knows the direction (north, toward the hills), the approximate number of goblins (4–5), and that the time of attack was dusk, roughly two hours prior." ;
-    ns1:name "The Goblin Cave of Ashenvale" ;
-    ns1:provenanceDocument <http://example.org/adventure/doc-sample-adventure-md> ;
-    ns1:sourceSceneHeading "The Goblin Cave of Ashenvale" .
+<http://example.org/instance/studentt_pdf_expr> a ns1:MathematicalExpression ;
+    rdfs:label "Student-t PDF" ;
+    ns1:hasFormula "f(t; ν) = Γ((ν+1)/2) / (√(νπ) Γ(ν/2)) (1 + t^2/ν)^{-(ν+1)/2}" .
 
-<http://example.org/adventure/scene-victory-condition> a ns1:Scene ;
-    rdfs:label "Victory Condition" ;
-    ns1:description "Quest complete. Total possible reward: 50–60 gold + XP." ;
-    ns1:provenanceDocument <http://example.org/adventure/doc-sample-adventure-md> ;
-    ns1:sourceSceneHeading "Victory Condition" .
+<http://example.org/instance/cond_iid> a ns1:Condition ;
+    rdfs:label "iid" .
 
-<http://example.org/adventure/scene-hillside-trail> a ns1:Scene ;
-    ns1:description "Ambush site near Millhaven; tracks lead north toward the Ashenvale Burrows." ;
-    ns1:name "The Hillside Trail" ;
-    ns1:provenanceDocument <http://example.org/adventure/doc-sample-adventure-md> ;
-    ns1:sourceSceneHeading "The Hillside Trail" .
+<http://example.org/instance/doc_main> a ns1:Document ;
+    rdfs:label "main.pdf (notebook)" .
 

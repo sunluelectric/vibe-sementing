@@ -11,7 +11,7 @@ from typing import Protocol
 from rdflib import Graph, Literal, RDF, RDFS, URIRef
 
 from src.common.config import Settings
-from src.common.files import read_text
+from src.common.files import read_pdf_text, read_text
 
 
 TOKEN_RE = re.compile(r"[A-Za-z0-9_]+")
@@ -137,6 +137,8 @@ def chunks_from_data_dir(data_dir: Path, max_chunk_chars: int = 3500, overlap_ch
         suffix = path.suffix.lower()
         if suffix in {".md", ".txt"}:
             chunks.extend(chunks_from_text(path.name, read_text(path), suffix.lstrip("."), max_chunk_chars, overlap_chars))
+        elif suffix == ".pdf":
+            chunks.extend(chunks_from_text(path.name, read_pdf_text(path), "pdf", max_chunk_chars, overlap_chars))
         elif suffix == ".csv":
             chunks.extend(chunks_from_csv(path, max_chunk_chars))
     return chunks

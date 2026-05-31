@@ -298,21 +298,21 @@ sample with a non-DnD design requirement and non-DnD source data, then running
 the full designer, importer, and viewer workflow from a clean generated-output
 state.
 
-- [ ] Choose or create a small non-DnD dataset with markdown and, if useful,
-  CSV source files.
-- [ ] Replace `design-requirements.md` and `data/*` with the non-DnD test case,
+- [x] Choose or create a non-DnD dataset, using a probability, statistics, and
+  data-science notebook PDF as the source file.
+- [x] Replace `design-requirements.md` and `data/*` with the non-DnD test case,
   keeping a way to restore the current DnD sample afterward if needed.
-- [ ] Stop Fuseki if it is running.
-- [ ] Delete generated outputs: `design.md`, `import.md`, and `db/*`.
-- [ ] Run the semantic web designer from the non-DnD inputs.
-- [ ] Run the semantic web importer from the designer output.
-- [ ] Run the semantic web viewer from Fuseki.
-- [ ] Ask representative non-DnD viewer questions, including follow-up and
+- [x] Stop Fuseki if it is running.
+- [x] Delete generated outputs: `design.md`, `import.md`, and `db/*`.
+- [x] Run the semantic web designer from the non-DnD inputs.
+- [x] Run the semantic web importer from the designer output.
+- [x] Run the semantic web viewer from Fuseki.
+- [x] Ask representative non-DnD viewer questions, including follow-up and
   reasoning questions.
-- [ ] Verify Turtle export parses with `rdflib`.
-- [ ] Run `uv run pytest`.
-- [ ] Document the non-DnD validation result in `README.md` and `PROGRESS.md`.
-- [ ] Commit the non-DnD validation milestone.
+- [x] Verify Turtle export parses with `rdflib`.
+- [x] Run `uv run pytest`.
+- [x] Document the non-DnD validation result in `README.md` and `PROGRESS.md`.
+- [x] Commit the non-DnD validation milestone.
 
 ## Current Notes
 
@@ -328,6 +328,16 @@ state.
   `db/ontology.ttl`, and `data/*`.
 - The importer now prefers ontology terms from Fuseki when available, with
   `db/ontology.ttl` fallback for portability and graph reload.
+- Product data ingestion and semantic-search chunking now support PDF source
+  files through PyMuPDF, in addition to markdown, text, and CSV.
+- Non-DnD end-to-end validation succeeded on 2026-06-01 using
+  `data/main.pdf`, a probability, statistics, and data-science notebook.
+  The designer produced 202 ontology triples, 22 RDFS classes, and 23 RDF
+  properties. The importer produced 108 instance triples and 310 combined
+  triples. Viewer workflow and FastAPI checks answered grounded notebook
+  questions about distributions, Poisson facts, CLT/LLN assumptions, and sample
+  mean reasoning. Fuseki Turtle export parsed with 310 triples, and
+  `uv run pytest` reported 63 passed and 2 skipped.
 - Long-term graph handoff should be database/query-first rather than
   whole-Turtle-prompt-first. Turtle remains useful for review, export, tests,
   portability, and fallback, but agents should consume relevant graph slices
@@ -342,7 +352,7 @@ start or connect to Apache Jena Fuseki, and load the ontology into Fuseki.
 
 ### Deliberate Simplifications
 
-- The designer still supports direct loading of markdown, text, and CSV files
+- The designer still supports direct loading of markdown, text, PDF, and CSV files
   through `src/common/files.py` for small data.
 - For larger inputs, the designer now uses shared semantic-search retrieval and
   model-planned focus queries before final ontology synthesis.
@@ -562,14 +572,19 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   parsed with rdflib, and `uv run pytest` reported 60 passed and 2 skipped.
 - After adding progressive importer logging, `uv run pytest` reported 59 passed
   and 4 skipped without live Fuseki running.
+- Non-DnD PDF end-to-end validation on 2026-06-01 succeeded. The current
+  generated semantic web is based on `data/main.pdf`, not the older DnD sample:
+  202 ontology triples, 108 instance triples, 310 combined/Fuseki triples,
+  grounded viewer answers for distribution, theorem, and sample-mean questions,
+  parsed Turtle export, and `uv run pytest` reported 63 passed and 2 skipped.
 - The designer milestone commit has been made.
 - The importer milestone commit has been made.
 - The viewer milestone commit has been made.
 
 ### Immediate Next Step
 
-- Run `Milestone 9: Non-DnD End-To-End Validation` to prove the current
-  designer, importer, and viewer remain domain-neutral outside the DnD sample.
+- Commit the completed non-DnD validation milestone, then choose the next
+  product improvement milestone.
 
 ## Handoff For Next Codex Instance
 
@@ -578,7 +593,7 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
 - The semantic web importer is complete and committed.
 - Current generated outputs are:
   - `design.md`
-  - `import.md` after the next importer run
+  - `import.md`
   - `db/ontology.ttl`
   - `db/instances.ttl`
   - `db/semantic_web.ttl`
@@ -586,9 +601,8 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   - Fuseki data graph `http://example.org/semantic-web/graph/data` unless overridden by `.env`
 - Current tests:
   - `uv run pytest`
-  - latest local result after importer progressive logging: `59 passed, 4 skipped`
-  - latest full end-to-end result before that logging change:
-    `60 passed, 2 skipped`
+  - latest local result after non-DnD PDF validation:
+    `63 passed, 2 skipped`
 - Current runtime notes:
   - Fuseki may already be running on port `3030`.
   - If not, use the project-local Fuseki base `db/fuseki-run`.

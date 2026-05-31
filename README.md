@@ -16,8 +16,10 @@ viewer.
 - Semantic-search integration, iterative retrieval-guided designer/importer
   workflows, and importer progressive logging are complete, tested, documented,
   and committed.
-- The next implementation milestone is `Milestone 9: Non-DnD End-To-End
-  Validation` in `PROGRESS.md`.
+- Non-DnD end-to-end validation is complete against a probability, statistics,
+  and data-science notebook PDF.
+- Product PDF ingestion is supported through PyMuPDF for direct source loading
+  and semantic-search chunking.
 - Do not manually change the ontology to make importer work easier. The importer
   must fit instances into the existing designer output unless the user approves
   a new designer run.
@@ -279,6 +281,7 @@ in `src/common/semantic_search.py`.
 The retrieval layer can chunk:
 
 - Markdown and plain-text files.
+- PDF files, using PyMuPDF text extraction.
 - CSV files, including column names and row content.
 - RDF graphs, grouped into readable subject-centered chunks.
 - SPARQL result rows for viewer fact ranking.
@@ -312,10 +315,10 @@ Retrieval providers:
 - `SEMANTIC_SEARCH_PROVIDER=openai` uses `EMBEDDING_MODEL` through the OpenAI
   embeddings API. This is the preferred option for larger real datasets.
 
-The standalone semantic-search tool under `tools/semantic-search` can now index
-markdown, text, and CSV files in addition to PDF and HTML. It remains useful as
-an experimental document QA tool, while the product workflows use the shared
-retrieval layer in `src/common`.
+The standalone semantic-search tool under `tools/semantic-search` can index
+PDF, HTML, markdown, text, and CSV files. It remains useful as an experimental
+document QA tool, while the product workflows use the shared retrieval layer in
+`src/common`.
 
 ## Fuseki Usage Notes
 
@@ -469,7 +472,8 @@ Run importer from a handoff package on another machine:
 ## Test With A Different Use Case
 
 To test the project with a different domain or dataset, replace
-`design-requirements.md` and the files under `data/`, then remove the generated
+`design-requirements.md` and the files under `data/`. Product data ingestion
+supports top-level markdown, text, PDF, and CSV files. Then remove the generated
 semantic web artifacts from the previous run:
 
 ```bash
@@ -504,13 +508,15 @@ Expected importer outputs:
 ## Current Designer Result
 
 The current generated ontology was produced from a clean iterative
-retrieval-guided run against the sample DnD data:
+retrieval-guided run against `data/main.pdf`, a probability, statistics, and
+data-science notebook:
 
-- 148 RDF triples.
-- 16 RDFS classes.
-- 17 RDF properties.
+- 202 RDF triples.
+- 22 RDFS classes.
+- 23 RDF properties.
 - RDF validation passed.
-- The designer used 2 model-planned semantic-search focuses.
+- The designer used 4 model-planned semantic-search focuses.
+- The source PDF extracted to about 305,000 characters and 132 PDF chunks.
 - Fuseki loaded the ontology into the named ontology graph.
 
 ## Current Importer Result
@@ -518,31 +524,32 @@ retrieval-guided run against the sample DnD data:
 The current generated instance graph was produced from the fresh iterative
 designer output and source data:
 
-- 121 instance RDF triples.
-- 269 combined ontology and instance triples.
+- 108 instance RDF triples.
+- 310 combined ontology and instance triples.
 - Instance RDF validation passed.
 - Fuseki instance graph load target: `fuseki`.
 - Importer ontology source: `fuseki`.
 - The importer used 4 model-planned import batches and stopped at the configured
   batch limit.
+- The imported notebook facts cover named distributions, parameters/formulas,
+  CLT/LLN theorem assumptions, and selected estimator/tool facts.
 
 ## Current Viewer Result
 
 The viewer was verified against the fresh persistent Fuseki data from the
 iterative designer/importer run:
 
-- Fuseki status endpoint reported 269 triples.
-- Multiple chatbot questions in one session returned grounded answers,
-  including follow-up/stateful questions and a reasoning question about
-  conditional rewards.
-- Turtle export from Fuseki parsed with `rdflib` and contained 269 triples.
-- End-to-end test result before importer progressive logging:
-  `60 passed, 2 skipped`.
-- Latest local test result after importer progressive logging:
-  `59 passed, 4 skipped`.
+- Fuseki status endpoint reported 310 triples.
+- Multiple chatbot questions in one session returned grounded answers about
+  probability distributions, Poisson parameters/formulas, CLT/LLN assumptions,
+  and a reasoning question about sample means.
+- FastAPI endpoint checks for status, chat session creation, question answering,
+  and Turtle export passed.
+- Turtle export from Fuseki parsed with `rdflib` and contained 310 triples.
+- Latest local test result after non-DnD PDF validation:
+  `63 passed, 2 skipped`.
 
 ## Next Milestones
 
-- Run a clean non-DnD end-to-end validation by replacing
-  `design-requirements.md` and `data/*` with a non-DnD dataset, then running
-  designer, importer, viewer, export parsing, and tests from scratch.
+- Choose the next product improvement after the completed non-DnD PDF
+  validation milestone.
