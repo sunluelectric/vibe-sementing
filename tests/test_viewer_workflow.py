@@ -89,6 +89,7 @@ def test_viewer_agent_uses_fuseki_query_service(monkeypatch) -> None:
     assert "Previous question" in prompts[0]
     assert "Answer for an end user" in prompts[0]
     assert "Do not paste raw query rows" in prompts[0]
+    assert "brief clarification question" in prompts[0]
 
 
 def test_viewer_agent_matches_acronym_class_requests(monkeypatch) -> None:
