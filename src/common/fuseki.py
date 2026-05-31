@@ -62,6 +62,19 @@ class FusekiClient:
             for row in data.get("results", {}).get("bindings", [])
         ]
 
+    def construct_turtle(self, sparql: str) -> str:
+        response = requests.post(
+            self.query_url,
+            data={"query": sparql},
+            headers={"Accept": "text/turtle"},
+            timeout=self.timeout_seconds,
+        )
+        if response.status_code != 200:
+            raise FusekiUnavailable(
+                f"Fuseki construct failed with {response.status_code}: {response.text[:500]}"
+            )
+        return response.text
+
 
 def client_from_settings(settings) -> FusekiClient:
     return FusekiClient(

@@ -144,43 +144,49 @@ Goal: the semantic web importer reads `design.md`, `db/ontology.ttl`, and
 Goal: the semantic web viewer starts a browser-based chatbot UI that answers
 questions by querying the semantic web and supports Turtle export.
 
+Viewer runtime boundary: Fuseki is the source of data for the semantic web
+viewer. The viewer must query and export through Fuseki endpoints instead of
+reading `db/semantic_web.ttl` directly at runtime. Turtle files remain useful
+as generated artifacts, tests, handoff files, and fallbacks for designer or
+importer workflows, but not as the viewer's data source.
+
 ### 3.1 Viewer Query Layer
 
-- [ ] Define viewer input contract: user question plus available semantic web graph.
-- [ ] Implement local graph query support from `db/semantic_web.ttl`.
-- [ ] Implement Fuseki query support when Fuseki is available.
-- [ ] Add reusable query helpers for classes, instances, labels, scenes, NPCs, monsters, items, rewards, and XP.
-- [ ] Add tests for local SPARQL query helpers.
-- [ ] Add a Fuseki query smoke test that can be skipped when Fuseki is unavailable.
+- [x] Define viewer input contract: user question plus available semantic web graph.
+- [x] Implement Fuseki-backed graph query support for the configured dataset.
+- [x] Implement Fuseki query support when Fuseki is available.
+- [x] Add reusable query helpers for classes, instances, labels, scenes, NPCs, monsters, items, rewards, and XP.
+- [x] Add tests for Fuseki-backed SPARQL query helpers.
+- [x] Add a Fuseki query smoke test that can be skipped when Fuseki is unavailable.
 
 ### 3.2 Viewer Agent Execution
 
-- [ ] Implement an OpenAI Agents SDK viewer agent.
-- [ ] Provide agent tools for SPARQL query execution, schema inspection, and graph summary retrieval.
-- [ ] Require answers to cite queried graph facts in concise natural language.
-- [ ] Add bounded timeout and retry/error handling.
-- [ ] Test viewer tools without a live API call.
-- [ ] Test viewer execution with a stubbed agent response.
+- [x] Implement an OpenAI Agents SDK viewer agent.
+- [x] Provide agent tools for SPARQL query execution, schema inspection, and graph summary retrieval.
+- [x] Require answers to cite queried graph facts in concise natural language.
+- [x] Add bounded timeout and retry/error handling.
+- [x] Test viewer tools without a live API call.
+- [x] Test viewer execution with a stubbed agent response.
 
 ### 3.3 Viewer Web UI
 
-- [ ] Implement a FastAPI app with a browser chatbot page.
-- [ ] Add endpoint to submit questions and return chatbot answers.
-- [ ] Add endpoint to export the semantic web as Turtle.
-- [ ] Add endpoint to report graph status and triple counts.
-- [ ] Add simple, dense UI styling suitable for a utility tool.
-- [ ] Test API endpoints with FastAPI test client.
+- [x] Implement a FastAPI app with a browser chatbot page.
+- [x] Add endpoint to submit questions and return chatbot answers.
+- [x] Add endpoint to export the semantic web as Turtle.
+- [x] Add endpoint to report graph status and triple counts.
+- [x] Add simple, dense UI styling suitable for a utility tool.
+- [x] Test API endpoints with FastAPI test client.
 
 ### 3.4 Viewer Product Run
 
-- [ ] Run `uv run python -m src.viewer.main`.
-- [ ] Verify the page loads in a browser or via HTTP checks.
-- [ ] Ask representative questions about the generated DnD semantic web.
-- [ ] Verify exported Turtle parses with `rdflib`.
-- [ ] Revise viewer code, prompts, tools, or queries if answers are weak or invalid.
-- [ ] Re-run viewer after revisions until output passes checks.
-- [ ] Update `README.md` with viewer usage and behavior.
-- [ ] Commit the viewer milestone.
+- [x] Run `uv run python -m src.viewer.main`.
+- [x] Verify the page loads in a browser or via HTTP checks.
+- [x] Ask representative questions about the generated DnD semantic web.
+- [x] Verify exported Turtle parses with `rdflib`.
+- [x] Revise viewer code, prompts, tools, or queries if answers are weak or invalid.
+- [x] Re-run viewer after revisions until output passes checks.
+- [x] Update `README.md` with viewer usage and behavior.
+- [x] Commit the viewer milestone.
 
 ## Milestone 4: End-To-End Product Validation
 
@@ -410,7 +416,8 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
 - `design.md` and `db/ontology.ttl` have been produced by the designer.
 - `db/instances.ttl` and `db/semantic_web.ttl` have been produced by the importer.
 - The importer framework has been implemented.
-- The viewer framework has not been implemented yet.
+- The semantic web viewer framework has been implemented and verified against
+  Fuseki as the runtime data source.
 - Semantic web design and data insertion have been completed by the product.
 - Fuseki ontology loading has been successfully performed.
 - Fuseki instance loading has been successfully performed.
@@ -419,7 +426,8 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
 
 ### Immediate Next Step
 
-- Start Milestone 3 with viewer query-layer contracts and tests.
+- Commit the viewer milestone, then continue with Milestone 4 end-to-end
+  product validation.
 
 ## Handoff For Next Codex Instance
 
@@ -435,11 +443,13 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   - Fuseki data graph `http://example.org/semantic-web/graph/data` unless overridden by `.env`
 - Current tests:
   - `uv run pytest`
-  - expected result: `28 passed`
+  - expected result: `40 passed`
 - Current runtime notes:
   - Fuseki may already be running on port `3030`.
   - If not, use the project-local Fuseki base `db/fuseki-run`.
   - Do not use `/opt/apache-jena-fuseki-6.1.0/run` as the runtime base.
   - Use SPARQL `ASK` via `POST` for readiness checks.
 - Current development boundary:
-  - The viewer has not been started.
+  - Designer, importer, and viewer milestones are implemented.
+  - The viewer uses Fuseki as its runtime data source and does not read
+    `db/semantic_web.ttl` directly.

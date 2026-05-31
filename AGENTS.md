@@ -35,8 +35,9 @@ The project includes three independent executable codes. They are:
 * Future importer improvement: support optional ontology inspection by querying Fuseki when available, while retaining `./db/ontology.ttl` as the portable fallback and handoff artifact.
 * Long-term graph handoff should be database/query-first rather than whole-Turtle-prompt-first. Turtle files are useful as portable artifacts, tests, exports, and fallbacks, but future agents should query Fuseki or local RDF graphs for relevant schema/data slices instead of sending large Turtle files wholesale to an LLM.
 * Future scale-up work must address three known limitations: the designer prompt and iteration limits intentionally cap ontology complexity; designer/importer currently read all of `./data/*` instead of using semantic retrieval; and inter-framework graph handoff should move toward Fuseki/query-first operation with `./design.md` as reference documentation.
-* The viewer has not been started.
-* Next work should follow `./PROGRESS.md`, starting at **Milestone 3: Viewer Framework**.
+* The semantic web viewer milestone is complete, tested, documented, and committed.
+* The viewer queries and exports through Fuseki as its runtime data source; it does not read `./db/semantic_web.ttl` directly.
+* Next work should follow `./PROGRESS.md`, starting at **Milestone 4: End-To-End Product Validation**.
 
 ## Setups and Requirements
 

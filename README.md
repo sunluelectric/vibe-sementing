@@ -1,9 +1,10 @@
 # Semantic Web Processor
 
 This project builds a semantic web from local structured and unstructured data,
-stores it in Apache Jena Fuseki, and will provide a browser-based viewer.
+stores it in Apache Jena Fuseki, and provides a browser-based viewer.
 
-The current implemented milestones are the semantic web designer and importer.
+The current implemented milestones are the semantic web designer, importer, and
+viewer.
 
 ## Current Handoff State
 
@@ -11,9 +12,9 @@ The current implemented milestones are the semantic web designer and importer.
 - The original designer milestone and later verification updates for
   progressive logging and the smaller default model have been committed.
 - The semantic web importer milestone is complete, tested, and documented.
-- The viewer has not been started.
-- The next implementation milestone is `Milestone 3: Viewer Framework` in
-  `PROGRESS.md`.
+- The semantic web viewer milestone is complete, tested, and documented.
+- The next implementation milestone is `Milestone 4: End-To-End Product
+  Validation` in `PROGRESS.md`.
 - Do not manually change the ontology to make importer work easier. The importer
   must fit instances into the existing designer output unless the user approves
   a new designer run.
@@ -24,7 +25,7 @@ The current implemented milestones are the semantic web designer and importer.
   implementation.
 - `src/importer`: OpenAI Agents SDK workflow for inserting instances without
   changing the ontology.
-- `src/viewer`: planned browser chatbot and export UI.
+- `src/viewer`: Fuseki-backed browser chatbot and Turtle export UI.
 - `src/common`: shared configuration, RDF, Fuseki, file, and LLM utilities.
 
 ## Semantic Web Designer
@@ -125,6 +126,51 @@ The importer workflow performs these steps:
 8. Write `db/instances.ttl`.
 9. Write `db/semantic_web.ttl` by combining ontology and instances.
 10. Load instances into Fuseki as the configured data named graph.
+
+## Semantic Web Viewer
+
+The viewer is a browser-based chatbot and export UI. Fuseki is the runtime data
+source for the viewer. The viewer does not read `db/semantic_web.ttl` directly;
+it queries and exports through the configured Fuseki endpoints.
+
+The viewer includes:
+
+1. A Fuseki-backed query layer for graph status, triple counts, schema summary,
+   class lookup, generic fact search, SPARQL SELECT execution, and Turtle
+   export through SPARQL `CONSTRUCT`.
+2. An OpenAI Agents SDK workflow shell with tools for graph status, graph
+   summary, SPARQL SELECT, and question-relevant fact search.
+3. A direct viewer answer path that gathers graph facts from Fuseki, sends them
+   to the configured OpenAI model, and requires concise answers grounded in
+   queried facts.
+4. A FastAPI browser UI with chatbot interaction, graph status, queried facts,
+   and Turtle export.
+
+Run the viewer:
+
+```bash
+uv run python -m src.viewer.main
+```
+
+The viewer starts on the configured `VIEWER_HOST` and `VIEWER_PORT`, defaulting
+to:
+
+```text
+http://127.0.0.1:8000
+```
+
+Useful viewer endpoints:
+
+- `GET /api/status`: reports Fuseki availability and graph triple count.
+- `POST /api/question`: accepts `{"question": "..."}` and returns an answer
+  plus the graph facts sent to the model.
+- `GET /api/export.ttl`: exports the semantic web from Fuseki as Turtle.
+
+Because the viewer requires Fuseki as its data source, load the ontology and
+instances into Fuseki before using it. The designer and importer workflows do
+this during product runs when Fuseki is available. For local verification from
+existing generated artifacts, load `db/ontology.ttl` and `db/instances.ttl` into
+the configured named graphs, then start the viewer.
 
 ## Configuration
 
@@ -280,6 +326,12 @@ Run the importer:
 uv run python -m src.importer.main
 ```
 
+Run the viewer:
+
+```bash
+uv run python -m src.viewer.main
+```
+
 Run importer from a handoff package on another machine:
 
 1. Place `design.md`, `db/ontology.ttl`, and the source files under `data/`.
@@ -345,5 +397,7 @@ ontology and source data:
 
 ## Next Milestones
 
-- Implement the viewer workflow and browser UI to query the semantic web and
-  export it from Fuseki.
+- Run full end-to-end product validation from clean generated outputs.
+- Keep the documented future improvements for semantic-search integration,
+  query-first designer/importer handoff, and large-graph operation as later
+  work.
