@@ -314,7 +314,109 @@ state.
 - [x] Document the non-DnD validation result in `README.md` and `PROGRESS.md`.
 - [x] Commit the non-DnD validation milestone.
 
-## Milestone 10: Long-Document Coverage Scale-Up
+## Milestone 10: CSV-Aware Design And Deterministic Import
+
+Goal: validate and improve handling of structured CSV input before scaling up
+long unstructured documents. The designer should inspect CSV headers, inferred
+column types, row counts, and representative rows so it can reflect tabular
+data structure in the ontology. The importer should not ask an LLM to convert
+every CSV row into Turtle. Instead, the LLM should help produce a constrained
+row-to-RDF mapping specification, and deterministic Python code should validate
+that mapping against the generated ontology, loop over all CSV rows, and emit
+instance Turtle.
+
+Rationale:
+
+- CSV files can contain thousands or millions of rows. Prompting all rows to an
+  LLM is slow, expensive, and brittle.
+- CSV is structured data, so the workflow should exploit headers, column
+  datatypes, identifiers, foreign-key-like columns, and sample values.
+- The designer needs only a CSV profile for ontology design: file name, row
+  count, headers, inferred datatypes, null counts, distinct/example values, and
+  a few representative rows, plus clues from `design-requirements.md`.
+- The importer needs a repeatable mapping from rows to ontology classes,
+  properties, datatypes, labels, URIs, and relationships. Once the mapping is
+  validated, row conversion should be deterministic and testable.
+- Product code must remain domain-neutral. CSV mapping logic should be driven
+  by generated ontology terms, design requirements, source CSV profiles, and a
+  structured mapping specification, not hardcoded domain-specific column names.
+
+Suggested architecture:
+
+- Add shared CSV profiling utilities under `src/common` or another suitable
+  shared module. The profiler should summarize each CSV without reading every
+  row into prompts.
+- Equip the designer workflow with a CSV-profile context/tool so large CSVs are
+  represented by schema/sample summaries rather than full CSV text.
+- Add an importer CSV-mapping planner that asks the LLM for structured JSON, not
+  executable code and not full Turtle. The JSON should describe row class,
+  subject URI template, label template, column-to-property mappings, datatype
+  casts, optional object relationships, missing-value behavior, and provenance.
+- Add strict mapping validation against ontology classes/properties/ranges and
+  reject mappings that introduce schema terms or reference missing ontology
+  terms.
+- Add deterministic CSV-to-RDF generation that applies a validated mapping to
+  every row and emits Turtle. It should support stable URI generation,
+  escaping/literal datatypes, skipped null values, row-level provenance, and
+  duplicate prevention where practical.
+- Keep retrieval-guided LLM import for unstructured markdown/text/PDF. Use
+  deterministic mapping for CSV rows. Mixed datasets should support both paths
+  in the same importer run.
+- Treat the first CSV milestone as another domain-neutral end-to-end test, not
+  as a domain-specific one-off.
+
+Implementation checklist:
+
+- [ ] Choose or create a small but realistic non-DnD CSV test dataset, ideally
+  with multiple columns, numeric/date/string fields, missing values, and at
+  least one relationship-like column. Add matching `design-requirements.md`
+  text that describes the desired semantic web in domain-neutral terms.
+- [ ] Preserve or document how to restore the current PDF proof-of-concept
+  input after CSV validation if needed.
+- [ ] Add a CSV profiler utility that reports file name, row count, column
+  names, inferred datatype per column, null counts, distinct counts or capped
+  example values, and the first few/sample rows.
+- [ ] Add focused tests for the CSV profiler, including numeric, date-like,
+  string, boolean-like, missing-value, and high-cardinality columns.
+- [ ] Update designer data-loading/retrieval behavior so CSV profile summaries
+  are available to the design prompt and large CSVs are not prompt-stuffed row
+  by row.
+- [ ] Add focused designer workflow tests showing that CSV profile summaries are
+  used in design context and that full large CSV contents are not sent wholesale
+  when a profile is sufficient.
+- [ ] Define a constrained importer CSV mapping JSON schema. Include row class,
+  URI template, label template, column mappings, datatype casts, relationship
+  mappings, skipped-null behavior, source/provenance options, and optional
+  fallback behavior for invalid rows.
+- [ ] Add an importer mapping-planning tool or internal step that asks the LLM
+  to produce the mapping JSON from `design.md`, ontology terms, and CSV
+  profiles. Do not ask the model to produce one Turtle block containing every
+  CSV row.
+- [ ] Add mapping validation against the existing ontology graph. Validation
+  must reject new classes/properties, unknown ontology terms, invalid datatype
+  choices, invalid URI templates, and unsafe/free-form code.
+- [ ] Add deterministic CSV-to-RDF generation from a validated mapping. It
+  should stream or iterate rows, generate stable instance URIs, emit literals
+  with RDF datatypes, skip configured nulls, and serialize valid Turtle.
+- [ ] Add focused tests for mapping validation and CSV-to-RDF generation,
+  including escaping special characters, null handling, datatype conversion,
+  stable URI generation, duplicate prevention, and ontology-term enforcement.
+- [ ] Integrate deterministic CSV import into the importer workflow while
+  keeping existing LLM/retrieval import for unstructured sources. Mixed
+  CSV-plus-text/PDF datasets should combine both outputs and validate the merged
+  instance graph.
+- [ ] Add importer workflow tests with stubbed mapping-planner output and a CSV
+  fixture with enough rows to prove row conversion is deterministic and not
+  model-per-row.
+- [ ] Run a clean CSV end-to-end validation: stop Fuseki, delete generated
+  outputs, run designer, run importer, start viewer, ask representative CSV
+  questions, verify Turtle export parses, and run `uv run pytest`.
+- [ ] Update `README.md`, `PROGRESS.md`, and `AGENTS.md` with CSV profiling,
+  mapping, deterministic import behavior, configuration notes, limitations, and
+  validation results.
+- [ ] Commit the CSV-aware design/import milestone.
+
+## Milestone 11: Long-Document Coverage Scale-Up
 
 Goal: move beyond proof-of-concept semantic webs for long source documents by
 improving coverage, structure extraction, iteration depth, and schema/instance
@@ -619,7 +721,10 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
 
 ### Immediate Next Step
 
-- Start `Milestone 10: Long-Document Coverage Scale-Up` when ready.
+- Start `Milestone 10: CSV-Aware Design And Deterministic Import` when ready.
+  CSV handling should be improved before long-document scale-up because
+  structured rows should be imported deterministically from a validated mapping,
+  not converted row-by-row by an LLM.
 
 ## Handoff For Next Codex Instance
 
@@ -652,6 +757,10 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
     writes progressive run status to `import.md`.
   - The viewer uses Fuseki as its runtime data source and does not read
     `db/semantic_web.ttl` directly.
+  - The next implementation priority is CSV-aware design/import. The designer
+    should inspect CSV profiles such as headers, inferred types, row counts, and
+    sample rows. The importer should ask the LLM for a constrained mapping spec
+    and use deterministic Python code to convert all CSV rows to RDF instances.
   - The current non-DnD PDF graph is intentionally compact and should be treated
     as proof of concept. Scaling toward comprehensive long-document coverage is
-    the next major product direction.
+    the next major product direction after CSV handling is validated.
