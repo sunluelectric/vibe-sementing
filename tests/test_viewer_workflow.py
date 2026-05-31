@@ -8,6 +8,9 @@ from src.viewer.workflow import ViewerWorkflow
 
 
 class FakeQueryService:
+    def __init__(self) -> None:
+        self.class_lookups: list[str] = []
+
     def status(self):
         class Status:
             available = True
@@ -20,7 +23,10 @@ class FakeQueryService:
     def graph_summary(self) -> dict[str, object]:
         return {
             "triple_count": 3,
-            "classes": [{"class": "http://example.org/schema#Record", "label": "Record"}],
+            "classes": [
+                {"class": "http://example.org/schema#Record", "label": "Record"},
+                {"class": "http://example.org/schema#Npc", "label": "Non-Player Character"},
+            ],
             "properties": [],
             "sample_instances": [],
         }
@@ -36,6 +42,7 @@ class FakeQueryService:
         ]
 
     def class_instances_by_label(self, class_label: str, limit: int = 50) -> list[dict[str, str]]:
+        self.class_lookups.append(class_label)
         return [
             {
                 "instance": "http://example.org/instances#record1",
@@ -69,9 +76,10 @@ def test_viewer_agent_uses_fuseki_query_service(monkeypatch) -> None:
 
     monkeypatch.setattr("src.viewer.agent.get_text_response", fake_get_text_response)
 
+    query_service = FakeQueryService()
     result = ViewerAgent(model="test-model").answer(
         "What records exist?",
-        FakeQueryService(),
+        query_service,
         history="User: Previous question\nAssistant: Previous answer",
     )
 
@@ -79,6 +87,20 @@ def test_viewer_agent_uses_fuseki_query_service(monkeypatch) -> None:
     assert result.facts[0]["subjectLabel"] == "Record 1"
     assert "Question-relevant graph facts" in prompts[0]
     assert "Previous question" in prompts[0]
+    assert "Answer for an end user" in prompts[0]
+    assert "Do not paste raw query rows" in prompts[0]
+
+
+def test_viewer_agent_matches_acronym_class_requests(monkeypatch) -> None:
+    def fake_get_text_response(model: str, prompt: str, timeout_seconds: int) -> str:
+        return "The NPCs are listed by name with short descriptions."
+
+    monkeypatch.setattr("src.viewer.agent.get_text_response", fake_get_text_response)
+    query_service = FakeQueryService()
+
+    ViewerAgent(model="test-model").answer("What are the NPCs?", query_service)
+
+    assert "Non-Player Character" in query_service.class_lookups
 
 
 def test_viewer_workflow_answer_question_with_stubbed_agent(monkeypatch, tmp_path) -> None:

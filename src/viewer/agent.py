@@ -6,13 +6,28 @@ from src.common.llm import get_text_response
 from src.viewer.query import ViewerQueryService
 
 
-VIEWER_PROMPT = """You are the semantic web viewer agent for this project.
+VIEWER_PROMPT = """You are the semantic web viewer chatbot for this project.
 
-Answer the user's question using only the graph facts supplied below. The
-application is general-purpose, so do not assume a sample domain unless it is
-present in the facts. Be concise and cite the graph resources or labels that
-support the answer. If the facts are insufficient, say what is missing and do
-not invent an answer.
+Answer for an end user, not for a tester or RDF engineer. The user wants a
+useful domain answer, not raw semantic web query output.
+
+Use only the graph facts supplied below, but translate them into ordinary
+language:
+- Start with the direct answer.
+- Prefer names, labels, and short descriptions over URIs.
+- Group repeated facts into readable lists.
+- Do not say "there are N results in the semantic web".
+- Avoid technical words like "dataset", "graph", "triple", or "semantic web"
+  unless the user asks about technical implementation.
+- Do not paste raw query rows, triples, predicate names, JSON, or SPARQL.
+- Mention a URI only when no readable name or label exists.
+- If the user uses an imprecise term, infer the closest graph concept from
+  labels, class names, property names, descriptions, and conversation history.
+- If the graph has a close concept but lacks instance facts, explain that in
+  plain language and suggest 2 or 3 useful related questions the user can ask.
+- If there is genuinely not enough evidence, say what you can tell from nearby
+  facts and suggest what to search next. Do not invent missing source facts.
+- Keep the answer concise unless the user asks for detail.
 
 User question:
 {question}
@@ -105,10 +120,42 @@ def _class_label_facts(
     for item in classes:
         if not isinstance(item, dict):
             continue
-        label = str(item.get("label") or item.get("class") or "").strip()
-        if not label:
+        label = str(item.get("label") or "").strip()
+        class_uri = str(item.get("class") or "").strip()
+        if not label and not class_uri:
             continue
-        variants = {label.lower(), label.lower() + "s"}
+        local_name = _local_name(class_uri)
+        variants = _class_variants(label, local_name)
         if any(variant in question_text for variant in variants):
-            rows.extend(query_service.class_instances_by_label(label, limit=30))
+            rows.extend(query_service.class_instances_by_label(label or local_name, limit=30))
     return rows
+
+
+def _class_variants(label: str, local_name: str) -> set[str]:
+    variants: set[str] = set()
+    for value in {label, local_name, _split_camel(local_name)}:
+        cleaned = value.strip().lower()
+        if not cleaned:
+            continue
+        variants.add(cleaned)
+        variants.add(cleaned + "s")
+        acronym = "".join(part[0] for part in cleaned.replace("-", " ").split() if part)
+        if len(acronym) > 1:
+            variants.add(acronym)
+            variants.add(acronym + "s")
+    return variants
+
+
+def _local_name(uri: str) -> str:
+    if "#" in uri:
+        return uri.rsplit("#", 1)[1]
+    return uri.rstrip("/").rsplit("/", 1)[-1]
+
+
+def _split_camel(value: str) -> str:
+    chars: list[str] = []
+    for index, char in enumerate(value):
+        if index and char.isupper() and value[index - 1].islower():
+            chars.append(" ")
+        chars.append(char)
+    return "".join(chars)
