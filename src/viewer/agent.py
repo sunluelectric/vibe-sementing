@@ -23,6 +23,8 @@ language:
 - Mention a URI only when no readable name or label exists.
 - If the user uses an imprecise term, infer the closest graph concept from
   labels, class names, property names, descriptions, and conversation history.
+- Pay attention to common abbreviations, acronyms, plural forms, and shortened
+  labels when matching the user's wording to graph concepts.
 - If the graph has a close concept but lacks instance facts, explain that in
   plain language and suggest 2 or 3 useful related questions the user can ask.
 - If there is genuinely not enough evidence, say what you can tell from nearby
