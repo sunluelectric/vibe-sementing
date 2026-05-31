@@ -17,6 +17,9 @@ not invent an answer.
 User question:
 {question}
 
+Conversation history:
+{history}
+
 Graph status:
 {status}
 
@@ -40,7 +43,12 @@ class ViewerAgent:
         self.model = model
         self.timeout_seconds = timeout_seconds
 
-    def answer(self, question: str, query_service: ViewerQueryService) -> ViewerAnswer:
+    def answer(
+        self,
+        question: str,
+        query_service: ViewerQueryService,
+        history: str = "",
+    ) -> ViewerAnswer:
         question = question.strip()
         if not question:
             raise ValueError("Question must not be empty.")
@@ -54,6 +62,7 @@ class ViewerAgent:
         facts.extend(_class_label_facts(question, summary, query_service))
         prompt = VIEWER_PROMPT.format(
             question=question,
+            history=history or "- No previous turns in this chat session.",
             status=status,
             summary=_format_mapping(summary),
             facts=_format_rows(facts),

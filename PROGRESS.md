@@ -418,6 +418,9 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
 - The importer framework has been implemented.
 - The semantic web viewer framework has been implemented and verified against
   Fuseki as the runtime data source.
+- Viewer chat sessions are persisted as JSON files under `chat/viewer/`.
+  Opening or refreshing the browser creates a new transcript file, and later
+  questions in the same page session include recent conversation history.
 - Semantic web design and data insertion have been completed by the product.
 - Fuseki ontology loading has been successfully performed.
 - Fuseki instance loading has been successfully performed.

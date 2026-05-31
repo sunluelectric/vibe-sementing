@@ -8,6 +8,7 @@ from agents import Agent, function_tool
 from src.common.config import Settings, get_settings
 from src.common.fuseki import client_from_settings
 from src.viewer.agent import ViewerAgent, ViewerAnswer
+from src.viewer.chat import ChatStore, format_history
 from src.viewer.query import ViewerQueryService
 
 
@@ -26,6 +27,7 @@ class ViewerWorkflow:
         self.settings = settings or get_settings()
         self.fuseki_client = client_from_settings(self.settings)
         self.query_service = ViewerQueryService(self.settings, self.fuseki_client)
+        self.chat_store = ChatStore(self.settings.viewer_chat_dir)
 
     def build_agent(self) -> Agent:
         return Agent(
@@ -44,16 +46,36 @@ class ViewerWorkflow:
             ],
         )
 
-    def answer_question(self, question: str) -> ViewerWorkflowResult:
+    def answer_question(self, question: str, session_id: str | None = None) -> ViewerWorkflowResult:
+        history = ""
+        if session_id:
+            history = format_history(self.chat_store.read_messages(session_id))
         result = ViewerAgent(
             model=self.settings.llm_model,
             timeout_seconds=self.settings.llm_timeout_seconds,
-        ).answer(question, self.query_service)
+        ).answer(question, self.query_service, history=history)
+        if session_id:
+            self.chat_store.append_turn(
+                session_id=session_id,
+                question=result.question,
+                answer=result.answer,
+                facts=result.facts,
+            )
         return ViewerWorkflowResult(
             question=result.question,
             answer=result.answer,
             facts=result.facts,
         )
+
+    def create_chat_session(self) -> dict[str, object]:
+        session = self.chat_store.create_session()
+        return asdict(session)
+
+    def chat_history(self, session_id: str) -> dict[str, object]:
+        return {
+            "session_id": session_id,
+            "messages": [asdict(message) for message in self.chat_store.read_messages(session_id)],
+        }
 
     def graph_status(self) -> dict[str, Any]:
         return asdict(self.query_service.status())

@@ -23,6 +23,7 @@ class Settings:
     instances_path: Path = ROOT_DIR / "db" / "instances.ttl"
     combined_path: Path = ROOT_DIR / "db" / "semantic_web.ttl"
     export_path: Path = ROOT_DIR / "db" / "export.ttl"
+    viewer_chat_dir: Path = ROOT_DIR / "chat" / "viewer"
     llm_model: str = os.getenv("LLM_MODEL", "gpt-5-mini")
     llm_timeout_seconds: int = int(os.getenv("LLM_TIMEOUT_SECONDS", "90"))
     openai_api_key: str | None = os.getenv("OPENAI_API_KEY")
@@ -67,4 +68,5 @@ def get_settings() -> Settings:
     settings = Settings()
     settings.db_dir.mkdir(parents=True, exist_ok=True)
     settings.tests_dir.mkdir(parents=True, exist_ok=True)
+    settings.viewer_chat_dir.mkdir(parents=True, exist_ok=True)
     return settings

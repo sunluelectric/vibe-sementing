@@ -141,10 +141,21 @@ The viewer includes:
 2. An OpenAI Agents SDK workflow shell with tools for graph status, graph
    summary, SPARQL SELECT, and question-relevant fact search.
 3. A direct viewer answer path that gathers graph facts from Fuseki, sends them
-   to the configured OpenAI model, and requires concise answers grounded in
-   queried facts.
+   to the configured OpenAI model with recent chat history, and requires
+   concise answers grounded in queried facts.
 4. A FastAPI browser UI with chatbot interaction, graph status, queried facts,
    and Turtle export.
+
+Viewer chat history is persisted under:
+
+```text
+chat/viewer/
+```
+
+Each browser page load creates a new JSON transcript file. Questions and
+answers from that page session are appended to the file, and recent turns are
+included in later viewer-agent prompts so follow-up questions have conversation
+context. The transcript files are runtime artifacts and are ignored by git.
 
 Run the viewer:
 
@@ -162,8 +173,10 @@ http://127.0.0.1:8000
 Useful viewer endpoints:
 
 - `GET /api/status`: reports Fuseki availability and graph triple count.
+- `POST /api/chat/session`: creates a new persisted viewer chat session.
 - `POST /api/question`: accepts `{"question": "..."}` and returns an answer
-  plus the graph facts sent to the model.
+  plus the graph facts sent to the model. The browser also sends the current
+  chat session id.
 - `GET /api/export.ttl`: exports the semantic web from Fuseki as Turtle.
 
 Because the viewer requires Fuseki as its data source, load the ontology and

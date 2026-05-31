@@ -10,9 +10,11 @@ from src.viewer.workflow import ViewerWorkflow
 
 class QuestionRequest(BaseModel):
     question: str
+    session_id: str
 
 
 class QuestionResponse(BaseModel):
+    session_id: str
     answer: str
     facts: list[dict[str, str]]
 
@@ -29,15 +31,30 @@ def create_app(workflow: ViewerWorkflow | None = None) -> FastAPI:
     def status() -> dict[str, object]:
         return viewer.graph_status()
 
+    @app.post("/api/chat/session")
+    def create_chat_session() -> dict[str, object]:
+        return viewer.create_chat_session()
+
+    @app.get("/api/chat/{session_id}")
+    def chat_history(session_id: str) -> dict[str, object]:
+        try:
+            return viewer.chat_history(session_id)
+        except ValueError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+
     @app.post("/api/question", response_model=QuestionResponse)
     def ask(request: QuestionRequest) -> QuestionResponse:
         try:
-            result = viewer.answer_question(request.question)
+            result = viewer.answer_question(request.question, session_id=request.session_id)
         except (FusekiUnavailable, RuntimeError) as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
-        return QuestionResponse(answer=result.answer, facts=result.facts)
+        return QuestionResponse(
+            session_id=request.session_id,
+            answer=result.answer,
+            facts=result.facts,
+        )
 
     @app.get("/api/export.ttl")
     def export_turtle() -> Response:
@@ -238,6 +255,7 @@ HTML_PAGE = """<!doctype html>
     const questionEl = document.getElementById("question");
     const askBtn = document.getElementById("askBtn");
     const exportBtn = document.getElementById("exportBtn");
+    let sessionId = null;
 
     function addMessage(text, kind) {
       const node = document.createElement("div");
@@ -265,10 +283,22 @@ HTML_PAGE = """<!doctype html>
         : status.message;
     }
 
+    async function startChatSession() {
+      const response = await fetch("/api/chat/session", {method: "POST"});
+      const session = await response.json();
+      if (!response.ok) throw new Error(session.detail || "Could not create chat session");
+      sessionId = session.session_id;
+      statusEl.title = session.path || "";
+    }
+
     formEl.addEventListener("submit", async (event) => {
       event.preventDefault();
       const question = questionEl.value.trim();
       if (!question) return;
+      if (!sessionId) {
+        addMessage("Chat session is not ready yet.", "error");
+        return;
+      }
       addMessage(question, "user");
       questionEl.value = "";
       askBtn.disabled = true;
@@ -276,7 +306,7 @@ HTML_PAGE = """<!doctype html>
         const response = await fetch("/api/question", {
           method: "POST",
           headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({question})
+          body: JSON.stringify({question, session_id: sessionId})
         });
         const payload = await response.json();
         if (!response.ok) throw new Error(payload.detail || "Question failed");
@@ -293,7 +323,7 @@ HTML_PAGE = """<!doctype html>
       window.location.href = "/api/export.ttl";
     });
 
-    refreshStatus().catch((error) => {
+    Promise.all([startChatSession(), refreshStatus()]).catch((error) => {
       statusEl.textContent = error.message;
     });
   </script>

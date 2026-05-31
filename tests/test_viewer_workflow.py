@@ -69,19 +69,25 @@ def test_viewer_agent_uses_fuseki_query_service(monkeypatch) -> None:
 
     monkeypatch.setattr("src.viewer.agent.get_text_response", fake_get_text_response)
 
-    result = ViewerAgent(model="test-model").answer("What records exist?", FakeQueryService())
+    result = ViewerAgent(model="test-model").answer(
+        "What records exist?",
+        FakeQueryService(),
+        history="User: Previous question\nAssistant: Previous answer",
+    )
 
     assert "Record 1 is present" in result.answer
     assert result.facts[0]["subjectLabel"] == "Record 1"
     assert "Question-relevant graph facts" in prompts[0]
+    assert "Previous question" in prompts[0]
 
 
 def test_viewer_workflow_answer_question_with_stubbed_agent(monkeypatch, tmp_path) -> None:
-    settings = replace(get_settings(), db_dir=tmp_path)
+    settings = replace(get_settings(), db_dir=tmp_path, viewer_chat_dir=tmp_path / "chat")
     workflow = ViewerWorkflow(settings)
     workflow.query_service = FakeQueryService()
+    session = workflow.create_chat_session()
 
-    def fake_answer(self, question, query_service):
+    def fake_answer(self, question, query_service, history=""):
         from src.viewer.agent import ViewerAnswer
 
         return ViewerAnswer(
@@ -92,7 +98,9 @@ def test_viewer_workflow_answer_question_with_stubbed_agent(monkeypatch, tmp_pat
 
     monkeypatch.setattr("src.viewer.workflow.ViewerAgent.answer", fake_answer)
 
-    result = workflow.answer_question("What records exist?")
+    result = workflow.answer_question("What records exist?", session_id=session["session_id"])
 
     assert result.answer == "Stub answer."
     assert result.facts[0]["subjectLabel"] == "Record 1"
+    history = workflow.chat_history(session["session_id"])
+    assert len(history["messages"]) == 2
