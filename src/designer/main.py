@@ -6,8 +6,10 @@ from src.designer.workflow import DesignerWorkflow
 
 def main() -> None:
     settings = get_settings()
+    print(f"Semantic web mode: {settings.semantic_web_mode}")
     print(f"Designer workflow model: {settings.llm_model}")
     print(f"Designer iterations allowed: {settings.designer_iterations}")
+    print(f"Designer ontology triple limit: {settings.designer_ontology_triple_limit}")
     print(f"Fuseki dataset: {settings.fuseki_dataset}")
     result = DesignerWorkflow(settings).run_sync()
     print(f"Designer wrote {result.design_path}")

@@ -416,7 +416,30 @@ Implementation checklist:
   validation results.
 - [x] Commit the CSV-aware design/import milestone.
 
-## Milestone 11: Long-Document Coverage Scale-Up
+## Milestone 11: Test And Production Modes
+
+Goal: keep the current compact, stable workflow as the default test mode, while
+adding an explicit production mode switch for comprehensive prompts, stronger
+model defaults, and larger validation/retrieval budgets.
+
+- [x] Add `.env` configuration for `SEMANTIC_WEB_MODE=test|production`,
+  defaulting to `test`.
+- [x] Keep test mode behavior equivalent to the current compact workflow:
+  `gpt-5-mini`, compact designer prompt, low retrieval/batch counts, and the
+  current ontology size validation.
+- [x] Add production mode defaults: `gpt-5.5`, comprehensive designer prompt,
+  higher retrieval/batch counts, larger context limits, longer timeout, and
+  relaxed ontology size validation.
+- [x] Keep explicit environment overrides such as `LLM_MODEL`,
+  `DESIGNER_RETRIEVAL_FOCUSES`, and `IMPORTER_RETRIEVAL_BATCHES` working in
+  both modes.
+- [x] Add focused tests for mode defaults, designer prompt selection, and
+  production ontology validation limits.
+- [x] Update `README.md`, `PROGRESS.md`, and `AGENTS.md` with the mode switch.
+- [x] Run `uv run pytest`.
+- [x] Commit the test/production mode switch.
+
+## Milestone 12: Long-Document Coverage Scale-Up
 
 Goal: move beyond proof-of-concept semantic webs for long source documents by
 improving coverage, structure extraction, iteration depth, and schema/instance
@@ -730,13 +753,21 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   questions correctly: 11 triplestores, 4 open-source triplestores, Apache Jena
   TDB APIs, GraphDB maintainer/license, commercial-license triplestores, and
   Virtuoso's key feature. `uv run pytest` reported 74 passed and 2 skipped.
+- Test/production mode switch was added on 2026-06-01. `SEMANTIC_WEB_MODE=test`
+  remains the default compact workflow with `gpt-5-mini`. Setting
+  `SEMANTIC_WEB_MODE=production` switches default model to `gpt-5.5`, uses the
+  comprehensive designer prompt, raises retrieval/import budgets, lengthens the
+  timeout, and relaxes the designer ontology triple limit. Explicit environment
+  overrides still win in both modes. `uv run pytest` reported 78 passed and
+  4 skipped.
 - The designer milestone commit has been made.
 - The importer milestone commit has been made.
 - The viewer milestone commit has been made.
 
 ### Immediate Next Step
 
-- Start `Milestone 11: Long-Document Coverage Scale-Up` when ready.
+- Start `Milestone 11: Test And Production Modes`, then continue to
+  `Milestone 12: Long-Document Coverage Scale-Up` when ready.
 
 ## Handoff For Next Codex Instance
 
@@ -753,8 +784,8 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   - Fuseki data graph `http://example.org/semantic-web/graph/data` unless overridden by `.env`
 - Current tests:
   - `uv run pytest`
-  - latest local result after viewer count/relevance updates:
-    `74 passed, 2 skipped`
+  - latest local result after test/production mode switch:
+    `78 passed, 4 skipped`
 - Current runtime notes:
   - Fuseki may already be running on port `3030`.
   - If not, use the project-local Fuseki base `db/fuseki-run`.
@@ -765,6 +796,10 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   - Designer, importer, and viewer milestones are implemented.
   - Designer uses iterative model-planned semantic-search focuses for large
     data.
+  - `SEMANTIC_WEB_MODE=test` is the default compact workflow. Set
+    `SEMANTIC_WEB_MODE=production` in `.env` to use comprehensive designer
+    prompts, `gpt-5.5` by default, larger retrieval/import budgets, and a
+    relaxed ontology triple limit.
   - Importer uses iterative model-planned import batches for large data and
     writes progressive run status to `import.md`.
   - Importer uses deterministic CSV import for CSV sources: profile the CSV,
@@ -775,7 +810,8 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   - The viewer now uses exact subject-label lookup and class-instance aggregate
     counts before generic relevance search, and its answer prompt is tuned for
     end-user wording rather than database or RDF implementation wording.
-  - The next implementation priority is long-document coverage scale-up.
+  - The next implementation priority is long-document coverage scale-up using
+    the new production mode switch when appropriate.
   - The current semantic-web/ontology/triplestore graph validates the
     CSV-aware architecture, while unstructured markdown/PDF extraction remains
     compact and should be expanded through Milestone 11.

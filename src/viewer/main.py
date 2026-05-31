@@ -12,6 +12,7 @@ from src.viewer.app import create_app
 def main() -> None:
     settings = get_settings()
     url = f"http://{settings.app_host}:{settings.app_port}"
+    print(f"Semantic web mode: {settings.semantic_web_mode}")
     print(f"Viewer model: {settings.llm_model}")
     print(f"Viewer Fuseki dataset: {settings.fuseki_dataset}")
     print(f"Viewer URL: {url}")

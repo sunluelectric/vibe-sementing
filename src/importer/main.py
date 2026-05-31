@@ -6,6 +6,7 @@ from src.importer.workflow import ImporterWorkflow
 
 def main() -> None:
     settings = get_settings()
+    print(f"Semantic web mode: {settings.semantic_web_mode}")
     print(f"Importer workflow model: {settings.llm_model}")
     print(f"Importer iterations allowed: {settings.importer_iterations}")
     print(f"Fuseki dataset: {settings.fuseki_dataset}")

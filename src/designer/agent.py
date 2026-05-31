@@ -10,7 +10,7 @@ from src.common.llm import get_text_response, parse_json_object
 from src.common.rdf import parse_turtle
 
 
-DESIGNER_PROMPT = """You are the semantic web designer agent for this project.
+TEST_DESIGNER_PROMPT = """You are the semantic web designer agent for this project.
 
 Design a compact RDF/RDFS semantic web schema for the user's data and design
 requirements. Do not make a complex or exhaustive ontology. The goal is a small,
@@ -42,6 +42,49 @@ Ontology requirements:
 - Avoid enumerating source facts as schema terms.
 - Avoid blank nodes, RDF lists, restrictions, union classes, and complicated
   cardinality modeling.
+- The Turtle must parse as Turtle with rdflib.
+
+Design requirements:
+{requirements}
+
+Available project data:
+{data}
+"""
+
+PRODUCTION_DESIGNER_PROMPT = """You are the semantic web designer agent for this project.
+
+Design a comprehensive RDF/RDFS semantic web schema for the user's data and
+design requirements. The schema must be driven by the supplied requirements and
+project data, not by any built-in domain example.
+
+Use RDF/RDFS as the core representation. OWL terms may be used sparingly when
+they clearly improve the schema, but the output must remain loadable and
+queryable in Apache Jena Fuseki. You are designing the schema; do not insert
+individual data instances.
+
+Return exactly one JSON object with these keys:
+- design_markdown: a complete design document for design.md.
+- ontology_turtle: valid Turtle containing the ontology/schema.
+
+Ontology requirements:
+- Base namespace: {ontology_namespace}
+- Prefixes must include sw, rdf, rdfs, xsd.
+- Cover the important concepts, entities, structured fields, relationships,
+  identifiers, constraints, and query needs visible in the requirements and
+  source data.
+- Do not intentionally keep the ontology small. Add classes and properties when
+  the evidence shows they are needed for coverage, import fidelity, or useful
+  viewer queries.
+- Include meaningful class and property hierarchy where the source material
+  supports it.
+- Include practical object and datatype properties with rdfs:domain and
+  rdfs:range where practical.
+- Use rdfs:label and rdfs:comment on important classes and properties.
+- Prefer reusable modeling patterns, but do not collapse distinct source
+  concepts merely to stay brief.
+- Avoid enumerating source facts as schema terms; instance facts belong in the
+  importer output, not the ontology.
+- Avoid blank nodes and RDF lists unless they are clearly necessary.
 - The Turtle must parse as Turtle with rdflib.
 
 Design requirements:
@@ -123,10 +166,14 @@ class DesignerAgent:
         model: str,
         timeout_seconds: int = 90,
         ontology_namespace: str = "http://example.org/semantic-web#",
+        mode: str = "test",
+        ontology_triple_limit: int = 260,
     ):
         self.model = model
         self.timeout_seconds = timeout_seconds
         self.ontology_namespace = ontology_namespace
+        self.mode = "production" if mode == "production" else "test"
+        self.ontology_triple_limit = ontology_triple_limit
         self.progress_entries: list[str] = []
 
     def plan_focuses(
@@ -222,11 +269,12 @@ class DesignerAgent:
             progress_path,
             "# Semantic Web Designer Progress\n\n"
             f"- Model: `{self.model}`\n"
+            f"- Mode: `{self.mode}`\n"
             f"- Max attempts: {max_attempts}\n"
             f"- Started: {self._timestamp()}\n",
         )
         for attempt in range(1, max_attempts + 1):
-            prompt = DESIGNER_PROMPT.format(
+            prompt = self._designer_prompt().format(
                 ontology_namespace=self.ontology_namespace,
                 requirements=requirements,
                 data=data,
@@ -269,8 +317,11 @@ class DesignerAgent:
                 graph = parse_turtle(ontology_turtle)
                 if len(graph) < 20:
                     raise ValueError("Ontology has fewer than 20 triples.")
-                if len(graph) > 260:
-                    raise ValueError("Ontology is too complex for the first version.")
+                if len(graph) > self.ontology_triple_limit:
+                    raise ValueError(
+                        f"Ontology has {len(graph)} triples, which exceeds the "
+                        f"configured {self.ontology_triple_limit} triple limit for {self.mode} mode."
+                    )
                 self._validate_schema_graph(graph)
                 self._record_progress(
                     progress_path,
@@ -298,6 +349,11 @@ class DesignerAgent:
 
     def _run_direct_design_call(self, prompt: str) -> str:
         return get_text_response(self.model, prompt, self.timeout_seconds)
+
+    def _designer_prompt(self) -> str:
+        if self.mode == "production":
+            return PRODUCTION_DESIGNER_PROMPT
+        return TEST_DESIGNER_PROMPT
 
     def _validate_schema_graph(self, graph: Graph) -> None:
         namespace_map = {prefix: str(namespace) for prefix, namespace in graph.namespaces()}

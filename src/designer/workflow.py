@@ -135,6 +135,8 @@ class DesignerWorkflow:
             model=self.settings.llm_model,
             timeout_seconds=self.settings.llm_timeout_seconds,
             ontology_namespace=self.settings.ontology_namespace,
+            mode=self.settings.semantic_web_mode,
+            ontology_triple_limit=self.settings.designer_ontology_triple_limit,
         )
         data = self.retrieve_design_context(requirements, agent=agent)
         self.last_design = agent.run(

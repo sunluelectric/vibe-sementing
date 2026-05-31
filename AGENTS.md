@@ -62,7 +62,7 @@ The project includes three independent executable codes. They are:
 * OpenAI API key and LLM instances in agentic AI frameworks
   * The project develops and deploys multiple agentic AI frameworks for semantic web design, data insertation and result query. LLM will be used in the agentic AI frameworks
   * OpenAI API Key can be found in `.env` file, as environment variable `OPENAI_API_KEY`
-  * The current default model in `src/common/config.py` is `gpt-5-mini`, chosen to reduce latency and cost for the compact designer workflow. Override it with `LLM_MODEL` in `.env` when needed.
+  * The default mode is `SEMANTIC_WEB_MODE=test`, which uses `gpt-5-mini`, compact designer prompts, and smaller validation/retrieval budgets. Set `SEMANTIC_WEB_MODE=production` in `.env` to use the comprehensive designer prompt, `gpt-5.5` by default, larger retrieval/import budgets, longer timeout, and relaxed designer ontology triple limit. Override the model with `LLM_MODEL` in either mode when needed.
 
 * Design requirements
   * Design requirements is given in `./design-requirements.md`

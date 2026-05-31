@@ -351,6 +351,7 @@ class ImporterWorkflow:
             self.settings.import_doc_path,
             "# Semantic Web Importer Progress\n\n"
             f"- Model: `{self.settings.llm_model}`\n"
+            f"- Mode: `{self.settings.semantic_web_mode}`\n"
             f"- Max validation attempts per generation: {self.settings.importer_iterations}\n"
             f"- Semantic search enabled: {self.settings.semantic_search_enabled}\n"
             f"- Semantic search provider: `{self.settings.semantic_search_provider}`\n"

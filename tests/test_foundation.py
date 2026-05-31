@@ -5,6 +5,7 @@ from pathlib import Path
 
 from rdflib import RDF, RDFS, Namespace
 
+from src.common.config import Settings, get_settings
 from src.common.files import load_project_data
 from src.common.fuseki import FusekiClient
 from src.common.fuseki_manager import FusekiManager
@@ -23,6 +24,49 @@ def test_load_project_data_reads_markdown_and_csv(tmp_path: Path) -> None:
     assert "CSV profile:" in loaded
     assert "Columns: name, value" in loaded
     assert "Row 1: name: A; value: 1" in loaded
+
+
+def test_settings_default_to_test_mode(monkeypatch) -> None:
+    monkeypatch.delenv("SEMANTIC_WEB_MODE", raising=False)
+    monkeypatch.delenv("LLM_MODEL", raising=False)
+    monkeypatch.delenv("DESIGNER_RETRIEVAL_FOCUSES", raising=False)
+    monkeypatch.delenv("IMPORTER_RETRIEVAL_BATCHES", raising=False)
+    monkeypatch.delenv("DESIGNER_ONTOLOGY_TRIPLE_LIMIT", raising=False)
+
+    settings = get_settings()
+
+    assert settings.semantic_web_mode == "test"
+    assert settings.llm_model == "gpt-5-mini"
+    assert settings.designer_retrieval_focuses == 4
+    assert settings.importer_retrieval_batches == 4
+    assert settings.designer_ontology_triple_limit == 260
+
+
+def test_settings_production_mode_defaults(monkeypatch) -> None:
+    monkeypatch.setenv("SEMANTIC_WEB_MODE", "production")
+    monkeypatch.delenv("LLM_MODEL", raising=False)
+    monkeypatch.delenv("DESIGNER_RETRIEVAL_FOCUSES", raising=False)
+    monkeypatch.delenv("IMPORTER_RETRIEVAL_BATCHES", raising=False)
+    monkeypatch.delenv("DESIGNER_ONTOLOGY_TRIPLE_LIMIT", raising=False)
+
+    settings = Settings()
+
+    assert settings.semantic_web_mode == "production"
+    assert settings.llm_model == "gpt-5.5"
+    assert settings.designer_retrieval_focuses == 8
+    assert settings.importer_retrieval_batches == 10
+    assert settings.designer_ontology_triple_limit == 2000
+
+
+def test_settings_explicit_overrides_win_in_production_mode(monkeypatch) -> None:
+    monkeypatch.setenv("SEMANTIC_WEB_MODE", "production")
+    monkeypatch.setenv("LLM_MODEL", "custom-model")
+    monkeypatch.setenv("DESIGNER_RETRIEVAL_FOCUSES", "6")
+
+    settings = Settings()
+
+    assert settings.llm_model == "custom-model"
+    assert settings.designer_retrieval_focuses == 6
 
 
 def test_load_project_data_reads_pdf(tmp_path: Path, monkeypatch) -> None:

@@ -280,20 +280,34 @@ Configuration is read from `.env` and defaults in `src/common/config.py`.
 Important settings:
 
 - `OPENAI_API_KEY`: required for the designer model call.
-- `LLM_MODEL`: defaults to `gpt-5-mini`.
-- `LLM_TIMEOUT_SECONDS`: defaults to `90`.
-- `DESIGNER_ITERATIONS`: defaults to `2`.
-- `IMPORTER_ITERATIONS`: defaults to `2`.
+- `SEMANTIC_WEB_MODE`: defaults to `test`. Set to `production` to use
+  comprehensive prompts and larger default run budgets.
+- `LLM_MODEL`: defaults to `gpt-5-mini` in test mode and `gpt-5.5` in
+  production mode. An explicit `LLM_MODEL` value overrides the mode default.
+- `LLM_TIMEOUT_SECONDS`: defaults to `90` in test mode and `240` in production
+  mode.
+- `DESIGNER_ITERATIONS`: defaults to `2` in test mode and `3` in production
+  mode.
+- `IMPORTER_ITERATIONS`: defaults to `2` in test mode and `3` in production
+  mode.
 - `SEMANTIC_SEARCH_ENABLED`: defaults to `true`.
 - `SEMANTIC_SEARCH_PROVIDER`: defaults to `local`. Use `openai` to use the
   configured OpenAI embedding model for retrieval.
 - `EMBEDDING_MODEL`: defaults to `text-embedding-3-small`.
-- `SEMANTIC_SEARCH_TOP_K`: defaults to `8`.
-- `SEMANTIC_CONTEXT_MAX_CHARS`: defaults to `16000`.
-- `DESIGNER_RETRIEVAL_FOCUSES`: defaults to `4`.
-- `DESIGNER_SLICE_CONTEXT_MAX_CHARS`: defaults to `5000`.
-- `IMPORTER_RETRIEVAL_BATCHES`: defaults to `4`.
-- `IMPORTER_SLICE_CONTEXT_MAX_CHARS`: defaults to `5000`.
+- `SEMANTIC_SEARCH_TOP_K`: defaults to `8` in test mode and `12` in production
+  mode.
+- `SEMANTIC_CONTEXT_MAX_CHARS`: defaults to `16000` in test mode and `40000`
+  in production mode.
+- `DESIGNER_RETRIEVAL_FOCUSES`: defaults to `4` in test mode and `8` in
+  production mode.
+- `DESIGNER_SLICE_CONTEXT_MAX_CHARS`: defaults to `5000` in test mode and
+  `10000` in production mode.
+- `DESIGNER_ONTOLOGY_TRIPLE_LIMIT`: defaults to `260` in test mode and `2000`
+  in production mode.
+- `IMPORTER_RETRIEVAL_BATCHES`: defaults to `4` in test mode and `10` in
+  production mode.
+- `IMPORTER_SLICE_CONTEXT_MAX_CHARS`: defaults to `5000` in test mode and
+  `10000` in production mode.
 - `FUSEKI_BASE_URL`: defaults to `http://localhost:3030`.
 - `FUSEKI_DATASET`: defaults to `semantic-web-processor`.
 - `FUSEKI_HOME`: defaults to `/opt/apache-jena-fuseki-6.1.0`.
@@ -302,6 +316,18 @@ Important settings:
 - `ONTOLOGY_GRAPH_URI`: defaults to
   `http://example.org/semantic-web/graph/ontology`.
 - `DATA_GRAPH_URI`: defaults to `http://example.org/semantic-web/graph/data`.
+
+Test mode is the default and preserves the current compact workflow. Production
+mode keeps the same validation and Fuseki loading pipeline, but uses a
+comprehensive designer prompt, `gpt-5.5` by default, larger retrieval/import
+budgets, and a relaxed ontology triple limit. To enable it:
+
+```text
+SEMANTIC_WEB_MODE=production
+```
+
+Use explicit environment variables, such as `LLM_MODEL` or
+`DESIGNER_RETRIEVAL_FOCUSES`, to override either mode's defaults.
 
 Fuseki runtime files are written under `db/fuseki-run/`, persistent graph data
 is written under `db/fuseki-data/`, and Fuseki logs are written to

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 from src.common.llm import parse_json_object
 from src.common.rdf import parse_turtle
 from src.designer.agent import DesignerAgent, DesignFocus
@@ -44,12 +46,29 @@ sw:relatedTo a rdf:Property ; rdfs:range sw:Record .
 def test_designer_agent_runs_with_stubbed_response() -> None:
     class StubDesigner(DesignerAgent):
         def _run_direct_design_call(self, prompt: str) -> str:
+            assert "Design a compact RDF/RDFS semantic web schema" in prompt
             return VALID_DESIGN_RESPONSE
 
     result = StubDesigner("test-model").run("requirements", "data", max_attempts=1)
 
     assert result.design_markdown.startswith("# Test Design")
     assert len(result.graph) >= 20
+
+
+def test_designer_agent_uses_production_prompt() -> None:
+    class StubDesigner(DesignerAgent):
+        def _run_direct_design_call(self, prompt: str) -> str:
+            assert "Design a comprehensive RDF/RDFS semantic web schema" in prompt
+            assert "Do not intentionally keep the ontology small" in prompt
+            return VALID_DESIGN_RESPONSE
+
+    result = StubDesigner("test-model", mode="production", ontology_triple_limit=2000).run(
+        "requirements",
+        "data",
+        max_attempts=1,
+    )
+
+    assert result.design_markdown.startswith("# Test Design")
 
 
 def test_designer_agent_writes_progress_after_stubbed_call(tmp_path) -> None:
@@ -123,6 +142,35 @@ def test_designer_agent_retries_after_invalid_turtle() -> None:
     assert "previous response failed validation" in agent.prompts[1]
 
 
+def test_designer_agent_rejects_test_mode_triple_limit() -> None:
+    class LargeDesigner(DesignerAgent):
+        def _run_direct_design_call(self, prompt: str) -> str:
+            turtle = _large_valid_ontology_turtle(class_count=50, property_count=50)
+            return json.dumps({"design_markdown": "# Large", "ontology_turtle": turtle})
+
+    try:
+        LargeDesigner("test-model", ontology_triple_limit=260).run("requirements", "data", max_attempts=1)
+    except RuntimeError as exc:
+        assert "exceeds the configured 260 triple limit" in str(exc)
+    else:
+        raise AssertionError("Expected test mode ontology size limit to reject the output.")
+
+
+def test_designer_agent_allows_larger_production_triple_limit() -> None:
+    class LargeDesigner(DesignerAgent):
+        def _run_direct_design_call(self, prompt: str) -> str:
+            turtle = _large_valid_ontology_turtle(class_count=50, property_count=50)
+            return json.dumps({"design_markdown": "# Large", "ontology_turtle": turtle})
+
+    result = LargeDesigner(
+        "test-model",
+        mode="production",
+        ontology_triple_limit=2000,
+    ).run("requirements", "data", max_attempts=1)
+
+    assert len(result.graph) > 260
+
+
 def test_designer_agent_plans_retrieval_focuses() -> None:
     class StubDesigner(DesignerAgent):
         def _run_direct_design_call(self, prompt: str) -> str:
@@ -175,3 +223,28 @@ def test_designer_agent_uses_raw_schema_slice_when_json_is_malformed() -> None:
 
     assert "schema_notes" in notes
     assert "Candidate path" in notes
+
+
+def _large_valid_ontology_turtle(class_count: int, property_count: int) -> str:
+    lines = [
+        "@prefix sw: <http://example.org/semantic-web#> .",
+        "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .",
+        "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .",
+        "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .",
+        "",
+    ]
+    for index in range(class_count):
+        lines.append(
+            f"sw:Class{index} a rdfs:Class ; "
+            f"rdfs:label \"Class {index}\" ; "
+            f"rdfs:comment \"Generated class {index}.\" ."
+        )
+    for index in range(property_count):
+        lines.append(
+            f"sw:property{index} a rdf:Property ; "
+            f"rdfs:label \"property {index}\" ; "
+            f"rdfs:comment \"Generated property {index}.\" ; "
+            f"rdfs:domain sw:Class{index % class_count} ; "
+            f"rdfs:range xsd:string ."
+        )
+    return "\n".join(lines)
