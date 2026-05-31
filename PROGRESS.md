@@ -228,6 +228,27 @@ current small-data full-context path.
 - [x] Run `uv run pytest`.
 - [x] Commit the semantic-search improvement milestone.
 
+## Milestone 6: Iterative Retrieval-Guided Designer
+
+Goal: improve the semantic web designer so large-data ontology design is guided
+by multiple model-planned semantic-search rounds instead of one retrieval pass.
+
+- [x] Add designer configuration for iterative retrieval focus count and slice
+  context limits.
+- [x] Add a designer planning step that asks the model for focused semantic
+  search queries derived from `design-requirements.md` and a data inventory.
+- [x] Add per-focus schema-slice drafting so each retrieved context packet
+  produces concise design notes before final ontology synthesis.
+- [x] Update the designer workflow so large-data runs use planned retrieval
+  rounds, while small-data and disabled-search runs keep the existing path.
+- [x] Record focus queries, retrieved context sizes, and slice-note sizes in the
+  designer retrieval summary and progressive `design.md` log.
+- [x] Add focused tests for query planning, schema-slice drafting, and workflow
+  iterative retrieval behavior.
+- [x] Update `README.md` with the iterative designer retrieval flow.
+- [x] Run `uv run pytest`.
+- [x] Commit the iterative designer improvement.
+
 ## Current Notes
 
 - Initial dependency installation succeeded.

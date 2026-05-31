@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from src.common.config import get_settings
 from src.common.rdf import parse_turtle
-from src.designer.agent import DesignResult
+from src.designer.agent import DesignFocus, DesignResult
 from src.designer.workflow import DesignerWorkflow
 from tests.test_designer_contract import VALID_DESIGN_RESPONSE
 from src.common.llm import parse_json_object
@@ -119,3 +119,61 @@ def test_designer_retrieves_context_for_large_data(tmp_path) -> None:
     assert "Source chunk: places.md" in context
     assert workflow.last_retrieval_summary["used"] is True
     assert workflow.last_retrieval_summary["chunk_count"] > 1
+
+
+def test_designer_iterative_retrieval_uses_model_planned_focuses(tmp_path) -> None:
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    (data_dir / "world.md").write_text(
+        "# World\n\n"
+        + "Harbor scenes include docks, boats, tides, and exits.\n\n" * 120
+        + "Character notes include captains, merchants, and relationships.\n\n" * 120,
+        encoding="utf-8",
+    )
+    requirements = tmp_path / "design-requirements.md"
+    requirements.write_text("Design an ontology for scenes and characters.", encoding="utf-8")
+    settings = replace(
+        get_settings(),
+        data_dir=data_dir,
+        design_requirements_path=requirements,
+        design_doc_path=tmp_path / "design.md",
+        semantic_context_max_chars=1600,
+        designer_slice_context_max_chars=700,
+        semantic_search_top_k=1,
+        designer_retrieval_focuses=2,
+    )
+    workflow = DesignerWorkflow(settings)
+
+    class StubAgent:
+        def __init__(self) -> None:
+            self.slice_queries: list[str] = []
+
+        def plan_focuses(self, requirements, data_inventory, max_focuses, progress_path=None):
+            assert "source=world.md" in data_inventory
+            return [
+                DesignFocus("harbor scenes docks exits", "Model places."),
+                DesignFocus("captains merchants relationships", "Model characters."),
+            ]
+
+        def draft_schema_slice(self, requirements, focus, context, progress_path=None):
+            self.slice_queries.append(focus.query)
+            assert len(context) <= 700
+            return f"Notes for {focus.query}"
+
+    agent = StubAgent()
+
+    context = workflow.retrieve_design_context(
+        "Design an ontology for scenes and characters.",
+        agent=agent,
+    )
+
+    assert workflow.last_retrieval_summary["used"] is True
+    assert workflow.last_retrieval_summary["iterative"] is True
+    assert workflow.last_retrieval_summary["focus_count"] == 2
+    assert agent.slice_queries == [
+        "harbor scenes docks exits",
+        "captains merchants relationships",
+    ]
+    assert "Retrieved Design Focus 1" in context
+    assert "Schema Slice Notes" in context
+    assert len(context) <= 1600

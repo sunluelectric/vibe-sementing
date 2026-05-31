@@ -60,6 +60,10 @@ class Settings:
     embedding_model: str = os.getenv("EMBEDDING_MODEL", "text-embedding-3-small")
     semantic_search_top_k: int = int(os.getenv("SEMANTIC_SEARCH_TOP_K", "8"))
     semantic_context_max_chars: int = int(os.getenv("SEMANTIC_CONTEXT_MAX_CHARS", "16000"))
+    designer_retrieval_focuses: int = int(os.getenv("DESIGNER_RETRIEVAL_FOCUSES", "4"))
+    designer_slice_context_max_chars: int = int(
+        os.getenv("DESIGNER_SLICE_CONTEXT_MAX_CHARS", "5000")
+    )
 
     @property
     def sparql_query_url(self) -> str:

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any
 
 from agents import Agent, function_tool, trace
@@ -9,8 +9,8 @@ from src.common.config import Settings, get_settings
 from src.common.files import load_project_data, read_text, write_text
 from src.common.fuseki import client_from_settings, load_graph_to_fuseki_or_file
 from src.common.fuseki_manager import FusekiManager
-from src.common.semantic_search import chunks_from_data_dir, select_context
-from src.designer.agent import DesignerAgent, DesignResult
+from src.common.semantic_search import SemanticChunk, chunks_from_data_dir, select_context
+from src.designer.agent import DesignerAgent, DesignFocus, DesignResult
 
 
 _active_workflow: "DesignerWorkflow | None" = None
@@ -131,16 +131,18 @@ class DesignerWorkflow:
 
     def run_iterative_design(self) -> dict[str, Any]:
         requirements = read_text(self.settings.design_requirements_path)
-        data = self.retrieve_design_context(requirements)
-        self.last_design = DesignerAgent(
+        agent = DesignerAgent(
             model=self.settings.llm_model,
             timeout_seconds=self.settings.llm_timeout_seconds,
             ontology_namespace=self.settings.ontology_namespace,
-        ).run(
+        )
+        data = self.retrieve_design_context(requirements, agent=agent)
+        self.last_design = agent.run(
             requirements=requirements,
             data=data,
             max_attempts=self.settings.designer_iterations,
             progress_path=self.settings.design_doc_path,
+            reset_progress=not self.last_retrieval_summary.get("iterative"),
         )
         return {
             "status": "success",
@@ -148,11 +150,16 @@ class DesignerWorkflow:
             "iterations_allowed": self.settings.designer_iterations,
         }
 
-    def retrieve_design_context(self, requirements: str | None = None) -> str:
+    def retrieve_design_context(
+        self,
+        requirements: str | None = None,
+        agent: DesignerAgent | None = None,
+    ) -> str:
         full_data = load_project_data(self.settings.data_dir)
         if not self.settings.semantic_search_enabled:
             self.last_retrieval_summary = {
                 "used": False,
+                "iterative": False,
                 "reason": "disabled",
                 "full_context_chars": len(full_data),
                 "context_chars": len(full_data),
@@ -161,6 +168,7 @@ class DesignerWorkflow:
         if len(full_data) <= self.settings.semantic_context_max_chars:
             self.last_retrieval_summary = {
                 "used": False,
+                "iterative": False,
                 "reason": "below_threshold",
                 "full_context_chars": len(full_data),
                 "context_chars": len(full_data),
@@ -169,14 +177,62 @@ class DesignerWorkflow:
             return full_data
         query = requirements or read_text(self.settings.design_requirements_path)
         chunks = chunks_from_data_dir(self.settings.data_dir)
-        context = select_context(chunks, query, self.settings)
-        selected = context or full_data[: self.settings.semantic_context_max_chars]
+        if agent is None:
+            context = select_context(chunks, query, self.settings)
+            selected = context or full_data[: self.settings.semantic_context_max_chars]
+            self.last_retrieval_summary = {
+                "used": True,
+                "iterative": False,
+                "reason": "above_threshold",
+                "full_context_chars": len(full_data),
+                "context_chars": len(selected),
+                "chunk_count": len(chunks),
+                "top_k": self.settings.semantic_search_top_k,
+                "max_chars": self.settings.semantic_context_max_chars,
+            }
+            return selected
+
+        focuses = agent.plan_focuses(
+            requirements=query,
+            data_inventory=_data_inventory(chunks),
+            max_focuses=self.settings.designer_retrieval_focuses,
+            progress_path=self.settings.design_doc_path,
+        )
+        slice_settings = replace(
+            self.settings,
+            semantic_context_max_chars=self.settings.designer_slice_context_max_chars,
+        )
+        sections: list[str] = []
+        focus_summaries: list[dict[str, Any]] = []
+        for index, focus in enumerate(focuses, start=1):
+            context = select_context(chunks, focus.query, slice_settings)
+            notes = agent.draft_schema_slice(
+                requirements=query,
+                focus=focus,
+                context=context,
+                progress_path=self.settings.design_doc_path,
+            )
+            sections.append(_design_focus_section(index, focus, context, notes))
+            focus_summaries.append(
+                {
+                    "query": focus.query,
+                    "purpose": focus.purpose,
+                    "context_chars": len(context),
+                    "notes_chars": len(notes),
+                }
+            )
+        selected = "\n\n".join(sections).strip()
+        if len(selected) > self.settings.semantic_context_max_chars:
+            selected = selected[: self.settings.semantic_context_max_chars].rstrip()
         self.last_retrieval_summary = {
             "used": True,
+            "iterative": True,
             "reason": "above_threshold",
             "full_context_chars": len(full_data),
             "context_chars": len(selected),
             "chunk_count": len(chunks),
+            "focus_count": len(focuses),
+            "focuses": focus_summaries,
             "top_k": self.settings.semantic_search_top_k,
             "max_chars": self.settings.semantic_context_max_chars,
         }
@@ -242,3 +298,26 @@ def run_iterative_design() -> dict[str, Any]:
 def persist_and_load_ontology() -> dict[str, Any]:
     """Write design.md and ontology.ttl, then load the ontology into Fuseki or local fallback."""
     return _workflow().persist_and_load_ontology()
+
+
+def _data_inventory(chunks: list[SemanticChunk]) -> str:
+    lines: list[str] = []
+    for index, chunk in enumerate(chunks, start=1):
+        preview = " ".join(chunk.text.split())[:350]
+        lines.append(
+            f"{index}. source={chunk.source}; kind={chunk.kind}; "
+            f"characters={len(chunk.text)}; preview={preview}"
+        )
+    return "\n".join(lines)
+
+
+def _design_focus_section(index: int, focus: DesignFocus, context: str, notes: str) -> str:
+    return (
+        f"## Retrieved Design Focus {index}\n\n"
+        f"Query: {focus.query}\n\n"
+        f"Purpose: {focus.purpose}\n\n"
+        "### Retrieved Context\n\n"
+        f"{context}\n\n"
+        "### Schema Slice Notes\n\n"
+        f"{notes}"
+    )

@@ -52,6 +52,63 @@ Available project data:
 """
 
 
+DESIGN_FOCUS_PLANNER_PROMPT = """You are planning semantic-search work for a semantic web designer.
+
+Create focused search queries that cover the design requirements and the
+available data inventory. The queries should help discover the core concepts,
+relationships, identifiers, and source facts needed for an RDF/RDFS ontology.
+
+Return exactly one JSON object with this key:
+- focuses: an array of objects. Each object has:
+  - query: a concise semantic-search query.
+  - purpose: why this query matters for ontology design.
+
+Rules:
+- Return at most {max_focuses} focuses.
+- Cover different conceptual areas. Do not make duplicate queries.
+- Keep queries domain-neutral in wording except for domain terms found in the
+  requirements or data inventory.
+- Do not design the ontology yet.
+
+Design requirements:
+{requirements}
+
+Data inventory:
+{data_inventory}
+"""
+
+
+DESIGN_SLICE_PROMPT = """You are drafting one small schema slice for a semantic web designer.
+
+Use the retrieved context for this focus area to write concise schema-design
+notes. Do not output Turtle. Do not define the final ontology. Identify likely
+classes, properties, hierarchy hints, datatype facts, object relationships, and
+importer considerations that may be useful when the final ontology is
+synthesized.
+
+Return exactly one JSON object with this key:
+- schema_notes: concise markdown notes for this focus area.
+
+Design requirements:
+{requirements}
+
+Focus query:
+{query}
+
+Focus purpose:
+{purpose}
+
+Retrieved source context:
+{context}
+"""
+
+
+@dataclass(frozen=True)
+class DesignFocus:
+    query: str
+    purpose: str
+
+
 @dataclass
 class DesignResult:
     design_markdown: str
@@ -72,15 +129,92 @@ class DesignerAgent:
         self.ontology_namespace = ontology_namespace
         self.progress_entries: list[str] = []
 
+    def plan_focuses(
+        self,
+        requirements: str,
+        data_inventory: str,
+        max_focuses: int,
+        progress_path: Path | None = None,
+    ) -> list[DesignFocus]:
+        prompt = DESIGN_FOCUS_PLANNER_PROMPT.format(
+            requirements=requirements,
+            data_inventory=data_inventory,
+            max_focuses=max_focuses,
+        )
+        self._record_progress(
+            progress_path,
+            "## Retrieval Focus Planning\n\n"
+            f"- Status: LLM request started\n"
+            f"- Timestamp: {self._timestamp()}\n"
+            f"- Max focuses: {max_focuses}\n",
+        )
+        text = self._run_direct_design_call(prompt)
+        payload = parse_json_object(text)
+        focuses: list[DesignFocus] = []
+        for item in payload.get("focuses", []):
+            if not isinstance(item, dict):
+                continue
+            query = str(item.get("query", "")).strip()
+            purpose = str(item.get("purpose", "")).strip()
+            if query:
+                focuses.append(DesignFocus(query=query, purpose=purpose or "Ontology design coverage."))
+            if len(focuses) >= max_focuses:
+                break
+        if not focuses:
+            focuses = [DesignFocus(query=requirements[:500], purpose="Fallback requirements coverage.")]
+        self._record_progress(
+            progress_path,
+            "## Retrieval Focus Planning Result\n\n"
+            f"- Status: passed\n"
+            f"- Focus count: {len(focuses)}\n"
+            + "\n".join(f"- Query: {focus.query}" for focus in focuses),
+        )
+        return focuses
+
+    def draft_schema_slice(
+        self,
+        requirements: str,
+        focus: DesignFocus,
+        context: str,
+        progress_path: Path | None = None,
+    ) -> str:
+        prompt = DESIGN_SLICE_PROMPT.format(
+            requirements=requirements,
+            query=focus.query,
+            purpose=focus.purpose,
+            context=context,
+        )
+        self._record_progress(
+            progress_path,
+            "## Schema Slice Draft\n\n"
+            f"- Status: LLM request started\n"
+            f"- Timestamp: {self._timestamp()}\n"
+            f"- Query: {focus.query}\n"
+            f"- Context characters: {len(context)}\n",
+        )
+        text = self._run_direct_design_call(prompt)
+        payload = parse_json_object(text)
+        notes = str(payload["schema_notes"]).strip()
+        self._record_progress(
+            progress_path,
+            "## Schema Slice Draft Result\n\n"
+            f"- Status: passed\n"
+            f"- Query: {focus.query}\n"
+            f"- Notes characters: {len(notes)}\n",
+        )
+        return notes
+
     def run(
         self,
         requirements: str,
         data: str,
         max_attempts: int = 3,
         progress_path: Path | None = None,
+        reset_progress: bool = True,
     ) -> DesignResult:
         feedback = ""
-        self.progress_entries = []
+        if reset_progress:
+            self.progress_entries = []
         self._record_progress(
             progress_path,
             "# Semantic Web Designer Progress\n\n"

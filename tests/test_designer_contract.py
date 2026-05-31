@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from src.common.llm import parse_json_object
 from src.common.rdf import parse_turtle
-from src.designer.agent import DesignerAgent
+from src.designer.agent import DesignerAgent, DesignFocus
 
 
 VALID_DESIGN_RESPONSE = r'''
@@ -121,3 +121,42 @@ def test_designer_agent_retries_after_invalid_turtle() -> None:
     assert result.design_markdown.startswith("# Test Design")
     assert agent.calls == 2
     assert "previous response failed validation" in agent.prompts[1]
+
+
+def test_designer_agent_plans_retrieval_focuses() -> None:
+    class StubDesigner(DesignerAgent):
+        def _run_direct_design_call(self, prompt: str) -> str:
+            assert "planning semantic-search work" in prompt
+            return (
+                '{"focuses": ['
+                '{"query": "locations scenes exits", "purpose": "Model places."},'
+                '{"query": "characters relationships", "purpose": "Model actors."}'
+                "]}"
+            )
+
+    focuses = StubDesigner("test-model").plan_focuses(
+        requirements="Design a schema.",
+        data_inventory="sample inventory",
+        max_focuses=3,
+    )
+
+    assert [focus.query for focus in focuses] == [
+        "locations scenes exits",
+        "characters relationships",
+    ]
+
+
+def test_designer_agent_drafts_schema_slice_notes() -> None:
+    class StubDesigner(DesignerAgent):
+        def _run_direct_design_call(self, prompt: str) -> str:
+            assert "drafting one small schema slice" in prompt
+            assert "locations scenes exits" in prompt
+            return '{"schema_notes": "- Candidate class: Scene\\n- Candidate property: hasExit"}'
+
+    notes = StubDesigner("test-model").draft_schema_slice(
+        requirements="Design a schema.",
+        focus=DesignFocus(query="locations scenes exits", purpose="Model places."),
+        context="Scene context.",
+    )
+
+    assert "Candidate class: Scene" in notes

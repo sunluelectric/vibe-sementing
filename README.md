@@ -214,6 +214,8 @@ Important settings:
 - `EMBEDDING_MODEL`: defaults to `text-embedding-3-small`.
 - `SEMANTIC_SEARCH_TOP_K`: defaults to `8`.
 - `SEMANTIC_CONTEXT_MAX_CHARS`: defaults to `16000`.
+- `DESIGNER_RETRIEVAL_FOCUSES`: defaults to `4`.
+- `DESIGNER_SLICE_CONTEXT_MAX_CHARS`: defaults to `5000`.
 - `FUSEKI_BASE_URL`: defaults to `http://localhost:3030`.
 - `FUSEKI_DATASET`: defaults to `semantic-web-processor`.
 - `FUSEKI_HOME`: defaults to `/opt/apache-jena-fuseki-6.1.0`.
@@ -239,10 +241,26 @@ The retrieval layer can chunk:
 - RDF graphs, grouped into readable subject-centered chunks.
 - SPARQL result rows for viewer fact ranking.
 
-Small data still uses the previous full-context path. When source data,
-ontology Turtle, or bounded viewer facts exceed `SEMANTIC_CONTEXT_MAX_CHARS`,
-the workflows retrieve the most relevant chunks instead of sending the whole
-input to the model.
+Small data still uses the previous full-context path. When designer source data,
+importer source data, importer ontology Turtle, or bounded viewer facts exceed
+`SEMANTIC_CONTEXT_MAX_CHARS`, the workflows retrieve relevant chunks instead of
+sending the whole input to the model.
+
+For large designer runs, retrieval is now iterative and model-planned:
+
+1. The designer reads the design requirements and a compact inventory of source
+   chunks.
+2. The designer model proposes up to `DESIGNER_RETRIEVAL_FOCUSES` focused
+   semantic-search queries.
+3. The workflow retrieves bounded context for each focus, capped by
+   `DESIGNER_SLICE_CONTEXT_MAX_CHARS`.
+4. The designer model drafts concise schema-slice notes for each focus area.
+5. The final ontology generation prompt receives the retrieved focus contexts
+   and schema-slice notes, then produces one validated RDF/RDFS ontology.
+
+The workflow still owns validation, persistence, and Fuseki loading. The model
+plans retrieval and drafts schema slices, but the Python workflow enforces RDF
+validation and graph loading.
 
 Retrieval providers:
 
