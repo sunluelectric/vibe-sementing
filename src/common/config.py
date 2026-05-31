@@ -33,6 +33,9 @@ class Settings:
         os.getenv("FUSEKI_HOME", "/opt/apache-jena-fuseki-6.1.0")
     )
     fuseki_run_dir: Path = ROOT_DIR / "db" / "fuseki-run"
+    fuseki_data_dir: Path = Path(
+        os.getenv("FUSEKI_DATA_DIR", str(ROOT_DIR / "db" / "fuseki-data"))
+    )
     fuseki_log_path: Path = ROOT_DIR / "db" / "fuseki.log"
     fuseki_start_timeout_seconds: int = int(
         os.getenv("FUSEKI_START_TIMEOUT_SECONDS", "20")
@@ -67,6 +70,7 @@ class Settings:
 def get_settings() -> Settings:
     settings = Settings()
     settings.db_dir.mkdir(parents=True, exist_ok=True)
+    settings.fuseki_data_dir.mkdir(parents=True, exist_ok=True)
     settings.tests_dir.mkdir(parents=True, exist_ok=True)
     settings.viewer_chat_dir.mkdir(parents=True, exist_ok=True)
     return settings

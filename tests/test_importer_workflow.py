@@ -25,12 +25,16 @@ class OfflineFusekiClient:
 class OnlineFusekiClient(OfflineFusekiClient):
     def __init__(self) -> None:
         self.loaded: list[tuple[str, str]] = []
+        self.construct_response = VALID_ONTOLOGY_TURTLE
 
     def is_available(self) -> bool:
         return True
 
     def replace_graph(self, graph_uri: str, turtle: str) -> None:
         self.loaded.append((graph_uri, turtle))
+
+    def construct_turtle(self, sparql: str) -> str:
+        return self.construct_response
 
 
 def _workflow_with_temp_paths(tmp_path):
@@ -76,12 +80,40 @@ def test_importer_workflow_builds_agents_sdk_shell() -> None:
 
 def test_importer_workflow_reads_inputs_and_inspects_ontology(tmp_path) -> None:
     workflow = _workflow_with_temp_paths(tmp_path)
+    workflow.fuseki_client = OfflineFusekiClient()
 
     assert workflow.read_design_text() == "# Design"
     assert "Record 1" in workflow.read_source_data()
     terms = workflow.inspect_ontology()
+    assert terms["source"] == "file"
     assert terms["class_count"] == 2
     assert terms["property_count"] == 2
+
+
+def test_importer_inspects_ontology_from_fuseki_when_available(tmp_path) -> None:
+    workflow = _workflow_with_temp_paths(tmp_path)
+    workflow.fuseki_client = OnlineFusekiClient()
+
+    terms = workflow.inspect_ontology()
+
+    assert terms["source"] == "fuseki"
+    assert terms["class_count"] == 2
+    assert terms["property_count"] == 2
+
+
+def test_importer_loads_file_ontology_to_available_fuseki_when_graph_is_empty(tmp_path) -> None:
+    workflow = _workflow_with_temp_paths(tmp_path)
+    client = OnlineFusekiClient()
+    client.construct_response = ""
+    workflow.fuseki_client = client
+
+    terms = workflow.inspect_ontology()
+
+    assert terms["source"] == "file_loaded_to_fuseki"
+    assert len(client.loaded) == 1
+    graph_uri, turtle = client.loaded[0]
+    assert graph_uri == workflow.settings.ontology_graph_uri
+    assert len(parse_turtle(turtle)) >= 4
 
 
 def test_importer_persistence_writes_instances_and_combined_fallback(tmp_path) -> None:

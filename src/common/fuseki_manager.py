@@ -29,6 +29,7 @@ class FusekiManager:
         self,
         fuseki_home: Path,
         fuseki_run_dir: Path,
+        fuseki_data_dir: Path,
         fuseki_log_path: Path,
         dataset: str,
         client: FusekiClient,
@@ -36,6 +37,7 @@ class FusekiManager:
     ):
         self.fuseki_home = fuseki_home
         self.fuseki_run_dir = fuseki_run_dir
+        self.fuseki_data_dir = fuseki_data_dir
         self.fuseki_log_path = fuseki_log_path
         self.dataset = dataset
         self.client = client
@@ -62,6 +64,7 @@ class FusekiManager:
             )
 
         self.fuseki_run_dir.mkdir(parents=True, exist_ok=True)
+        self.fuseki_data_dir.mkdir(parents=True, exist_ok=True)
         self.fuseki_log_path.parent.mkdir(parents=True, exist_ok=True)
         with self.fuseki_log_path.open("ab") as log_file:
             env = os.environ.copy()
@@ -144,7 +147,8 @@ class FusekiManager:
         executable = self.fuseki_home / "fuseki-server"
         return [
             str(executable),
-            "--mem",
+            "--tdb2",
+            f"--loc={self.fuseki_data_dir}",
             "--update",
             "--localhost",
             f"/{self.dataset}",

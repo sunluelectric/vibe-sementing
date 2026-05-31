@@ -72,19 +72,12 @@ Minimum handoff package for importer work:
 - Matching configuration for graph URIs when needed, especially
   `ONTOLOGY_GRAPH_URI`, `DATA_GRAPH_URI`, and `FUSEKI_DATASET`.
 
-The current importer reads `design.md`, `db/ontology.ttl`, and `data/*` from
-local files. It does not require the original designer process to exist. If
-Fuseki is available on the receiving machine, the importer loads the generated
-instance graph there. If Fuseki is unavailable, it still writes local Turtle
-artifacts.
-
-The portable handoff artifact is `db/ontology.ttl`, not the in-memory Fuseki
-process state. A running Fuseki dataset can be used for verification, but the
-receiving machine should receive the ontology Turtle or an equivalent export.
-
-Future importer improvement: optionally inspect ontology terms by querying
-Fuseki when it is available, while retaining `db/ontology.ttl` as the portable
-fallback and cross-machine handoff artifact.
+The current importer reads `design.md` and `data/*` from local files, then
+prefers ontology inspection from Fuseki when the configured ontology graph is
+available. If Fuseki is unavailable or the ontology graph is empty, it falls
+back to `db/ontology.ttl`; when Fuseki is reachable, that fallback graph is
+loaded into Fuseki before import continues. If Fuseki is unavailable, the
+importer still writes local Turtle artifacts.
 
 For larger semantic webs, the intended long-term handoff is database/query-first
 rather than whole-Turtle-prompt-first. Turtle remains useful for review, export,
@@ -92,12 +85,12 @@ tests, portability, and fallback, but agents should consume relevant graph
 slices through Fuseki or local RDF/SPARQL queries instead of sending large
 Turtle files wholesale to an LLM.
 
-Future persistence goal: Fuseki should use durable storage and become the
+Fuseki uses project-local persistent TDB2 storage by default and is the intended
 golden source of truth that bridges the designer, importer, and viewer. The
-designer and importer can continue writing Turtle as intermediate validation,
-review, and loading artifacts, but long-term cross-application handoff should
-not depend on Turtle files. `design.md` should remain a reference document for
-humans and the importer.
+designer and importer continue writing Turtle as intermediate validation,
+review, fallback, and loading artifacts, but cross-application runtime handoff
+should go through Fuseki. `design.md` remains a reference document for humans
+and the importer.
 
 Known future scale-up work:
 
@@ -107,13 +100,12 @@ Known future scale-up work:
 - Designer and importer currently read all supported files under `data/*`.
   Before using large or numerous documents, they should use semantic retrieval
   through `tools/semantic-search` or an equivalent adapter.
-- Fuseki should become the primary machine-readable graph handoff between
-  frameworks when available. `design.md` should remain a reference document, and
-  Turtle should remain useful for portability, review, tests, export, and
-  fallback.
-- Fuseki should move from the current in-memory development mode to persistent
-  storage so graph data survives machine shutdown and can serve as the bridge
-  between designer, importer, and viewer.
+- Fuseki is now the primary machine-readable graph handoff between frameworks
+  when available. `design.md` remains a reference document, and Turtle remains
+  useful for portability, review, tests, export, and fallback.
+- Fuseki now starts with persistent project-local TDB2 storage so graph data can
+  survive machine shutdown and serve as the bridge between designer, importer,
+  and viewer.
 
 ## Semantic Web Importer
 
@@ -209,13 +201,15 @@ Important settings:
 - `FUSEKI_BASE_URL`: defaults to `http://localhost:3030`.
 - `FUSEKI_DATASET`: defaults to `semantic-web-processor`.
 - `FUSEKI_HOME`: defaults to `/opt/apache-jena-fuseki-6.1.0`.
+- `FUSEKI_DATA_DIR`: defaults to `db/fuseki-data`.
 - `ONTOLOGY_NAMESPACE`: defaults to `http://example.org/semantic-web#`.
 - `ONTOLOGY_GRAPH_URI`: defaults to
   `http://example.org/semantic-web/graph/ontology`.
 - `DATA_GRAPH_URI`: defaults to `http://example.org/semantic-web/graph/data`.
 
-Fuseki runtime files are written under `db/fuseki-run/`, and Fuseki logs are
-written to `db/fuseki.log`. These local runtime files are ignored by git.
+Fuseki runtime files are written under `db/fuseki-run/`, persistent graph data
+is written under `db/fuseki-data/`, and Fuseki logs are written to
+`db/fuseki.log`. These local runtime files are ignored by git.
 
 ## Fuseki Usage Notes
 
@@ -242,12 +236,16 @@ The working command pattern is:
 ```bash
 FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   /opt/apache-jena-fuseki-6.1.0/fuseki-server \
-  --mem --update --localhost /semantic-web-processor
+  --tdb2 \
+  --loc=/home/sunlu/Projects/semantic-web-processor/db/fuseki-data \
+  --update --localhost /semantic-web-processor
 ```
 
 Important details:
 
 - Use `--update`, otherwise graph loading and SPARQL updates may not work.
+- Use `--tdb2 --loc=.../db/fuseki-data`, otherwise graph data will not persist
+  across Fuseki shutdowns.
 - Use `--localhost` for local development.
 - Designer and importer runs stop Fuseki automatically only when that workflow
   started Fuseki itself.
@@ -301,7 +299,7 @@ If Fuseki is running, the command prints a line that starts with a process ID,
 for example:
 
 ```text
-5046 /usr/bin/java ... org.apache.jena.fuseki... --mem --update --localhost /semantic-web-processor
+5046 /usr/bin/java ... org.apache.jena.fuseki... --tdb2 --loc=.../db/fuseki-data --update --localhost /semantic-web-processor
 ```
 
 Stop Fuseki gracefully by replacing `5046` with the process ID shown on your

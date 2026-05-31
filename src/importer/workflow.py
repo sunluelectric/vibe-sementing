@@ -9,7 +9,9 @@ from src.common.config import Settings, get_settings
 from src.common.files import load_project_data, read_text
 from src.common.fuseki import client_from_settings, load_graph_to_fuseki_or_file
 from src.common.fuseki_manager import FusekiManager
-from src.common.rdf import combine_turtle_files, load_graph
+from rdflib import Graph
+
+from src.common.rdf import combine_turtle_files, load_graph, parse_turtle, serialize_graph
 from src.importer.agent import ImporterAgent, ImportResult
 from src.importer.validation import inspect_ontology_terms
 
@@ -35,6 +37,7 @@ class ImporterWorkflow:
         self.fuseki_manager = FusekiManager(
             fuseki_home=self.settings.fuseki_home,
             fuseki_run_dir=self.settings.fuseki_run_dir,
+            fuseki_data_dir=self.settings.fuseki_data_dir,
             fuseki_log_path=self.settings.fuseki_log_path,
             dataset=self.settings.fuseki_dataset,
             client=self.fuseki_client,
@@ -141,9 +144,10 @@ class ImporterWorkflow:
         return load_project_data(self.settings.data_dir)
 
     def inspect_ontology(self) -> dict[str, Any]:
-        ontology_graph = load_graph(self.settings.ontology_path)
+        ontology_graph, source = self.load_ontology_graph_for_import()
         terms = inspect_ontology_terms(ontology_graph)
         return {
+            "source": source,
             "class_count": len(terms.classes),
             "property_count": len(terms.properties),
             "classes": [str(term) for term in sorted(terms.classes, key=str)],
@@ -151,8 +155,8 @@ class ImporterWorkflow:
         }
 
     def run_iterative_import(self) -> dict[str, Any]:
-        ontology_turtle = read_text(self.settings.ontology_path)
-        ontology_graph = load_graph(self.settings.ontology_path)
+        ontology_graph, ontology_source = self.load_ontology_graph_for_import()
+        ontology_turtle = serialize_graph(ontology_graph)
         self.last_import = ImporterAgent(
             model=self.settings.llm_model,
             timeout_seconds=self.settings.llm_timeout_seconds,
@@ -167,7 +171,41 @@ class ImporterWorkflow:
             "status": "success",
             "triple_count": len(self.last_import.graph),
             "iterations_allowed": self.settings.importer_iterations,
+            "ontology_source": ontology_source,
         }
+
+    def load_ontology_graph_for_import(self) -> tuple[Graph, str]:
+        if self.fuseki_client.is_available():
+            try:
+                graph = self.read_ontology_graph_from_fuseki()
+                if graph:
+                    return graph, "fuseki"
+            except Exception as exc:
+                print(f"Importer Fuseki ontology inspection failed: {exc}", flush=True)
+
+        graph = load_graph(self.settings.ontology_path)
+        if self.fuseki_client.is_available() and graph:
+            self.fuseki_client.replace_graph(
+                self.settings.ontology_graph_uri,
+                serialize_graph(graph),
+            )
+            return graph, "file_loaded_to_fuseki"
+        return graph, "file"
+
+    def read_ontology_graph_from_fuseki(self) -> Graph:
+        turtle = self.fuseki_client.construct_turtle(
+            f"""
+            CONSTRUCT {{ ?s ?p ?o }}
+            WHERE {{
+              GRAPH <{self.settings.ontology_graph_uri}> {{
+                ?s ?p ?o .
+              }}
+            }}
+            """
+        )
+        if not turtle.strip():
+            return Graph()
+        return parse_turtle(turtle)
 
     def persist_and_load_instances(self) -> dict[str, Any]:
         if self.last_import is None:

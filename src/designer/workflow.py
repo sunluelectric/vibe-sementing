@@ -32,6 +32,7 @@ class DesignerWorkflow:
         self.fuseki_manager = FusekiManager(
             fuseki_home=self.settings.fuseki_home,
             fuseki_run_dir=self.settings.fuseki_run_dir,
+            fuseki_data_dir=self.settings.fuseki_data_dir,
             fuseki_log_path=self.settings.fuseki_log_path,
             dataset=self.settings.fuseki_dataset,
             client=self.fuseki_client,

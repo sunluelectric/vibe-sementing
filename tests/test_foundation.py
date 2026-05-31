@@ -78,6 +78,7 @@ def test_fuseki_manager_uses_project_writable_base(tmp_path: Path) -> None:
     manager = FusekiManager(
         fuseki_home=tmp_path / "fuseki",
         fuseki_run_dir=tmp_path / "run",
+        fuseki_data_dir=tmp_path / "tdb2",
         fuseki_log_path=tmp_path / "fuseki.log",
         dataset="test",
         client=Client(),
@@ -85,6 +86,9 @@ def test_fuseki_manager_uses_project_writable_base(tmp_path: Path) -> None:
 
     command = manager.command()
 
+    assert "--tdb2" in command
+    assert f"--loc={tmp_path / 'tdb2'}" in command
+    assert "--mem" not in command
     assert "--update" in command
     assert "--localhost" in command
 
@@ -99,6 +103,7 @@ def test_fuseki_manager_stop_ignores_unowned_server(tmp_path: Path) -> None:
     manager = FusekiManager(
         fuseki_home=tmp_path / "fuseki",
         fuseki_run_dir=tmp_path / "run",
+        fuseki_data_dir=tmp_path / "tdb2",
         fuseki_log_path=tmp_path / "fuseki.log",
         dataset="test",
         client=Client(),
@@ -139,6 +144,7 @@ def test_fuseki_manager_stops_owned_process(tmp_path: Path, monkeypatch) -> None
     manager = FusekiManager(
         fuseki_home=tmp_path / "fuseki",
         fuseki_run_dir=tmp_path / "run",
+        fuseki_data_dir=tmp_path / "tdb2",
         fuseki_log_path=tmp_path / "fuseki.log",
         dataset="test",
         client=Client(),

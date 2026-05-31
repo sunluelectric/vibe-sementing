@@ -133,12 +133,12 @@ Goal: the semantic web importer reads `design.md`, `db/ontology.ttl`, and
 
 ### 2.x Future Importer Improvement
 
-- [ ] Add optional ontology inspection by querying Fuseki when available.
-- [ ] Keep `db/ontology.ttl` as the portable fallback and cross-machine handoff artifact.
-- [ ] Add tests for Fuseki ontology inspection with local Turtle fallback.
+- [x] Add optional ontology inspection by querying Fuseki when available.
+- [x] Keep `db/ontology.ttl` as the portable fallback and cross-machine handoff artifact.
+- [x] Add tests for Fuseki ontology inspection with local Turtle fallback.
 - [ ] Replace whole-ontology Turtle prompt input with query-based ontology summaries and relevant schema slices so large ontologies do not have to fit in the LLM context.
 - [ ] Prefer Fuseki query inspection for large graphs, with local RDF/SPARQL fallback when Fuseki is unavailable.
-- [ ] Move inter-application handoff to persistent Fuseki storage. Designer and
+- [x] Move inter-application handoff to persistent Fuseki storage. Designer and
   importer may still generate Turtle as internal validation/loading artifacts,
   but Fuseki should become the durable source of truth that bridges designer,
   importer, and viewer. `design.md` remains reference documentation for the
@@ -214,10 +214,8 @@ importer workflows, but not as the viewer's data source.
 - Designer and importer are independent executables. The importer can run on a
   different machine from a handoff package containing `design.md`,
   `db/ontology.ttl`, and `data/*`.
-- The portable ontology handoff artifact is `db/ontology.ttl` or an equivalent
-  export, not the in-memory Fuseki process state.
-- Future importer improvement: optionally inspect ontology terms from Fuseki
-  when Fuseki is available, with `db/ontology.ttl` fallback for portability.
+- The importer now prefers ontology terms from Fuseki when available, with
+  `db/ontology.ttl` fallback for portability and graph reload.
 - Long-term graph handoff should be database/query-first rather than
   whole-Turtle-prompt-first. Turtle remains useful for review, export, tests,
   portability, and fallback, but agents should consume relevant graph slices
@@ -285,10 +283,14 @@ start or connect to Apache Jena Fuseki, and load the ontology into Fuseki.
 ```bash
 FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   /opt/apache-jena-fuseki-6.1.0/fuseki-server \
-  --mem --update --localhost /semantic-web-processor
+  --tdb2 \
+  --loc=/home/sunlu/Projects/semantic-web-processor/db/fuseki-data \
+  --update --localhost /semantic-web-processor
 ```
 
 - Keep `--update` enabled so graph loading and SPARQL updates work.
+- Keep `--tdb2 --loc=.../db/fuseki-data` enabled so Fuseki persists graph data
+  across shutdowns.
 - Keep `--localhost` for local development.
 - Logs should go to `db/fuseki.log`.
 - Designer and importer cleanup stops only workflow-owned Fuseki processes.
@@ -334,10 +336,10 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
 - Consider adding a separate schema review/refinement agent step that evaluates
   whether new classes or properties are justified by the data.
 - Treat Fuseki as the long-term source of truth for implemented ontology and
-  instance graphs. Future work should use persistent Fuseki storage rather than
-  the current in-memory `--mem` server so graph data survives machine shutdown.
-  `design.md` should remain reference documentation for humans and agents, not
-  the only machine-readable contract.
+  instance graphs. Fuseki now starts with project-local persistent TDB2 storage
+  by default, so graph data can survive machine shutdown. `design.md` should
+  remain reference documentation for humans and agents, not the only
+  machine-readable contract.
 - Future importer/viewer agents should query Fuseki for relevant graph slices
   when available, with local RDF/Turtle fallback for portability and tests.
 
@@ -423,6 +425,10 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
 - `design.md` and `db/ontology.ttl` have been produced by the designer.
 - `db/instances.ttl` and `db/semantic_web.ttl` have been produced by the importer.
 - The importer framework has been implemented.
+- The importer now prefers Fuseki ontology inspection and falls back to
+  `db/ontology.ttl` when Fuseki is unavailable or the ontology graph is empty.
+- Fuseki startup now uses persistent project-local TDB2 storage under
+  `db/fuseki-data` instead of `--mem`.
 - The semantic web viewer framework has been implemented and verified against
   Fuseki as the runtime data source.
 - Viewer chat sessions are persisted as JSON files under `chat/viewer/`.
