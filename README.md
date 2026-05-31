@@ -13,7 +13,10 @@ viewer.
   progressive logging and the smaller default model have been committed.
 - The semantic web importer milestone is complete, tested, and documented.
 - The semantic web viewer milestone is complete, tested, and documented.
-- The next implementation milestone is `Milestone 4: End-To-End Product
+- Semantic-search integration, iterative retrieval-guided designer/importer
+  workflows, and importer progressive logging are complete, tested, documented,
+  and committed.
+- The next implementation milestone is `Milestone 9: Non-DnD End-To-End
   Validation` in `PROGRESS.md`.
 - Do not manually change the ontology to make importer work easier. The importer
   must fit instances into the existing designer output unless the user approves
@@ -30,23 +33,28 @@ viewer.
 
 ## Semantic Web Designer
 
-The designer is intentionally simple in the first working version. It designs a
-small RDF/RDFS ontology from the current `design-requirements.md` and `data/*`,
-validates it, writes review artifacts, and loads the ontology into Apache Jena
-Fuseki.
+The designer designs a compact RDF/RDFS ontology from the current
+`design-requirements.md` and `data/*`, validates it, writes review artifacts,
+and loads the ontology into Apache Jena Fuseki. For small data it can still use
+the full source context. For larger data it uses model-planned semantic-search
+focuses and schema-slice notes before final ontology synthesis.
 
 The designer workflow performs these steps:
 
 1. Check whether Fuseki is reachable.
 2. Start Fuseki if needed, using a project-local writable runtime directory.
 3. Read `design-requirements.md` and files under `data/`.
-4. Use a direct OpenAI API call to generate a compact RDF/RDFS design.
-5. Validate the generated Turtle with `rdflib` and project-specific checks.
-6. Retry with validation feedback when needed.
-7. Write `design.md` progressively while the run is active, then replace the
+4. Use full context for small data, or run model-planned semantic-search focus
+   retrieval for larger data.
+5. Draft schema-slice notes from retrieved source contexts when retrieval is
+   active.
+6. Use a direct OpenAI API call to generate a compact RDF/RDFS design.
+7. Validate the generated Turtle with `rdflib` and project-specific checks.
+8. Retry with validation feedback when needed.
+9. Write `design.md` progressively while the run is active, then replace the
    top-level content with the final design and append the generation log.
-8. Write `db/ontology.ttl` as an intermediate review and loading artifact.
-9. Load the ontology into Fuseki as the configured ontology named graph.
+10. Write `db/ontology.ttl` as an intermediate review and loading artifact.
+11. Load the ontology into Fuseki as the configured ontology named graph.
 
 Turtle is not the final implementation target. It is used as a testable
 serialization layer and fallback. The intended runtime target is Apache Jena
@@ -101,15 +109,16 @@ and the importer.
 
 Known future scale-up work:
 
-- The current designer prompt and validation limits intentionally keep the first
-  ontology compact. Production workflows will need richer refinement stages and
-  quality-oriented constraints instead of fixed class/property/triple limits.
-- Designer and importer currently read all supported files under `data/*`.
-  Before using large or numerous documents, they should use semantic retrieval
-  through `tools/semantic-search` or an equivalent adapter.
-- Designer, importer, and viewer should avoid whole-graph prompting. For large
-  semantic webs, they should use a semantic-web embedding index to find
-  candidate graph terms, then query Fuseki for bounded relevant graph slices.
+- The current designer prompt and validation limits still intentionally keep
+  the first ontology compact. Production workflows will need richer refinement
+  stages and quality-oriented constraints instead of fixed class/property/triple
+  limits.
+- Designer and importer now use shared semantic-search retrieval when source or
+  schema context exceeds configured thresholds. Future work should validate this
+  with larger and non-DnD datasets.
+- Viewer fact ranking uses bounded Fuseki results plus local semantic ranking.
+  For very large graphs, it should move toward a semantic-web embedding index
+  over text-rendered triples before issuing targeted Fuseki queries.
 - Fuseki is now the primary machine-readable graph handoff between frameworks
   when available. `design.md` remains a reference document, and Turtle remains
   useful for portability, review, tests, export, and fallback.
@@ -487,45 +496,53 @@ Expected designer outputs:
 
 Expected importer outputs:
 
+- `import.md`: progressive importer run log.
 - `db/instances.ttl`: validated instance Turtle.
 - `db/semantic_web.ttl`: combined ontology and instance graph.
 - Fuseki named graph: the configured `DATA_GRAPH_URI`.
 
 ## Current Designer Result
 
-The current generated ontology was produced from a clean run against the sample
-data and is deliberately small:
+The current generated ontology was produced from a clean iterative
+retrieval-guided run against the sample DnD data:
 
-- 185 RDF triples.
-- 13 RDFS classes.
-- 28 RDF properties.
+- 148 RDF triples.
+- 16 RDFS classes.
+- 17 RDF properties.
 - RDF validation passed.
-- Fuseki SPARQL query returned 13 ontology classes from the named ontology graph.
+- The designer used 2 model-planned semantic-search focuses.
+- Fuseki loaded the ontology into the named ontology graph.
 
 ## Current Importer Result
 
-The current generated instance graph was produced from the fresh designer output
-and source data:
+The current generated instance graph was produced from the fresh iterative
+designer output and source data:
 
-- 178 instance RDF triples.
-- 363 combined ontology and instance triples.
+- 121 instance RDF triples.
+- 269 combined ontology and instance triples.
 - Instance RDF validation passed.
 - Fuseki instance graph load target: `fuseki`.
 - Importer ontology source: `fuseki`.
+- The importer used 4 model-planned import batches and stopped at the configured
+  batch limit.
 
 ## Current Viewer Result
 
-The viewer was verified against the fresh persistent Fuseki data:
+The viewer was verified against the fresh persistent Fuseki data from the
+iterative designer/importer run:
 
-- Fuseki status endpoint reported 363 triples.
-- A representative chatbot question returned a grounded natural-language
-  answer.
-- Turtle export from Fuseki parsed with `rdflib` and contained 363 triples.
-- Test command: `uv run pytest`.
-- Test result: `45 passed, 2 skipped`.
+- Fuseki status endpoint reported 269 triples.
+- Multiple chatbot questions in one session returned grounded answers,
+  including follow-up/stateful questions and a reasoning question about
+  conditional rewards.
+- Turtle export from Fuseki parsed with `rdflib` and contained 269 triples.
+- End-to-end test result before importer progressive logging:
+  `60 passed, 2 skipped`.
+- Latest local test result after importer progressive logging:
+  `59 passed, 4 skipped`.
 
 ## Next Milestones
 
-- Keep the documented future improvements for semantic-search integration,
-  semantic-web embeddings, query-first graph slicing, and large-graph operation
-  as later work.
+- Run a clean non-DnD end-to-end validation by replacing
+  `design-requirements.md` and `data/*` with a non-DnD dataset, then running
+  designer, importer, viewer, export parsing, and tests from scratch.

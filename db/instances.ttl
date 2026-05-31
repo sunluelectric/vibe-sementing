@@ -1,215 +1,145 @@
+@prefix ns1: <http://example.org/semantic-web#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix sw: <http://example.org/semantic-web#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-sw:GoblinCaveOfAshenvale a sw:Adventure ;
-    rdfs:label "The Goblin Cave of Ashenvale" ;
-    sw:difficulty "Beginner-friendly" ;
-    sw:hasRaceOption sw:Dwarf,
-        sw:Elf,
-        sw:Human ;
-    sw:hasScene sw:Scene1_Millhaven,
-        sw:Scene2_HillsideTrail,
-        sw:Scene3_GoblinWarren,
-        sw:Scene4_ReturnToMillhaven ;
-    sw:offersClass sw:FighterClass,
-        sw:RogueClass,
-        sw:WizardClass ;
-    sw:partySizeMax 4 ;
-    sw:partySizeMin 2 ;
-    sw:recommendedLevel 1 ;
-    sw:rewardAmount 50.0 ;
-    rdfs:comment "XP awards (summary): quest completion 100 XP; heirloom dagger returned 50 XP; maximum total XP (enemies + quest) 650." .
-
-sw:ChestKey a sw:Item ;
-    rdfs:label "Chest Key" ;
-    rdfs:comment "Small iron key used to open Aldric's locked wooden chest." .
-
-sw:Chest_GoldChest a sw:Chest ;
-    rdfs:label "Gold Chest (Aldric's)",
-        "Locked Gold Chest (Aldric's)" ;
-    sw:contains sw:Gold_200,
-        sw:HealingPotion_S3 ;
-    rdfs:comment "Locked wooden chest belonging to Aldric Thorn; contains 200 gp and a healing potion." .
-
-sw:Dwarf a sw:Race ;
-    rdfs:label "Dwarf" .
-
-sw:Elf a sw:Race ;
-    rdfs:label "Elf" .
-
-sw:FighterClass a sw:PlayerClass ;
-    rdfs:label "Fighter" .
-
-sw:Goblin_Chamber1 a sw:Monster ;
-    rdfs:label "Goblin (Chamber)" ;
-    sw:abilityText "Attacks: Scimitar (+4 to hit, 1d6+2 slashing); Shortbow (+4 to hit, 1d6+2 piercing). Ability: Nimble Escape." ;
-    sw:armorClass 15 ;
-    sw:attackBonus 4 ;
-    sw:hp 7 ;
-    sw:xpValue 50 .
-
-sw:Goblin_Chamber2 a sw:Monster ;
-    rdfs:label "Goblin (Chamber)" ;
-    sw:abilityText "Attacks: Scimitar (+4 to hit, 1d6+2 slashing); Shortbow (+4 to hit, 1d6+2 piercing). Ability: Nimble Escape." ;
-    sw:armorClass 15 ;
-    sw:attackBonus 4 ;
-    sw:hp 7 ;
-    sw:xpValue 50 .
-
-sw:Goblin_Chamber3 a sw:Monster ;
-    rdfs:label "Goblin (Chamber)" ;
-    sw:abilityText "Attacks: Scimitar (+4 to hit, 1d6+2 slashing); Shortbow (+4 to hit, 1d6+2 piercing). Ability: Nimble Escape." ;
-    sw:armorClass 15 ;
-    sw:attackBonus 4 ;
-    sw:hp 7 ;
-    sw:xpValue 50 .
-
-sw:Goblin_Guard a sw:Monster ;
-    rdfs:label "Goblin (Bodyguard)" ;
-    sw:abilityText "Attacks: Scimitar (+4 to hit, 1d6+2 slashing) or Shortbow. Ability: Nimble Escape." ;
-    sw:armorClass 15 ;
-    sw:attackBonus 4 ;
-    sw:hp 7 ;
-    sw:xpValue 50 .
-
-sw:Goblin_Sentry1 a sw:Monster ;
-    rdfs:label "Goblin (Sentry 1)" ;
-    sw:abilityText "Attacks: Scimitar (+4 to hit, 1d6+2 slashing); Shortbow (+4 to hit, 1d6+2 piercing, range 80/320 ft). Ability: Nimble Escape (can Disengage or Hide as a bonus action)." ;
-    sw:armorClass 15 ;
-    sw:attackBonus 4 ;
-    sw:hp 7 ;
-    sw:xpValue 50 .
-
-sw:Goblin_Sentry2 a sw:Monster ;
-    rdfs:label "Goblin (Sentry 2)" ;
-    sw:abilityText "Attacks: Scimitar (+4 to hit, 1d6+2 slashing); Shortbow (+4 to hit, 1d6+2 piercing, range 80/320 ft). Ability: Nimble Escape (can Disengage or Hide as a bonus action)." ;
-    sw:armorClass 15 ;
-    sw:attackBonus 4 ;
-    sw:hp 7 ;
-    sw:xpValue 50 .
-
-sw:Gold_12 a sw:Item ;
-    rdfs:label "12 gp (scattered around the warren)" ;
-    sw:goldAmount 12.0 ;
-    sw:quantity 1 .
-
-sw:Gold_200 a sw:Item ;
-    rdfs:label "200 gp (stolen chest contents)" ;
-    sw:goldAmount 200.0 ;
-    sw:quantity 1 .
-
-sw:Gold_3 a sw:Item ;
-    rdfs:label "3 gp (found at trail post)" ;
-    sw:goldAmount 3.0 ;
-    sw:quantity 1 .
-
-sw:Grix a sw:Monster ;
-    rdfs:label "Grix (Goblin Boss)" ;
-    sw:abilityText "Morningstar attack (+4 to hit, 2d6+2 piercing). Abilities: Redirect Attack (when hit, can redirect attack to a nearby goblin); Multiattack (2 attacks per turn)." ;
-    sw:armorClass 17 ;
-    sw:attackBonus 4 ;
-    sw:carries sw:ChestKey,
-        sw:HeirloomDagger ;
-    sw:hp 21 ;
-    sw:xpValue 200 .
-
-sw:HealingPotion_S2 a sw:Potion ;
-    rdfs:label "Healing Potion (tucked in sack near post)" ;
-    sw:damage "Restores 2d4+2 HP when consumed (action to drink)" ;
-    sw:quantity 1 .
-
-sw:HealingPotion_S3 a sw:Potion ;
-    rdfs:label "Healing Potion (in chest)" ;
-    sw:damage "Restores 2d4+2 HP when consumed (action to drink)" ;
-    sw:quantity 1 .
-
-sw:HeirloomDagger a sw:Weapon ;
-    rdfs:label "Heirloom Dagger (Thorn family)" ;
-    sw:damage "1d4+1 piercing" ;
-    sw:quantity 1 ;
-    rdfs:comment "Properties: Finesse, Light, Thrown (range 20/60). Finely-crafted dagger with a silver pommel engraved with the Thorn family crest." .
-
-sw:Human a sw:Race ;
-    rdfs:label "Human" .
-
-sw:Location_GoblinWarren a sw:Location ;
-    rdfs:label "Ashenvale Burrows (Goblin Warren)" .
-
-sw:Location_HillsideTrail a sw:Location ;
-    rdfs:label "Hillside Trail (north of Millhaven)" .
-
-sw:RogueClass a sw:PlayerClass ;
-    rdfs:label "Rogue" .
-
-sw:Scene1_Millhaven a sw:Scene ;
-    rdfs:label "Scene 1: The Village of Millhaven" ;
-    sw:hasLocation sw:Location_Millhaven ;
-    sw:hasNPC sw:AldricThorn,
-        sw:ElderMira ;
-    sw:leadsTo sw:Scene2_HillsideTrail ;
-    sw:objectiveText "Learn about the quest and agree to help." ;
-    sw:sceneDescription "A small farming village at dusk. Aldric Thorn sits outside the inn, head bandaged and distressed; Elder Mira stands nearby. Players can ask questions to learn direction (north), approximate goblin numbers (4–5), and time of attack (dusk, ~2 hours ago)." .
-
-sw:Scene4_ReturnToMillhaven a sw:Scene ;
-    rdfs:label "Scene 4: Return to Millhaven" ;
-    sw:hasLocation sw:Location_Millhaven ;
-    sw:hasNPC sw:AldricThorn,
-        sw:ElderMira ;
-    sw:objectiveText "Deliver the chest and dagger to Aldric and Elder Mira; collect the village reward." ;
-    sw:sceneDescription "Dawn in Millhaven. Aldric is overjoyed; Elder Mira pays the reward. Additional small roleplay/cleanup scene." .
-
-sw:Scene_DeadEnd_Wilderness a sw:Scene ;
-    rdfs:label "Back Crack / Wilderness (dead end)" ;
-    sw:sceneDescription "A narrow crack and scramble leading outside; used as an escape route by Grix (dead end for players)." .
-
-sw:TatteredMap a sw:Item ;
-    rdfs:label "Tattered Map" ;
-    sw:quantity 1 ;
-    rdfs:comment "A worn map of the local area (flavor item)." .
-
-sw:WizardClass a sw:PlayerClass ;
-    rdfs:label "Wizard" .
-
-sw:AldricThorn a sw:Npc ;
+<http://example.org/adventure/character-aldric-thorn> a ns1:Npc ;
     rdfs:label "Aldric Thorn" ;
-    sw:hasRole "Merchant; Quest Giver" ;
-    rdfs:comment "Survived the ambush. Owner of the stolen gold chest and the family heirloom dagger (the dagger is especially important to him)." .
+    ns1:canonicalId "aldric-thorn" ;
+    ns1:description "Arranges for the village healer to tend injured players; contributes 10 gold from his personal purse." ;
+    ns1:locatedIn <http://example.org/adventure/settlement-millhaven> ;
+    ns1:name "Aldric Thorn" ;
+    ns1:occursInScene <http://example.org/adventure/scene-goblin-cave-ashenvale>,
+        <http://example.org/adventure/scene-victory-condition> ;
+    ns1:roleLabel "merchant" .
 
-sw:ElderMira a sw:Npc ;
-    rdfs:label "Elder Mira" ;
-    sw:hasRole "Village Elder; Quest Authority" ;
-    rdfs:comment "Offers a 50 gp reward for recovery of the stolen goods." .
+<http://example.org/adventure/dungeon-ashenvale-burrows> a ns1:Dungeon ;
+    ns1:canonicalId "ashenvale-burrows" ;
+    ns1:description "Cave system to the north, rumored to be inhabited by goblins." ;
+    ns1:name "Ashenvale Burrows" ;
+    ns1:occursInScene <http://example.org/adventure/scene-goblin-cave-ashenvale>,
+        <http://example.org/adventure/scene-hillside-trail> .
 
-sw:Location_Millhaven a sw:Location ;
-    rdfs:label "Millhaven" .
+<http://example.org/adventure/item-healing-potion-hillside> a ns1:Item ;
+    ns1:canonicalId "item-healing-potion-hillside" ;
+    ns1:count 1 ;
+    ns1:description "Healing Potion tucked inside a small sack near the post; included in the sentries' loot if they are defeated." ;
+    ns1:name "Healing Potion (in sack near post)" ;
+    ns1:occursInScene <http://example.org/adventure/scene-hillside-trail> .
 
-sw:Scene2_HillsideTrail a sw:Scene ;
-    rdfs:label "Scene 2: The Hillside Trail" ;
-    sw:dc 13 ;
-    sw:hasItem sw:Gold_3,
-        sw:HealingPotion_S2 ;
-    sw:hasLocation sw:Location_HillsideTrail ;
-    sw:hasMonster sw:Goblin_Sentry1,
-        sw:Goblin_Sentry2 ;
-    sw:leadsTo sw:Scene3_GoblinWarren ;
-    sw:objectiveText "Reach the cave. Optional: defeat or sneak past the 2 goblin sentries." ;
-    sw:sceneDescription "A rocky trail under a half-moon. Goblin tracks in mud; cave entrance marked by a crude post with a skull." .
+<http://example.org/adventure/item-wooden-chest> a ns1:Container ;
+    rdfs:label "Wooden chest" ;
+    ns1:canonicalId "wooden-chest" ;
+    ns1:containsItem <http://example.org/adventure/treasure-200gp>,
+        <http://example.org/adventure/weapon-heirloom-dagger> ;
+    ns1:name "Wooden chest" ;
+    ns1:occursInScene <http://example.org/adventure/scene-goblin-cave-ashenvale>,
+        <http://example.org/adventure/scene-victory-condition> .
 
-sw:Scene3_GoblinWarren a sw:Scene ;
-    rdfs:label "Scene 3: The Goblin Warren" ;
-    sw:dc 12,
-        14 ;
-    sw:hasItem sw:Chest_GoldChest,
-        sw:Gold_12,
-        sw:TatteredMap ;
-    sw:hasLocation sw:Location_GoblinWarren ;
-    sw:hasMonster sw:Goblin_Chamber1,
-        sw:Goblin_Chamber2,
-        sw:Goblin_Chamber3,
-        sw:Goblin_Guard,
-        sw:Grix ;
-    sw:leadsTo sw:Scene_DeadEnd_Wilderness ;
-    sw:objectiveText "Defeat the goblins, retrieve the chest key from Grix, and open the locked chest." ;
-    sw:sceneDescription "Torch-lit cave chamber with bedrolls, gnawed bones, scattered stolen goods, and a locked wooden chest against the far wall. A bolted door leads to Grix's chamber." .
+<http://example.org/adventure/location-north-road> a ns1:Location ;
+    ns1:canonicalId "north-road" ;
+    ns1:name "North road" ;
+    ns1:occursInScene <http://example.org/adventure/scene-hillside-trail> .
+
+<http://example.org/adventure/monster-goblin> a ns1:Monster ;
+    rdfs:label "Goblin" ;
+    ns1:canonicalId "goblin" ;
+    ns1:description "Each Goblin defeated: 50 XP each (up to 6)" ;
+    ns1:name "Goblin" ;
+    ns1:occursInScene <http://example.org/adventure/scene-xp-summary> .
+
+<http://example.org/adventure/monster-goblin-hillside> a ns1:Monster ;
+    ns1:canonicalId "goblin-hillside-ambush" ;
+    ns1:count 4,
+        5 ;
+    ns1:description "Goblins reported in the Ashenvale Burrows; ambush party near the Hillside Trail." ;
+    ns1:name "Goblin ambush party" ;
+    ns1:occursInScene <http://example.org/adventure/scene-hillside-trail> .
+
+<http://example.org/adventure/monster-grix> a ns1:Monster ;
+    rdfs:label "Grix (Goblin Boss)" ;
+    ns1:canonicalId "grix" ;
+    ns1:description "Goblin Boss Grix defeated: 200 XP" ;
+    ns1:name "Grix" ;
+    ns1:occursInScene <http://example.org/adventure/scene-xp-summary> ;
+    ns1:roleLabel "Goblin Boss" .
+
+<http://example.org/adventure/quest-return-heirloom> a ns1:Quest ;
+    rdfs:label "Return the Heirloom" ;
+    ns1:canonicalId "return-the-heirloom" ;
+    ns1:description "Quest offering a reward (noted in the source as 50–60 gold possible; canonical reward link set to 50 gp)." ;
+    ns1:name "Return the Heirloom" ;
+    ns1:occursInScene <http://example.org/adventure/scene-victory-condition> ;
+    ns1:reward <http://example.org/adventure/treasure-50gp> .
+
+<http://example.org/adventure/treasure-10gp> a ns1:Treasure ;
+    ns1:canonicalId "treasure-10gp-aldric" ;
+    ns1:currency "gp" ;
+    ns1:description "A small personal payment of 10 gold from Aldric Thorn." ;
+    ns1:goldAmount 10 ;
+    ns1:name "Personal payment (Aldric Thorn)" ;
+    ns1:occursInScene <http://example.org/adventure/scene-hillside-trail> .
+
+<http://example.org/adventure/treasure-hillside-3gp> a ns1:Treasure ;
+    ns1:canonicalId "treasure-hillside-3gp" ;
+    ns1:currency "gp" ;
+    ns1:description "Loot from the 2 goblin sentries (3 gold pieces total); awarded only if the sentries are defeated." ;
+    ns1:goldAmount 3 ;
+    ns1:name "Hillside sentries' gold" ;
+    ns1:occursInScene <http://example.org/adventure/scene-hillside-trail> .
+
+<http://example.org/adventure/settlement-millhaven> a ns1:Settlement ;
+    rdfs:label "Millhaven" ;
+    ns1:canonicalId "millhaven" ;
+    ns1:name "Millhaven" .
+
+<http://example.org/adventure/treasure-200gp> a ns1:Treasure ;
+    rdfs:label "200 gp (chest)" ;
+    ns1:canonicalId "treasure-200gp" ;
+    ns1:currency "gp" ;
+    ns1:description "200 gold pieces found in the chest" ;
+    ns1:goldAmount 200 ;
+    ns1:occursInScene <http://example.org/adventure/scene-goblin-cave-ashenvale>,
+        <http://example.org/adventure/scene-victory-condition> .
+
+<http://example.org/adventure/treasure-50gp> a ns1:Treasure ;
+    rdfs:label "50 gp (quest reward)" ;
+    ns1:canonicalId "treasure-50gp" ;
+    ns1:currency "gp" ;
+    ns1:goldAmount 50 .
+
+<http://example.org/adventure/weapon-heirloom-dagger> a ns1:Weapon ;
+    rdfs:label "Heirloom dagger" ;
+    ns1:canonicalId "heirloom-dagger" ;
+    ns1:description "Family heirloom dagger recovered from the chest" ;
+    ns1:name "Heirloom dagger" ;
+    ns1:occursInScene <http://example.org/adventure/scene-goblin-cave-ashenvale>,
+        <http://example.org/adventure/scene-victory-condition> .
+
+<http://example.org/adventure/scene-xp-summary> a ns1:Scene ;
+    rdfs:label "Experience Points Summary" ;
+    ns1:provenanceDocument <http://example.org/adventure/doc-sample-adventure-md> ;
+    ns1:sourceSceneHeading "Experience Points Summary" .
+
+<http://example.org/adventure/doc-sample-adventure-md> a ns1:SourceDocument ;
+    rdfs:label "sample_adventure.md" ;
+    ns1:sourceFile "sample_adventure.md" .
+
+<http://example.org/adventure/scene-goblin-cave-ashenvale> a ns1:Scene ;
+    ns1:canonicalId "goblin-cave-ashenvale" ;
+    ns1:description "At dusk the party learns that Aldric Thorn was ambushed by goblins about 2 hours ago. His crude wooden chest was taken in the attack; the chest contained 200 gold pieces (200 gp) and a family heirloom dagger. Players can ask Aldric questions: he knows the direction (north, toward the hills), the approximate number of goblins (4–5), and that the time of attack was dusk, roughly two hours prior." ;
+    ns1:name "The Goblin Cave of Ashenvale" ;
+    ns1:provenanceDocument <http://example.org/adventure/doc-sample-adventure-md> ;
+    ns1:sourceSceneHeading "The Goblin Cave of Ashenvale" .
+
+<http://example.org/adventure/scene-victory-condition> a ns1:Scene ;
+    rdfs:label "Victory Condition" ;
+    ns1:description "Quest complete. Total possible reward: 50–60 gold + XP." ;
+    ns1:provenanceDocument <http://example.org/adventure/doc-sample-adventure-md> ;
+    ns1:sourceSceneHeading "Victory Condition" .
+
+<http://example.org/adventure/scene-hillside-trail> a ns1:Scene ;
+    ns1:description "Ambush site near Millhaven; tracks lead north toward the Ashenvale Burrows." ;
+    ns1:name "The Hillside Trail" ;
+    ns1:provenanceDocument <http://example.org/adventure/doc-sample-adventure-md> ;
+    ns1:sourceSceneHeading "The Hillside Trail" .
 

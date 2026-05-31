@@ -23,22 +23,23 @@ The project includes three independent executable codes. They are:
 ## Current Development State
 
 * The semantic web designer milestone is complete, tested, and documented.
-* The original designer milestone and later verification updates for progressive `./design.md` logging, compact prompting, generic product-code validation, and the default model have been committed.
+* The original designer milestone and later verification updates for progressive `./design.md` logging, compact prompting, generic product-code validation, the default model, and iterative retrieval-guided design have been committed.
 * The designer has produced `./design.md` and `./db/ontology.ttl`.
 * The designer has loaded the ontology into Fuseki as named graph `http://example.org/semantic-web/graph/ontology`.
-* The latest verified designer run used model `gpt-5-mini`, produced 185 RDF triples, 13 RDFS classes, and 28 RDF properties, and was verified by querying Fuseki directly.
+* The latest verified designer run used model `gpt-5-mini`, used 2 model-planned semantic-search focuses, produced 148 RDF triples, 16 RDFS classes, and 17 RDF properties, and was verified through a clean end-to-end run.
 * The semantic web importer milestone is complete, tested, documented, and committed.
+* The importer now supports iterative retrieval-guided import batches for large-data runs and writes progressive run status to `./import.md`.
 * The importer has produced `./db/instances.ttl` and `./db/semantic_web.ttl`.
 * The importer has loaded the instance graph into Fuseki as named graph `http://example.org/semantic-web/graph/data`, unless overridden by `.env`.
-* The latest verified importer run used model `gpt-5-mini`, inspected ontology from Fuseki, produced 178 instance RDF triples and 363 combined triples, and was verified with local RDF/SPARQL checks.
+* The latest verified importer run used model `gpt-5-mini`, inspected ontology from Fuseki, used 4 model-planned import batches, produced 121 instance RDF triples and 269 combined triples, and was verified through viewer API checks and local RDF/SPARQL checks.
 * The designer and importer are independent executables. The importer can run on another machine from a handoff package containing `./design.md`, `./db/ontology.ttl`, and the source `./data/*`, but the preferred local handoff between applications is persistent Fuseki.
 * The importer supports ontology inspection by querying Fuseki when available, while retaining `./db/ontology.ttl` as the portable fallback and reload artifact.
 * Fuseki is the intended durable source of truth bridging designer, importer, and viewer. Turtle files are useful as intermediate validation/loading artifacts, portable artifacts, tests, exports, and fallbacks, but future agents should query Fuseki or local RDF graphs for relevant schema/data slices instead of sending large Turtle files wholesale to an LLM.
-* Future scale-up work must address three known limitations: the designer prompt and iteration limits intentionally cap ontology complexity; designer/importer currently read all of `./data/*` instead of using semantic retrieval; and large graph prompting should move toward Fuseki-backed relevant graph slices with a semantic-web embedding index over text-rendered triples.
+* Future scale-up work must address known limitations: the designer prompt and iteration limits intentionally cap ontology complexity; designer/importer retrieval still needs validation on larger and non-DnD data; and large graph prompting should move toward Fuseki-backed relevant graph slices with a semantic-web embedding index over text-rendered triples.
 * The semantic web viewer milestone is complete, tested, documented, and committed.
 * The viewer queries and exports through Fuseki as its runtime data source; it does not read `./db/semantic_web.ttl` directly.
-* End-to-end validation from clean generated outputs succeeded on 2026-05-31.
-* Next work should follow `./PROGRESS.md`, focusing on future scale-up work such as semantic-web graph slicing and semantic-search integration.
+* End-to-end validation from clean generated outputs succeeded on 2026-05-31 after iterative designer/importer retrieval integration. Viewer API questions included stateful and reasoning questions, and Turtle export parsed successfully.
+* Next work should follow `./PROGRESS.md`, specifically `Milestone 9: Non-DnD End-To-End Validation`.
 
 ## Setups and Requirements
 
@@ -48,8 +49,8 @@ The project includes three independent executable codes. They are:
 * `uv` is installed on the server; `uv init` has been performed to the project folder
 * Apache Jena Fuseki is used as the triplesotre and has been installed on the server. Details are given in **Locations of Files**
 * OpenAI API key has been prepared and saved in the project folder under `.env`. Details are given in **Locations of Files**
-* The semantic web designer, importer, and viewer will need to access structured and unstructured data. It may happen that the file sizes or file counts are large. In those cases, the agentic AI frameworks need to chunk documents and perform semantic search instead of prompt-stuffing all of `./data/*`. A semantic search tool is provided in `./tools/semantic-search/*`. Read the code and documents there to understand how to use it as a tool.
-  * Note: modify the semantic search tool if needed. For example, the semantic search tool supports PDF and HTML files as inputs. Consider also add supports for plain texts and markdown files.
+* The semantic web designer, importer, and viewer will need to access structured and unstructured data. It may happen that the file sizes or file counts are large. In those cases, the agentic AI frameworks need to chunk documents and perform semantic search instead of prompt-stuffing all of `./data/*`. A shared semantic-search layer is provided in `./src/common/semantic_search.py`, and a standalone document search tool is provided in `./tools/semantic-search/*`. Read the code and documents there to understand how to use them.
+  * The standalone semantic search tool supports PDF, HTML, markdown, text, and CSV files as inputs.
   * The semantic search tool comes with a .env file, inside which are configurations for the tool, such as a seperate `OPENAI_API_KEY` of the tool, choice of models and embedding methods, locations of files by default, etc. Modify them if needed. For example, the locaiton of files definately needs to be changed.
 
 ### Locations of Files

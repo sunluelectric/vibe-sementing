@@ -291,6 +291,29 @@ to `import.md` during the run.
 - [x] Run `uv run pytest`.
 - [x] Commit the importer progressive logging improvement.
 
+## Milestone 9: Non-DnD End-To-End Validation
+
+Goal: verify that the product remains domain-neutral by replacing the DnD
+sample with a non-DnD design requirement and non-DnD source data, then running
+the full designer, importer, and viewer workflow from a clean generated-output
+state.
+
+- [ ] Choose or create a small non-DnD dataset with markdown and, if useful,
+  CSV source files.
+- [ ] Replace `design-requirements.md` and `data/*` with the non-DnD test case,
+  keeping a way to restore the current DnD sample afterward if needed.
+- [ ] Stop Fuseki if it is running.
+- [ ] Delete generated outputs: `design.md`, `import.md`, and `db/*`.
+- [ ] Run the semantic web designer from the non-DnD inputs.
+- [ ] Run the semantic web importer from the designer output.
+- [ ] Run the semantic web viewer from Fuseki.
+- [ ] Ask representative non-DnD viewer questions, including follow-up and
+  reasoning questions.
+- [ ] Verify Turtle export parses with `rdflib`.
+- [ ] Run `uv run pytest`.
+- [ ] Document the non-DnD validation result in `README.md` and `PROGRESS.md`.
+- [ ] Commit the non-DnD validation milestone.
+
 ## Current Notes
 
 - Initial dependency installation succeeded.
@@ -319,12 +342,12 @@ start or connect to Apache Jena Fuseki, and load the ontology into Fuseki.
 
 ### Deliberate Simplifications
 
-- The designer currently reads `./data/*` directly.
-- The designer does not yet use `./tools/semantic-search`.
-- The designer supports direct loading of markdown, text, and CSV files through
-  `src/common/files.py`.
-- Direct data loading is acceptable for the current small DnD sample, but it
-  will not scale to large files or many files.
+- The designer still supports direct loading of markdown, text, and CSV files
+  through `src/common/files.py` for small data.
+- For larger inputs, the designer now uses shared semantic-search retrieval and
+  model-planned focus queries before final ontology synthesis.
+- Direct data loading is acceptable for small samples, while retrieval is the
+  intended path for larger files or many files.
 - The ontology prompt explicitly asks the model to keep the schema simple.
 - The current prompt says to avoid complex or exhaustive modeling.
 - The current prompt asks for RDF/RDFS only and explicitly avoids OWL in the
@@ -393,27 +416,20 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
 - Query data through:
   `http://localhost:3030/semantic-web-processor/query`
 - The designer ontology graph URI is:
-  `http://example.org/dnd-adventure/graph/ontology`
+  `http://example.org/semantic-web/graph/ontology`
 - Verify ontology implementation with a named-graph SPARQL query against the
   ontology graph, not only by checking that `db/ontology.ttl` exists.
 
 ### Future Scale-Up Requirements
 
-- Add retrieval support to the designer before using large or numerous data
-  files.
-- Add retrieval support to the importer before using large or numerous data
-  files.
-- Integrate `./tools/semantic-search` into designer and importer workflows as a
-  tool or adapter.
-- Extend or wrap `./tools/semantic-search` so it supports the project data
-  formats, especially markdown and CSV.
-- Add a designer workflow tool such as `retrieve_design_context` that retrieves
-  only relevant source chunks for ontology design.
-- Add importer workflow tools such as `retrieve_import_context` and
-  `retrieve_schema_context` that retrieve source facts and relevant ontology
-  slices for instance insertion.
-- Replace whole-data prompt stuffing with retrieval over relevant chunks in
-  both designer and importer.
+- Retrieval support has been added to the designer and importer. Future work
+  should validate it on larger and non-DnD datasets.
+- The standalone `./tools/semantic-search` tool now supports markdown, text, and
+  CSV in addition to PDF and HTML; the product workflows use the shared
+  retrieval layer under `src/common/semantic_search.py`.
+- Designer and importer workflow tools now retrieve relevant source/schema
+  chunks instead of prompt-stuffing whole inputs when configured thresholds are
+  exceeded.
 - Relax the current prompt limits only after retrieval and validation are strong
   enough.
 - Do not remove all simplicity guidance at once. A better scale-up path is:
@@ -491,7 +507,7 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   - `tests/test_importer_contract.py`
   - `tests/test_importer_workflow.py`
   - `tests/test_importer_product_output.py`
-- The lightweight test suite passes:
+- Historical lightweight test suite result:
   - command: `uv run pytest`
   - result: `28 passed`
 
@@ -510,7 +526,7 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
 - Fuseki startup initially failed because the default Fuseki base under `/opt` was not writable. The manager now sets `FUSEKI_BASE` to `db/fuseki-run`.
 - Fuseki readiness initially failed because Fuseki 6 handles SPARQL availability by POST, not by GET. The client now uses `ASK { ?s ?p ?o }`.
 - The designer product run completed successfully with `load_target: fuseki`.
-- Final designer output: `design.md`, `db/ontology.ttl`, and a named Fuseki graph at `http://example.org/dnd-adventure/graph/ontology`.
+- Historical designer output: `design.md`, `db/ontology.ttl`, and a named Fuseki graph.
 - Latest ontology verification after the compact prompt and `gpt-5-mini` rerun: 188 triples, 15 classes, 28 properties, RDF validation passed, Fuseki SPARQL query returned 15 ontology classes.
 - Final designer test command: `uv run pytest`, result `14 passed`.
 - Importer work was approved by the user and completed.
@@ -539,14 +555,21 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   importer produced 57 instance triples and 205 combined triples, the viewer
   answered through the API, exported Turtle parsed with rdflib, and
   `uv run pytest` reported 56 passed and 2 skipped.
+- The latest clean iterative designer/importer end-to-end validation on
+  2026-05-31 produced 148 ontology triples, 16 classes, 17 properties, 121
+  instance triples, 269 combined triples, 269 Fuseki triples, and viewer
+  answers for broad, follow-up, stateful, and reasoning questions. Turtle export
+  parsed with rdflib, and `uv run pytest` reported 60 passed and 2 skipped.
+- After adding progressive importer logging, `uv run pytest` reported 59 passed
+  and 4 skipped without live Fuseki running.
 - The designer milestone commit has been made.
 - The importer milestone commit has been made.
 - The viewer milestone commit has been made.
 
 ### Immediate Next Step
 
-- Continue future scale-up work: semantic-web graph slicing, semantic-search
-  integration for designer/importer, and ontology refinement workflow.
+- Run `Milestone 9: Non-DnD End-To-End Validation` to prove the current
+  designer, importer, and viewer remain domain-neutral outside the DnD sample.
 
 ## Handoff For Next Codex Instance
 
@@ -555,6 +578,7 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
 - The semantic web importer is complete and committed.
 - Current generated outputs are:
   - `design.md`
+  - `import.md` after the next importer run
   - `db/ontology.ttl`
   - `db/instances.ttl`
   - `db/semantic_web.ttl`
@@ -562,7 +586,9 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   - Fuseki data graph `http://example.org/semantic-web/graph/data` unless overridden by `.env`
 - Current tests:
   - `uv run pytest`
-  - expected result after fresh end-to-end run: `45 passed, 2 skipped`
+  - latest local result after importer progressive logging: `59 passed, 4 skipped`
+  - latest full end-to-end result before that logging change:
+    `60 passed, 2 skipped`
 - Current runtime notes:
   - Fuseki may already be running on port `3030`.
   - If not, use the project-local Fuseki base `db/fuseki-run`.
@@ -571,5 +597,9 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   - Use SPARQL `ASK` via `POST` for readiness checks.
 - Current development boundary:
   - Designer, importer, and viewer milestones are implemented.
+  - Designer uses iterative model-planned semantic-search focuses for large
+    data.
+  - Importer uses iterative model-planned import batches for large data and
+    writes progressive run status to `import.md`.
   - The viewer uses Fuseki as its runtime data source and does not read
     `db/semantic_web.ttl` directly.
