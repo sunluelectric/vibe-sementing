@@ -723,6 +723,13 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   validated CSV mapping. Viewer status, chat session creation, question
   answering about open-source triplestores and Apache Jena TDB APIs/protocols,
   and Turtle export passed. `uv run pytest` reported 72 passed and 2 skipped.
+- Viewer follow-up fixes on 2026-06-01 added class-instance aggregate counts
+  for class count questions, exact subject-label fact lookup for named entity
+  questions, and stricter end-user answer phrasing that avoids implementation
+  details unless explicitly requested. Manual API checks answered CSV-specific
+  questions correctly: 11 triplestores, 4 open-source triplestores, Apache Jena
+  TDB APIs, GraphDB maintainer/license, commercial-license triplestores, and
+  Virtuoso's key feature. `uv run pytest` reported 74 passed and 2 skipped.
 - The designer milestone commit has been made.
 - The importer milestone commit has been made.
 - The viewer milestone commit has been made.
@@ -746,8 +753,8 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   - Fuseki data graph `http://example.org/semantic-web/graph/data` unless overridden by `.env`
 - Current tests:
   - `uv run pytest`
-  - latest local result after CSV-aware validation:
-    `72 passed, 2 skipped`
+  - latest local result after viewer count/relevance updates:
+    `74 passed, 2 skipped`
 - Current runtime notes:
   - Fuseki may already be running on port `3030`.
   - If not, use the project-local Fuseki base `db/fuseki-run`.
@@ -765,6 +772,9 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
     in Python, and merge those triples with unstructured-source imports.
   - The viewer uses Fuseki as its runtime data source and does not read
     `db/semantic_web.ttl` directly.
+  - The viewer now uses exact subject-label lookup and class-instance aggregate
+    counts before generic relevance search, and its answer prompt is tuned for
+    end-user wording rather than database or RDF implementation wording.
   - The next implementation priority is long-document coverage scale-up.
   - The current semantic-web/ontology/triplestore graph validates the
     CSV-aware architecture, while unstructured markdown/PDF extraction remains

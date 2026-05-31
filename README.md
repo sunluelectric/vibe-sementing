@@ -222,13 +222,15 @@ it queries and exports through the configured Fuseki endpoints.
 The viewer includes:
 
 1. A Fuseki-backed query layer for graph status, triple counts, schema summary,
-   class lookup, generic fact search, SPARQL SELECT execution, and Turtle
-   export through SPARQL `CONSTRUCT`.
+   class lookup, class instance counts, exact subject-label fact lookup,
+   generic fact search, SPARQL SELECT execution, and Turtle export through
+   SPARQL `CONSTRUCT`.
 2. An OpenAI Agents SDK workflow shell with tools for graph status, graph
    summary, SPARQL SELECT, and question-relevant fact search.
-3. A direct viewer answer path that gathers graph facts from Fuseki, sends them
-   to the configured OpenAI model with recent chat history, and requires
-   concise answers grounded in queried facts.
+3. A direct viewer answer path that gathers graph facts from Fuseki, prioritizes
+   exact entity facts and aggregate class counts when relevant, sends them to
+   the configured OpenAI model with recent chat history, and requires concise
+   end-user answers grounded in queried facts.
 4. A FastAPI browser UI with chatbot interaction, graph status, queried facts,
    and Turtle export.
 
@@ -600,13 +602,17 @@ The viewer was verified against the fresh persistent Fuseki data from the
 iterative designer/importer run:
 
 - Fuseki status endpoint reported 406 triples.
-- A chatbot question about open-source triplestores and Apache Jena TDB APIs
-  returned a grounded answer using queried graph facts.
+- CSV-specific chatbot questions returned grounded answers: 11 triplestores,
+  4 open-source triplestores, Apache Jena TDB APIs, GraphDB maintainer/license,
+  commercial-license triplestores, and Virtuoso's key feature.
+- Viewer answer prompting was tightened to avoid exposing implementation
+  phrasing such as database, graph, node, label, URI, predicate, or raw query
+  details unless the user asks technical implementation questions.
 - FastAPI endpoint checks for status, chat session creation, question answering,
   and Turtle export passed.
 - Turtle export from Fuseki parsed with `rdflib` and contained 406 triples.
-- Latest local test result after CSV-aware validation:
-  `72 passed, 2 skipped`.
+- Latest local test result after viewer count/relevance updates:
+  `74 passed, 2 skipped`.
 
 ## Proof-Of-Concept Boundary
 
