@@ -85,6 +85,13 @@ tests, portability, and fallback, but agents should consume relevant graph
 slices through Fuseki or local RDF/SPARQL queries instead of sending large
 Turtle files wholesale to an LLM.
 
+Future graph-slicing strategy: build a semantic-search index over the semantic
+web itself. The likely approach is to render ontology and instance triples into
+plain-text chunks, embed those chunks, use vector search to find the most
+relevant classes, properties, and facts for a task, and then issue targeted
+Fuseki queries around those terms. This combines Fuseki as the graph source of
+truth with embeddings as a relevance layer for large semantic webs.
+
 Fuseki uses project-local persistent TDB2 storage by default and is the intended
 golden source of truth that bridges the designer, importer, and viewer. The
 designer and importer continue writing Turtle as intermediate validation,
@@ -100,6 +107,9 @@ Known future scale-up work:
 - Designer and importer currently read all supported files under `data/*`.
   Before using large or numerous documents, they should use semantic retrieval
   through `tools/semantic-search` or an equivalent adapter.
+- Designer, importer, and viewer should avoid whole-graph prompting. For large
+  semantic webs, they should use a semantic-web embedding index to find
+  candidate graph terms, then query Fuseki for bounded relevant graph slices.
 - Fuseki is now the primary machine-readable graph handoff between frameworks
   when available. `design.md` remains a reference document, and Turtle remains
   useful for portability, review, tests, export, and fallback.
@@ -420,5 +430,5 @@ ontology and source data:
 
 - Run full end-to-end product validation from clean generated outputs.
 - Keep the documented future improvements for semantic-search integration,
-  persistent Fuseki storage, query-first designer/importer handoff, and
-  large-graph operation as later work.
+  semantic-web embeddings, query-first graph slicing, and large-graph operation
+  as later work.

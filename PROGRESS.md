@@ -136,8 +136,12 @@ Goal: the semantic web importer reads `design.md`, `db/ontology.ttl`, and
 - [x] Add optional ontology inspection by querying Fuseki when available.
 - [x] Keep `db/ontology.ttl` as the portable fallback and cross-machine handoff artifact.
 - [x] Add tests for Fuseki ontology inspection with local Turtle fallback.
-- [ ] Replace whole-ontology Turtle prompt input with query-based ontology summaries and relevant schema slices so large ontologies do not have to fit in the LLM context.
-- [ ] Prefer Fuseki query inspection for large graphs, with local RDF/SPARQL fallback when Fuseki is unavailable.
+- [ ] Replace whole-graph prompting with Fuseki-backed relevant graph slices.
+  Build a semantic-web embedding strategy: render ontology/data triples into
+  plain-text chunks, embed those chunks with semantic-search technology, use
+  vector search to identify relevant classes/properties/facts for a task, then
+  query Fuseki for bounded graph slices around those terms. Keep local
+  RDF/SPARQL fallback for portability and tests.
 - [x] Move inter-application handoff to persistent Fuseki storage. Designer and
   importer may still generate Turtle as internal validation/loading artifacts,
   but Fuseki should become the durable source of truth that bridges designer,
@@ -342,6 +346,9 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   machine-readable contract.
 - Future importer/viewer agents should query Fuseki for relevant graph slices
   when available, with local RDF/Turtle fallback for portability and tests.
+  For large graphs, use a semantic-web embedding index over text-rendered
+  triples to find candidate classes, properties, and facts before issuing
+  targeted Fuseki queries.
 
 ## Current Status Summary
 
