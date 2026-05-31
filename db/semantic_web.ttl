@@ -1,461 +1,442 @@
-@prefix dnd: <http://example.org/dnd-adventure#> .
-@prefix inst: <http://example.org/dnd-adventure/instances#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sw: <http://example.org/semantic-web#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-dnd:Adventure a rdfs:Class ;
+sw:Adventure a rdfs:Class ;
     rdfs:label "Adventure" ;
-    rdfs:comment "Top-level container for an adventure composed of quests and scenes." .
+    rdfs:comment "Top-level scenario container: metadata, scenes, rewards and recommendations." .
 
-dnd:Character a rdfs:Class ;
+sw:Character a rdfs:Class ;
     rdfs:label "Character" ;
-    rdfs:comment "Any character-like agent in the adventure (players, NPCs, monsters)." .
+    rdfs:comment "An abstract actor: players, NPCs and monsters are characters." .
 
-dnd:Check a rdfs:Class ;
-    rdfs:label "Check" ;
-    rdfs:comment "A mechanical skill or ability check (DC and type)." .
+sw:Chest a rdfs:Class ;
+    rdfs:label "Chest" ;
+    rdfs:comment "A container item that can hold other items (quest chest)." ;
+    rdfs:subClassOf sw:Item .
 
-dnd:Encounter a rdfs:Class ;
-    rdfs:label "Encounter" ;
-    rdfs:comment "A conflict or challenge that occurs within a scene; links to participants." .
-
-dnd:Item a rdfs:Class ;
+sw:Item a rdfs:Class ;
     rdfs:label "Item" ;
-    rdfs:comment "Tangible object such as loot, potions, chests, equipment." .
+    rdfs:comment "A generic item, loot, or equipment." .
 
-dnd:Location a rdfs:Class ;
+sw:Location a rdfs:Class ;
     rdfs:label "Location" ;
-    rdfs:comment "A physical or descriptive place such as a village, trail, or cave chamber." .
+    rdfs:comment "A named place or locale referenced by a scene." .
 
-dnd:Monster a rdfs:Class ;
+sw:Monster a rdfs:Class ;
     rdfs:label "Monster" ;
-    rdfs:comment "A hostile creature or adversary (goblins, bosses)." ;
-    rdfs:subClassOf dnd:Character .
+    rdfs:comment "A hostile creature encountered in the adventure." ;
+    rdfs:subClassOf sw:Character .
 
-dnd:Npc a rdfs:Class ;
-    rdfs:label "Non-Player Character" ;
-    rdfs:comment "A non-player character such as a quest giver or villager." ;
-    rdfs:subClassOf dnd:Character .
+sw:Npc a rdfs:Class ;
+    rdfs:label "Npc" ;
+    rdfs:comment "Non-player character such as quest-givers or villagers." ;
+    rdfs:subClassOf sw:Character .
 
-dnd:Player a rdfs:Class ;
+sw:Player a rdfs:Class ;
     rdfs:label "Player" ;
-    rdfs:comment "A player-controlled character; subclassing is kept flat to ease data ingestion." .
+    rdfs:comment "A player-controlled character." ;
+    rdfs:subClassOf sw:Character .
 
-dnd:PlayerOption a rdfs:Class ;
-    rdfs:label "Player Option" ;
-    rdfs:comment "A selectable option for players (character class, race)." .
+sw:PlayerClass a rdfs:Class ;
+    rdfs:label "PlayerClass" ;
+    rdfs:comment "A playable class option (e.g. Fighter, Wizard, Rogue)." .
 
-dnd:Quest a rdfs:Class ;
-    rdfs:label "Quest" ;
-    rdfs:comment "A goal-driven task inside an adventure (for example: recover stolen goods)." .
+sw:Potion a rdfs:Class ;
+    rdfs:label "Potion" ;
+    rdfs:comment "A consumable potion such as a Healing Potion." ;
+    rdfs:subClassOf sw:Item .
 
-dnd:Reward a rdfs:Class ;
-    rdfs:label "Reward" ;
-    rdfs:comment "A reward object for quests or NPC offers (gold, items, XP)." .
+sw:Race a rdfs:Class ;
+    rdfs:label "Race" ;
+    rdfs:comment "A playable race option (e.g. Human, Elf, Dwarf)." .
 
-dnd:Scene a rdfs:Class ;
+sw:Scene a rdfs:Class ;
     rdfs:label "Scene" ;
-    rdfs:comment "A narrated location or encounter node; scenes have descriptions, exits and encounters." .
+    rdfs:comment "A self-contained scene in the adventure (e.g. Village Millhaven, Goblin Warren)." .
 
-dnd:VictoryCondition a rdfs:Class ;
-    rdfs:label "Victory Condition" ;
-    rdfs:comment "A textual condition describing success for a quest or objective." .
-
-dnd:Weapon a rdfs:Class ;
+sw:Weapon a rdfs:Class ;
     rdfs:label "Weapon" ;
-    rdfs:comment "A weapon used for attacks; modeled as a kind of Item." ;
-    rdfs:subClassOf dnd:Item .
+    rdfs:comment "A weapon (melee or thrown)." ;
+    rdfs:subClassOf sw:Item .
 
-dnd:armorClass a rdf:Property ;
-    rdfs:label "armor class" ;
-    rdfs:comment "Armor Class (AC) value for a character or monster." ;
-    rdfs:domain dnd:Character ;
-    rdfs:range xsd:nonNegativeInteger .
+sw:GoblinCaveOfAshenvale a sw:Adventure ;
+    rdfs:label "The Goblin Cave of Ashenvale" ;
+    sw:difficulty "Beginner-friendly" ;
+    sw:hasRaceOption sw:Dwarf,
+        sw:Elf,
+        sw:Human ;
+    sw:hasScene sw:Scene1_Millhaven,
+        sw:Scene2_HillsideTrail,
+        sw:Scene3_GoblinWarren,
+        sw:Scene4_ReturnToMillhaven ;
+    sw:offersClass sw:FighterClass,
+        sw:RogueClass,
+        sw:WizardClass ;
+    sw:partySizeMax 4 ;
+    sw:partySizeMin 2 ;
+    sw:recommendedLevel 1 ;
+    sw:rewardAmount 50.0 ;
+    rdfs:comment "XP awards (summary): quest completion 100 XP; heirloom dagger returned 50 XP; maximum total XP (enemies + quest) 650." .
 
-dnd:carries a rdf:Property ;
+sw:abilityText a rdf:Property ;
+    rdfs:label "abilityText" ;
+    rdfs:comment "Text describing a special ability or trait (e.g. 'Nimble Escape')." ;
+    rdfs:domain sw:Character ;
+    rdfs:range xsd:string .
+
+sw:armorClass a rdf:Property ;
+    rdfs:label "armorClass" ;
+    rdfs:comment "Armor Class (AC) as an integer." ;
+    rdfs:domain sw:Character ;
+    rdfs:range xsd:integer .
+
+sw:attackBonus a rdf:Property ;
+    rdfs:label "attackBonus" ;
+    rdfs:comment "Numeric attack bonus (e.g. +4)." ;
+    rdfs:domain sw:Character ;
+    rdfs:range xsd:integer .
+
+sw:carries a rdf:Property ;
     rdfs:label "carries" ;
-    rdfs:comment "States that a Character carries or possesses an Item." ;
-    rdfs:domain dnd:Character ;
-    rdfs:range dnd:Item .
+    rdfs:comment "Indicates an Item carried by a Character (loot or equipment)." ;
+    rdfs:domain sw:Character ;
+    rdfs:range sw:Item .
 
-dnd:checkDC a rdf:Property ;
-    rdfs:label "check DC" ;
-    rdfs:comment "Numeric difficulty class (DC) for a Check." ;
-    rdfs:domain dnd:Check ;
-    rdfs:range xsd:nonNegativeInteger .
+sw:contains a rdf:Property ;
+    rdfs:label "contains" ;
+    rdfs:comment "Indicates that a chest or container contains an item." ;
+    rdfs:domain sw:Chest ;
+    rdfs:range sw:Item .
 
-dnd:checkType a rdf:Property ;
-    rdfs:label "check type" ;
-    rdfs:comment "Skill or ability type for a Check (e.g., 'Dexterity/Stealth')." ;
-    rdfs:domain dnd:Check ;
-    rdfs:range xsd:string .
-
-dnd:conditionDescription a rdf:Property ;
-    rdfs:label "condition description" ;
-    rdfs:comment "Text describing a victory condition for a quest." ;
-    rdfs:domain dnd:VictoryCondition ;
-    rdfs:range xsd:string .
-
-dnd:damage a rdf:Property ;
+sw:damage a rdf:Property ;
     rdfs:label "damage" ;
-    rdfs:comment "Damage expression for weapons, stored as text (e.g. '1d4+1 piercing')." ;
-    rdfs:domain dnd:Weapon ;
+    rdfs:comment "Textual damage expression for a weapon or attack (e.g. '1d4+1 piercing')." ;
+    rdfs:domain sw:Item ;
     rdfs:range xsd:string .
 
-dnd:description a rdf:Property ;
-    rdfs:label "description" ;
-    rdfs:comment "Longer textual description for scenes, items, locations, etc." ;
-    rdfs:domain rdfs:Resource ;
+sw:dc a rdf:Property ;
+    rdfs:label "dc" ;
+    rdfs:comment "Difficulty Class (DC) for a scene check (e.g. Stealth DC)." ;
+    rdfs:domain sw:Scene ;
+    rdfs:range xsd:integer .
+
+sw:difficulty a rdf:Property ;
+    rdfs:label "difficulty" ;
+    rdfs:comment "Textual difficulty label for the adventure (e.g. 'Beginner-friendly')." ;
+    rdfs:domain sw:Adventure ;
     rdfs:range xsd:string .
 
-dnd:difficultyLevel a rdf:Property ;
-    rdfs:label "difficulty level" ;
-    rdfs:comment "Textual difficulty (Beginner-friendly, etc.)." ;
-    rdfs:domain dnd:Quest ;
+sw:encounters a rdf:Property ;
+    rdfs:label "encounters" ;
+    rdfs:comment "A flexible link listing characters encountered in a Scene." ;
+    rdfs:domain sw:Scene ;
+    rdfs:range sw:Character .
+
+sw:goldAmount a rdf:Property ;
+    rdfs:label "goldAmount" ;
+    rdfs:comment "Numeric gold amount for an item or chest contents." ;
+    rdfs:domain sw:Item ;
+    rdfs:range xsd:decimal .
+
+sw:hasItem a rdf:Property ;
+    rdfs:label "hasItem" ;
+    rdfs:comment "Items placed or found in a Scene." ;
+    rdfs:domain sw:Scene ;
+    rdfs:range sw:Item .
+
+sw:hasLocation a rdf:Property ;
+    rdfs:label "hasLocation" ;
+    rdfs:comment "Associates a Scene with a Location." ;
+    rdfs:domain sw:Scene ;
+    rdfs:range sw:Location .
+
+sw:hasMonster a rdf:Property ;
+    rdfs:label "hasMonster" ;
+    rdfs:comment "Names a Monster present in a Scene." ;
+    rdfs:domain sw:Scene ;
+    rdfs:range sw:Monster .
+
+sw:hasNPC a rdf:Property ;
+    rdfs:label "hasNPC" ;
+    rdfs:comment "Names an NPC present in a Scene." ;
+    rdfs:domain sw:Scene ;
+    rdfs:range sw:Npc .
+
+sw:hasRaceOption a rdf:Property ;
+    rdfs:label "hasRaceOption" ;
+    rdfs:comment "Player race options offered by the Adventure." ;
+    rdfs:domain sw:Adventure ;
+    rdfs:range sw:Race .
+
+sw:hasRole a rdf:Property ;
+    rdfs:label "hasRole" ;
+    rdfs:comment "Short role label for an NPC (e.g. 'Quest Giver', 'Village Elder')." ;
+    rdfs:domain sw:Npc ;
     rdfs:range xsd:string .
 
-dnd:exitTo a rdf:Property ;
-    rdfs:label "exit to" ;
-    rdfs:comment "Scene-to-scene navigation; an exit leads from one Scene to another." ;
-    rdfs:domain dnd:Scene ;
-    rdfs:range dnd:Scene .
+sw:hasScene a rdf:Property ;
+    rdfs:label "hasScene" ;
+    rdfs:comment "Links an Adventure to its Scenes." ;
+    rdfs:domain sw:Adventure ;
+    rdfs:range sw:Scene .
 
-dnd:goldAmount a rdf:Property ;
-    rdfs:label "gold amount" ;
-    rdfs:comment "Amount of gold coins in a Reward." ;
-    rdfs:domain dnd:Reward ;
-    rdfs:range xsd:nonNegativeInteger .
+sw:hp a rdf:Property ;
+    rdfs:label "hp" ;
+    rdfs:comment "Hit points (integer) for characters and monsters." ;
+    rdfs:domain sw:Character ;
+    rdfs:range xsd:integer .
 
-dnd:hasEncounter a rdf:Property ;
-    rdfs:label "has encounter" ;
-    rdfs:comment "Links a Scene to an Encounter that occurs in it." ;
-    rdfs:domain dnd:Scene ;
-    rdfs:range dnd:Encounter .
+sw:leadsTo a rdf:Property ;
+    rdfs:label "leadsTo" ;
+    rdfs:comment "Connects a Scene to another Scene via an exit." ;
+    rdfs:domain sw:Scene ;
+    rdfs:range sw:Scene .
 
-dnd:hasObjective a rdf:Property ;
-    rdfs:label "has objective" ;
-    rdfs:comment "Short textual description of the quest objective." ;
-    rdfs:domain dnd:Quest ;
+sw:objectiveText a rdf:Property ;
+    rdfs:label "objectiveText" ;
+    rdfs:comment "Short in-scene objective or goal text." ;
+    rdfs:domain sw:Scene ;
     rdfs:range xsd:string .
 
-dnd:hasQuest a rdf:Property ;
-    rdfs:label "has quest" ;
-    rdfs:comment "Links an Adventure to a Quest it contains." ;
-    rdfs:domain dnd:Adventure ;
-    rdfs:range dnd:Quest .
+sw:offersClass a rdf:Property ;
+    rdfs:label "offersClass" ;
+    rdfs:comment "Player classes offered by the Adventure." ;
+    rdfs:domain sw:Adventure ;
+    rdfs:range sw:PlayerClass .
 
-dnd:hasReward a rdf:Property ;
-    rdfs:label "has reward" ;
-    rdfs:comment "Associates a Quest with its Reward (gold, items, XP)." ;
-    rdfs:domain dnd:Quest ;
-    rdfs:range dnd:Reward .
+sw:partySizeMax a rdf:Property ;
+    rdfs:label "partySizeMax" ;
+    rdfs:comment "Maximum recommended party size." ;
+    rdfs:domain sw:Adventure ;
+    rdfs:range xsd:integer .
 
-dnd:hasScene a rdf:Property ;
-    rdfs:label "has scene" ;
-    rdfs:comment "Associates an Adventure with Scenes that belong to it." ;
-    rdfs:domain dnd:Adventure ;
-    rdfs:range dnd:Scene .
+sw:partySizeMin a rdf:Property ;
+    rdfs:label "partySizeMin" ;
+    rdfs:comment "Minimum recommended party size." ;
+    rdfs:domain sw:Adventure ;
+    rdfs:range xsd:integer .
 
-dnd:hp a rdf:Property ;
-    rdfs:label "hit points" ;
-    rdfs:comment "Hit points of a character or monster." ;
-    rdfs:domain dnd:Character ;
-    rdfs:range xsd:nonNegativeInteger .
+sw:quantity a rdf:Property ;
+    rdfs:label "quantity" ;
+    rdfs:comment "Integer quantity for stackable items." ;
+    rdfs:domain sw:Item ;
+    rdfs:range xsd:integer .
 
-dnd:includesItem a rdf:Property ;
-    rdfs:label "includes item" ;
-    rdfs:comment "A Reward may include zero or more Items." ;
-    rdfs:domain dnd:Reward ;
-    rdfs:range dnd:Item .
+sw:recommendedLevel a rdf:Property ;
+    rdfs:label "recommendedLevel" ;
+    rdfs:comment "Recommended character level for the adventure." ;
+    rdfs:domain sw:Adventure ;
+    rdfs:range xsd:integer .
 
-dnd:itemProperty a rdf:Property ;
-    rdfs:label "item property" ;
-    rdfs:comment "Short string listing item properties (e.g., 'Finesse, Light, Thrown')." ;
-    rdfs:domain dnd:Item ;
+sw:rewardAmount a rdf:Property ;
+    rdfs:label "rewardAmount" ;
+    rdfs:comment "Gold reward amount offered by NPCs or the village for the adventure objective." ;
+    rdfs:domain sw:Adventure ;
+    rdfs:range xsd:decimal .
+
+sw:sceneDescription a rdf:Property ;
+    rdfs:label "sceneDescription" ;
+    rdfs:comment "Longer descriptive or DM notes for a scene." ;
+    rdfs:domain sw:Scene ;
     rdfs:range xsd:string .
 
-dnd:itemType a rdf:Property ;
-    rdfs:label "item type" ;
-    rdfs:comment "Category or type label for an item (e.g., 'Healing Potion', 'Simple Melee Weapon')." ;
-    rdfs:domain dnd:Item ;
-    rdfs:range xsd:string .
+sw:xpValue a rdf:Property ;
+    rdfs:label "xpValue" ;
+    rdfs:comment "Experience points awarded for defeating a monster or completing an event." ;
+    rdfs:domain sw:Character ;
+    rdfs:range xsd:integer .
 
-dnd:locatedIn a rdf:Property ;
-    rdfs:label "located in" ;
-    rdfs:comment "Links a Scene to the Location where it takes place." ;
-    rdfs:domain dnd:Scene ;
-    rdfs:range dnd:Location .
+sw:ChestKey a sw:Item ;
+    rdfs:label "Chest Key" ;
+    rdfs:comment "Small iron key used to open Aldric's locked wooden chest." .
 
-dnd:name a rdf:Property ;
-    rdfs:label "name" ;
-    rdfs:comment "General name used for characters, items, scenes and other resources." ;
-    rdfs:domain rdfs:Resource ;
-    rdfs:range xsd:string .
+sw:Chest_GoldChest a sw:Chest ;
+    rdfs:label "Gold Chest (Aldric's)",
+        "Locked Gold Chest (Aldric's)" ;
+    sw:contains sw:Gold_200,
+        sw:HealingPotion_S3 ;
+    rdfs:comment "Locked wooden chest belonging to Aldric Thorn; contains 200 gp and a healing potion." .
 
-dnd:personality a rdf:Property ;
-    rdfs:label "personality" ;
-    rdfs:comment "Short personality notes for an NPC (e.g., 'nervous, grateful')." ;
-    rdfs:domain dnd:Character ;
-    rdfs:range xsd:string .
+sw:Dwarf a sw:Race ;
+    rdfs:label "Dwarf" .
 
-dnd:recommendedLevel a rdf:Property ;
-    rdfs:label "recommended level" ;
-    rdfs:comment "Numeric recommended character level for the quest." ;
-    rdfs:domain dnd:Quest ;
-    rdfs:range xsd:nonNegativeInteger .
+sw:Elf a sw:Race ;
+    rdfs:label "Elf" .
 
-dnd:recommendedPartySize a rdf:Property ;
-    rdfs:label "recommended party size" ;
-    rdfs:comment "Human-readable recommended party size, e.g. '2–4'." ;
-    rdfs:domain dnd:Quest ;
-    rdfs:range xsd:string .
+sw:FighterClass a sw:PlayerClass ;
+    rdfs:label "Fighter" .
 
-dnd:rewardXP a rdf:Property ;
-    rdfs:label "reward XP" ;
-    rdfs:comment "Experience points granted as a reward." ;
-    rdfs:domain dnd:Reward ;
-    rdfs:range xsd:nonNegativeInteger .
+sw:Goblin_Chamber1 a sw:Monster ;
+    rdfs:label "Goblin (Chamber)" ;
+    sw:abilityText "Attacks: Scimitar (+4 to hit, 1d6+2 slashing); Shortbow (+4 to hit, 1d6+2 piercing). Ability: Nimble Escape." ;
+    sw:armorClass 15 ;
+    sw:attackBonus 4 ;
+    sw:hp 7 ;
+    sw:xpValue 50 .
 
-dnd:role a rdf:Property ;
-    rdfs:label "role" ;
-    rdfs:comment "Character role (e.g., 'Merchant', 'Quest Giver')." ;
-    rdfs:domain dnd:Character ;
-    rdfs:range xsd:string .
+sw:Goblin_Chamber2 a sw:Monster ;
+    rdfs:label "Goblin (Chamber)" ;
+    sw:abilityText "Attacks: Scimitar (+4 to hit, 1d6+2 slashing); Shortbow (+4 to hit, 1d6+2 piercing). Ability: Nimble Escape." ;
+    sw:armorClass 15 ;
+    sw:attackBonus 4 ;
+    sw:hp 7 ;
+    sw:xpValue 50 .
 
-dnd:victoryCondition a rdf:Property ;
-    rdfs:label "victory condition" ;
-    rdfs:comment "Links a Quest to one of its victory conditions." ;
-    rdfs:domain dnd:Quest ;
-    rdfs:range dnd:VictoryCondition .
+sw:Goblin_Chamber3 a sw:Monster ;
+    rdfs:label "Goblin (Chamber)" ;
+    sw:abilityText "Attacks: Scimitar (+4 to hit, 1d6+2 slashing); Shortbow (+4 to hit, 1d6+2 piercing). Ability: Nimble Escape." ;
+    sw:armorClass 15 ;
+    sw:attackBonus 4 ;
+    sw:hp 7 ;
+    sw:xpValue 50 .
 
-dnd:xpValue a rdf:Property ;
-    rdfs:label "XP value" ;
-    rdfs:comment "Experience points awarded for defeating a creature." ;
-    rdfs:domain dnd:Character ;
-    rdfs:range xsd:nonNegativeInteger .
+sw:Goblin_Guard a sw:Monster ;
+    rdfs:label "Goblin (Bodyguard)" ;
+    sw:abilityText "Attacks: Scimitar (+4 to hit, 1d6+2 slashing) or Shortbow. Ability: Nimble Escape." ;
+    sw:armorClass 15 ;
+    sw:attackBonus 4 ;
+    sw:hp 7 ;
+    sw:xpValue 50 .
 
-inst:Aldric_Thorn a dnd:Npc ;
-    rdfs:label "Aldric Thorn (Quest Giver)" ;
-    dnd:description "Merchant ambushed near Millhaven; his chest (200 gp) and heirloom dagger were stolen." ;
-    dnd:name "Aldric Thorn" ;
-    dnd:personality "Nervous, grateful, tends to over-explain" ;
-    dnd:role "Merchant" .
+sw:Goblin_Sentry1 a sw:Monster ;
+    rdfs:label "Goblin (Sentry 1)" ;
+    sw:abilityText "Attacks: Scimitar (+4 to hit, 1d6+2 slashing); Shortbow (+4 to hit, 1d6+2 piercing, range 80/320 ft). Ability: Nimble Escape (can Disengage or Hide as a bonus action)." ;
+    sw:armorClass 15 ;
+    sw:attackBonus 4 ;
+    sw:hp 7 ;
+    sw:xpValue 50 .
 
-inst:Elder_Mira a dnd:Npc ;
+sw:Goblin_Sentry2 a sw:Monster ;
+    rdfs:label "Goblin (Sentry 2)" ;
+    sw:abilityText "Attacks: Scimitar (+4 to hit, 1d6+2 slashing); Shortbow (+4 to hit, 1d6+2 piercing, range 80/320 ft). Ability: Nimble Escape (can Disengage or Hide as a bonus action)." ;
+    sw:armorClass 15 ;
+    sw:attackBonus 4 ;
+    sw:hp 7 ;
+    sw:xpValue 50 .
+
+sw:Gold_12 a sw:Item ;
+    rdfs:label "12 gp (scattered around the warren)" ;
+    sw:goldAmount 12.0 ;
+    sw:quantity 1 .
+
+sw:Gold_200 a sw:Item ;
+    rdfs:label "200 gp (stolen chest contents)" ;
+    sw:goldAmount 200.0 ;
+    sw:quantity 1 .
+
+sw:Gold_3 a sw:Item ;
+    rdfs:label "3 gp (found at trail post)" ;
+    sw:goldAmount 3.0 ;
+    sw:quantity 1 .
+
+sw:Grix a sw:Monster ;
+    rdfs:label "Grix (Goblin Boss)" ;
+    sw:abilityText "Morningstar attack (+4 to hit, 2d6+2 piercing). Abilities: Redirect Attack (when hit, can redirect attack to a nearby goblin); Multiattack (2 attacks per turn)." ;
+    sw:armorClass 17 ;
+    sw:attackBonus 4 ;
+    sw:carries sw:ChestKey,
+        sw:HeirloomDagger ;
+    sw:hp 21 ;
+    sw:xpValue 200 .
+
+sw:HealingPotion_S2 a sw:Potion ;
+    rdfs:label "Healing Potion (tucked in sack near post)" ;
+    sw:damage "Restores 2d4+2 HP when consumed (action to drink)" ;
+    sw:quantity 1 .
+
+sw:HealingPotion_S3 a sw:Potion ;
+    rdfs:label "Healing Potion (in chest)" ;
+    sw:damage "Restores 2d4+2 HP when consumed (action to drink)" ;
+    sw:quantity 1 .
+
+sw:HeirloomDagger a sw:Weapon ;
+    rdfs:label "Heirloom Dagger (Thorn family)" ;
+    sw:damage "1d4+1 piercing" ;
+    sw:quantity 1 ;
+    rdfs:comment "Properties: Finesse, Light, Thrown (range 20/60). Finely-crafted dagger with a silver pommel engraved with the Thorn family crest." .
+
+sw:Human a sw:Race ;
+    rdfs:label "Human" .
+
+sw:Location_GoblinWarren a sw:Location ;
+    rdfs:label "Ashenvale Burrows (Goblin Warren)" .
+
+sw:Location_HillsideTrail a sw:Location ;
+    rdfs:label "Hillside Trail (north of Millhaven)" .
+
+sw:RogueClass a sw:PlayerClass ;
+    rdfs:label "Rogue" .
+
+sw:Scene1_Millhaven a sw:Scene ;
+    rdfs:label "Scene 1: The Village of Millhaven" ;
+    sw:hasLocation sw:Location_Millhaven ;
+    sw:hasNPC sw:AldricThorn,
+        sw:ElderMira ;
+    sw:leadsTo sw:Scene2_HillsideTrail ;
+    sw:objectiveText "Learn about the quest and agree to help." ;
+    sw:sceneDescription "A small farming village at dusk. Aldric Thorn sits outside the inn, head bandaged and distressed; Elder Mira stands nearby. Players can ask questions to learn direction (north), approximate goblin numbers (4–5), and time of attack (dusk, ~2 hours ago)." .
+
+sw:Scene4_ReturnToMillhaven a sw:Scene ;
+    rdfs:label "Scene 4: Return to Millhaven" ;
+    sw:hasLocation sw:Location_Millhaven ;
+    sw:hasNPC sw:AldricThorn,
+        sw:ElderMira ;
+    sw:objectiveText "Deliver the chest and dagger to Aldric and Elder Mira; collect the village reward." ;
+    sw:sceneDescription "Dawn in Millhaven. Aldric is overjoyed; Elder Mira pays the reward. Additional small roleplay/cleanup scene." .
+
+sw:Scene_DeadEnd_Wilderness a sw:Scene ;
+    rdfs:label "Back Crack / Wilderness (dead end)" ;
+    sw:sceneDescription "A narrow crack and scramble leading outside; used as an escape route by Grix (dead end for players)." .
+
+sw:TatteredMap a sw:Item ;
+    rdfs:label "Tattered Map" ;
+    sw:quantity 1 ;
+    rdfs:comment "A worn map of the local area (flavor item)." .
+
+sw:WizardClass a sw:PlayerClass ;
+    rdfs:label "Wizard" .
+
+sw:AldricThorn a sw:Npc ;
+    rdfs:label "Aldric Thorn" ;
+    sw:hasRole "Merchant; Quest Giver" ;
+    rdfs:comment "Survived the ambush. Owner of the stolen gold chest and the family heirloom dagger (the dagger is especially important to him)." .
+
+sw:ElderMira a sw:Npc ;
     rdfs:label "Elder Mira" ;
-    dnd:name "Elder Mira" ;
-    dnd:personality "Stern but fair, protective of Millhaven" ;
-    dnd:role "Village Elder / Quest Authority" .
+    sw:hasRole "Village Elder; Quest Authority" ;
+    rdfs:comment "Offers a 50 gp reward for recovery of the stolen goods." .
 
-inst:Goblin_1 a dnd:Monster ;
-    rdfs:label "Goblin Sentry 1" ;
-    dnd:armorClass "15"^^xsd:nonNegativeInteger ;
-    dnd:carries inst:scimitar_common ;
-    dnd:hp "7"^^xsd:nonNegativeInteger ;
-    dnd:name "Goblin Sentry 1" ;
-    dnd:xpValue "50"^^xsd:nonNegativeInteger .
+sw:Location_Millhaven a sw:Location ;
+    rdfs:label "Millhaven" .
 
-inst:Goblin_2 a dnd:Monster ;
-    rdfs:label "Goblin Sentry 2" ;
-    dnd:armorClass "15"^^xsd:nonNegativeInteger ;
-    dnd:carries inst:shortbow_common ;
-    dnd:hp "7"^^xsd:nonNegativeInteger ;
-    dnd:name "Goblin Sentry 2" ;
-    dnd:xpValue "50"^^xsd:nonNegativeInteger .
+sw:Scene2_HillsideTrail a sw:Scene ;
+    rdfs:label "Scene 2: The Hillside Trail" ;
+    sw:dc 13 ;
+    sw:hasItem sw:Gold_3,
+        sw:HealingPotion_S2 ;
+    sw:hasLocation sw:Location_HillsideTrail ;
+    sw:hasMonster sw:Goblin_Sentry1,
+        sw:Goblin_Sentry2 ;
+    sw:leadsTo sw:Scene3_GoblinWarren ;
+    sw:objectiveText "Reach the cave. Optional: defeat or sneak past the 2 goblin sentries." ;
+    sw:sceneDescription "A rocky trail under a half-moon. Goblin tracks in mud; cave entrance marked by a crude post with a skull." .
 
-inst:Goblin_3 a dnd:Monster ;
-    rdfs:label "Goblin 3 (Main Chamber)" ;
-    dnd:armorClass "15"^^xsd:nonNegativeInteger ;
-    dnd:carries inst:scimitar_common ;
-    dnd:hp "7"^^xsd:nonNegativeInteger ;
-    dnd:name "Goblin (Main Chamber)" ;
-    dnd:xpValue "50"^^xsd:nonNegativeInteger .
-
-inst:Goblin_4 a dnd:Monster ;
-    rdfs:label "Goblin 4 (Main Chamber)" ;
-    dnd:armorClass "15"^^xsd:nonNegativeInteger ;
-    dnd:carries inst:shortbow_common ;
-    dnd:hp "7"^^xsd:nonNegativeInteger ;
-    dnd:name "Goblin (Main Chamber)" ;
-    dnd:xpValue "50"^^xsd:nonNegativeInteger .
-
-inst:Goblin_5 a dnd:Monster ;
-    rdfs:label "Goblin 5 (Main Chamber)" ;
-    dnd:armorClass "15"^^xsd:nonNegativeInteger ;
-    dnd:carries inst:scimitar_common ;
-    dnd:hp "7"^^xsd:nonNegativeInteger ;
-    dnd:name "Goblin (Main Chamber)" ;
-    dnd:xpValue "50"^^xsd:nonNegativeInteger .
-
-inst:Goblin_6 a dnd:Monster ;
-    rdfs:label "Goblin 6 (Bodyguard)" ;
-    dnd:armorClass "15"^^xsd:nonNegativeInteger ;
-    dnd:carries inst:scimitar_common ;
-    dnd:hp "7"^^xsd:nonNegativeInteger ;
-    dnd:name "Goblin Bodyguard" ;
-    dnd:xpValue "50"^^xsd:nonNegativeInteger .
-
-inst:Grix a dnd:Monster ;
-    rdfs:label "Grix, Goblin Boss" ;
-    dnd:armorClass "17"^^xsd:nonNegativeInteger ;
-    dnd:carries inst:chest_key,
-        inst:heirloom_dagger ;
-    dnd:hp "21"^^xsd:nonNegativeInteger ;
-    dnd:name "Grix (Goblin Boss)" ;
-    dnd:xpValue "200"^^xsd:nonNegativeInteger .
-
-inst:adventure_ashenvale a dnd:Adventure ;
-    dnd:hasQuest inst:quest_recover_chest ;
-    dnd:hasScene inst:scene1,
-        inst:scene2,
-        inst:scene3,
-        inst:scene4 ;
-    dnd:name "The Goblin Cave of Ashenvale" .
-
-inst:check_grix_escape a dnd:Check ;
-    rdfs:label "Catch Grix escape check" ;
-    dnd:checkDC "12"^^xsd:nonNegativeInteger ;
-    dnd:checkType "Dexterity/Athletics" .
-
-inst:check_picklock_s3 a dnd:Check ;
-    rdfs:label "Thieves' Tools check to pick lock (Scene 3)" ;
-    dnd:checkDC "12"^^xsd:nonNegativeInteger ;
-    dnd:checkType "Dexterity/Thieves' Tools" .
-
-inst:check_stealth_s2 a dnd:Check ;
-    rdfs:label "Stealth check (Scene 2)" ;
-    dnd:checkDC "13"^^xsd:nonNegativeInteger ;
-    dnd:checkType "Dexterity/Stealth" .
-
-inst:check_strength_s3 a dnd:Check ;
-    rdfs:label "Strength check to break door (Scene 3)" ;
-    dnd:checkDC "14"^^xsd:nonNegativeInteger ;
-    dnd:checkType "Strength" .
-
-inst:gold_chest a dnd:Item ;
-    dnd:description "A locked wooden chest belonging to Aldric Thorn; contains 200 gold pieces and one healing potion (inst:healing_potion_2)." ;
-    dnd:itemType "Quest Item" ;
-    dnd:name "Aldric's Gold Chest (Locked)" .
-
-inst:healing_potion_1 a dnd:Item ;
-    dnd:description "Restores 2d4+2 HP when consumed. (Found near cave entrance in Scene 2.)" ;
-    dnd:itemType "Healing Potion" ;
-    dnd:name "Healing Potion (trail)" .
-
-inst:healing_potion_2 a dnd:Item ;
-    dnd:description "Restores 2d4+2 HP when consumed. (Found inside Aldric's chest.)" ;
-    dnd:itemType "Healing Potion" ;
-    dnd:name "Healing Potion (in chest)" .
-
-inst:scattered_gold a dnd:Item ;
-    dnd:description "Approximately 12 gold pieces scattered around the chamber." ;
-    dnd:itemType "Treasure" ;
-    dnd:name "Scattered Gold (chamber)" .
-
-inst:Loc_GoblinWarren a dnd:Location ;
-    dnd:description "Low, torch-lit cave tunnels and chambers filled with crude bedrolls, gnawed bones, and stolen goods." ;
-    dnd:name "Ashenvale Burrows - Goblin Warren" .
-
-inst:Loc_HillsideTrail a dnd:Location ;
-    dnd:description "Rocky trail leading up into the hills; goblin tracks visible in the mud." ;
-    dnd:name "Hillside Trail" .
-
-inst:chest_key a dnd:Item ;
-    dnd:description "Small iron key that opens Aldric's locked chest." ;
-    dnd:itemType "Key" ;
-    dnd:name "Chest Key" .
-
-inst:enc_grix a dnd:Encounter ;
-    rdfs:label "Grix & Bodyguard" ;
-    dnd:description "Goblin Boss Grix and one goblin bodyguard. Grix is arrogant and taunts the players. If reduced to 5 HP or fewer, Grix attempts to flee (inst:check_grix_escape). If he escapes he drops the key if reduced below threshold." .
-
-inst:enc_main_chamber a dnd:Encounter ;
-    rdfs:label "Main Chamber Encounter" ;
-    dnd:description "Three goblins occupy the main chamber (if alarmed they are behind cover: +2 AC). A locked chest (inst:gold_chest) sits against the far wall. Scattered loot: inst:scattered_gold. Chest contains 200 gold and a healing potion (inst:healing_potion_2)." .
-
-inst:enc_scene1_intro a dnd:Encounter ;
-    rdfs:label "Scene 1: Intro - Aldric & Elder" ;
-    dnd:description "Meeting with Aldric Thorn (quest giver) and Elder Mira (village elder). Participants (NPCs): inst:Aldric_Thorn, inst:Elder_Mira." .
-
-inst:enc_scene4_delivery a dnd:Encounter ;
-    rdfs:label "Return & Reward" ;
-    dnd:description "Deliver recovered goods to Aldric Thorn and Elder Mira. Aldric is grateful; Elder Mira pays 50 gold. If both chest and dagger returned, Aldric gives +10 gold from his purse." .
-
-inst:enc_sentries a dnd:Encounter ;
-    rdfs:label "Sentry Encounter (Scene 2)" ;
-    dnd:description "Two goblin sentries guard the cave entrance. Options: sneak (inst:check_stealth_s2), distract, or fight. Loot if defeated: 3 gold pieces and 1 Healing Potion (inst:healing_potion_1)." .
-
-inst:heirloom_dagger a dnd:Weapon ;
-    dnd:damage "1d4+1 piercing" ;
-    dnd:description "A finely-crafted dagger with a silver pommel engraved with the Thorn family crest. Family heirloom belonging to Aldric Thorn." ;
-    dnd:itemProperty "Finesse, Light, Thrown (20/60)" ;
-    dnd:itemType "Simple Melee Weapon" ;
-    dnd:name "Heirloom Dagger" .
-
-inst:quest_recover_chest a dnd:Quest ;
-    dnd:difficultyLevel "Beginner-friendly" ;
-    dnd:hasObjective "Retrieve merchant Aldric Thorn's chest and heirloom dagger from the Ashenvale Burrows." ;
-    dnd:hasReward inst:reward_aldrics_bonus10,
-        inst:reward_elder_50 ;
-    dnd:recommendedLevel "1"^^xsd:nonNegativeInteger ;
-    dnd:recommendedPartySize "2–4" ;
-    dnd:victoryCondition inst:vc_return_chest_and_dagger .
-
-inst:reward_aldrics_bonus10 a dnd:Reward ;
-    dnd:description "Optional personal bonus from Aldric Thorn if both the chest and heirloom dagger are returned." ;
-    dnd:goldAmount "10"^^xsd:nonNegativeInteger .
-
-inst:reward_elder_50 a dnd:Reward ;
-    dnd:description "Reward offered by Elder Mira for returning Aldric's chest (monetary reward from village)." ;
-    dnd:goldAmount "50"^^xsd:nonNegativeInteger ;
-    dnd:rewardXP "100"^^xsd:nonNegativeInteger .
-
-inst:scene1 a dnd:Scene ;
-    dnd:description "Introduce Aldric Thorn and Elder Mira; players learn quest details (direction north toward hills, ~4–5 goblins). Once players agree, proceed to Scene 2." ;
-    dnd:exitTo inst:scene2 ;
-    dnd:hasEncounter inst:enc_scene1_intro ;
-    dnd:locatedIn inst:Loc_Millhaven ;
-    dnd:name "Scene 1: The Village of Millhaven" .
-
-inst:scene4 a dnd:Scene ;
-    dnd:description "Dawn; players return with recovered goods. Deliver chest and dagger to Aldric and Elder Mira; collect reward (inst:reward_elder_50) and optional personal bonus from Aldric (inst:reward_aldrics_bonus10)." ;
-    dnd:hasEncounter inst:enc_scene4_delivery ;
-    dnd:locatedIn inst:Loc_Millhaven ;
-    dnd:name "Scene 4: Return to Millhaven" .
-
-inst:vc_return_chest_and_dagger a dnd:VictoryCondition ;
-    dnd:conditionDescription "Return the chest and Aldric's heirloom dagger to Aldric Thorn in Millhaven." .
-
-inst:Loc_Millhaven a dnd:Location ;
-    dnd:description "Small farming village where the quest begins and ends." ;
-    dnd:name "Millhaven" .
-
-inst:scene2 a dnd:Scene ;
-    dnd:description "A rocky trail under a half-moon; cave entrance ahead. Optional: defeat or sneak past 2 goblin sentries. If sneaking, successful stealth grants surprise in Scene 3." ;
-    dnd:exitTo inst:scene3 ;
-    dnd:hasEncounter inst:enc_sentries ;
-    dnd:locatedIn inst:Loc_HillsideTrail ;
-    dnd:name "Scene 2: The Hillside Trail" .
-
-inst:scene3 a dnd:Scene ;
-    dnd:description "Main cave chamber with stolen goods, a locked chest, and a bolted door to the back chamber (Grix). To reach Grix: break door (inst:check_strength_s3) DC 14 Strength or pick lock (inst:check_picklock_s3) DC 12 Dexterity/Thieves' Tools. Victory requires retrieving the chest and heirloom dagger." ;
-    dnd:hasEncounter inst:enc_grix,
-        inst:enc_main_chamber ;
-    dnd:locatedIn inst:Loc_GoblinWarren ;
-    dnd:name "Scene 3: The Goblin Warren" .
-
-inst:shortbow_common a dnd:Weapon ;
-    dnd:damage "1d6+2 piercing" ;
-    dnd:description "Typical goblin shortbow." ;
-    dnd:itemProperty "Range 80/320" ;
-    dnd:itemType "Simple Ranged Weapon" ;
-    dnd:name "Shortbow (common)" .
-
-inst:scimitar_common a dnd:Weapon ;
-    dnd:damage "1d6+2 slashing" ;
-    dnd:description "Typical goblin scimitar." ;
-    dnd:itemProperty "Light" ;
-    dnd:itemType "Simple Melee Weapon" ;
-    dnd:name "Scimitar (common)" .
+sw:Scene3_GoblinWarren a sw:Scene ;
+    rdfs:label "Scene 3: The Goblin Warren" ;
+    sw:dc 12,
+        14 ;
+    sw:hasItem sw:Chest_GoldChest,
+        sw:Gold_12,
+        sw:TatteredMap ;
+    sw:hasLocation sw:Location_GoblinWarren ;
+    sw:hasMonster sw:Goblin_Chamber1,
+        sw:Goblin_Chamber2,
+        sw:Goblin_Chamber3,
+        sw:Goblin_Guard,
+        sw:Grix ;
+    sw:leadsTo sw:Scene_DeadEnd_Wilderness ;
+    sw:objectiveText "Defeat the goblins, retrieve the chest key from Grix, and open the locked chest." ;
+    sw:sceneDescription "Torch-lit cave chamber with bedrolls, gnawed bones, scattered stolen goods, and a locked wooden chest against the far wall. A bolted door leads to Grix's chamber." .
 

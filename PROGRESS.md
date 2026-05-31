@@ -199,12 +199,12 @@ importer workflows, but not as the viewer's data source.
 
 ## Milestone 4: End-To-End Product Validation
 
-- [ ] Run designer from a clean generated-output state.
-- [ ] Run importer from the designer output.
-- [ ] Run viewer from the combined semantic web.
-- [ ] Verify ontology, instances, combined graph, chatbot answer, and Turtle export.
-- [ ] Document known limitations and configuration options in `README.md`.
-- [ ] Commit the end-to-end milestone.
+- [x] Run designer from a clean generated-output state.
+- [x] Run importer from the designer output.
+- [x] Run viewer from Fuseki.
+- [x] Verify ontology, instances, combined graph, chatbot answer, and Turtle export.
+- [x] Document known limitations and configuration options in `README.md`.
+- [x] Commit the end-to-end milestone.
 
 ## Current Notes
 
@@ -444,13 +444,18 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
 - Semantic web design and data insertion have been completed by the product.
 - Fuseki ontology loading has been successfully performed.
 - Fuseki instance loading has been successfully performed.
+- End-to-end validation from a clean generated-output state succeeded on
+  2026-05-31. Fresh output: 185 ontology triples, 13 classes, 28 properties,
+  178 instance triples, 363 combined triples, 363 Fuseki triples, chatbot answer
+  verified through the viewer API, and Fuseki Turtle export parsed with rdflib.
 - The designer milestone commit has been made.
 - The importer milestone commit has been made.
+- The viewer milestone commit has been made.
 
 ### Immediate Next Step
 
-- Commit the viewer milestone, then continue with Milestone 4 end-to-end
-  product validation.
+- Continue future scale-up work: semantic-web graph slicing, semantic-search
+  integration for designer/importer, and ontology refinement workflow.
 
 ## Handoff For Next Codex Instance
 
@@ -462,14 +467,15 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   - `db/ontology.ttl`
   - `db/instances.ttl`
   - `db/semantic_web.ttl`
-  - Fuseki named graph `http://example.org/dnd-adventure/graph/ontology`
+  - Fuseki ontology graph `http://example.org/semantic-web/graph/ontology`
   - Fuseki data graph `http://example.org/semantic-web/graph/data` unless overridden by `.env`
 - Current tests:
   - `uv run pytest`
-  - expected result: `40 passed`
+  - expected result after fresh end-to-end run: `45 passed, 2 skipped`
 - Current runtime notes:
   - Fuseki may already be running on port `3030`.
   - If not, use the project-local Fuseki base `db/fuseki-run`.
+  - Persistent Fuseki data is stored in `db/fuseki-data`.
   - Do not use `/opt/apache-jena-fuseki-6.1.0/run` as the runtime base.
   - Use SPARQL `ASK` via `POST` for readiness checks.
 - Current development boundary:

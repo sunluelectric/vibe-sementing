@@ -25,19 +25,20 @@ The project includes three independent executable codes. They are:
 * The semantic web designer milestone is complete, tested, and documented.
 * The original designer milestone and later verification updates for progressive `./design.md` logging, compact prompting, generic product-code validation, and the default model have been committed.
 * The designer has produced `./design.md` and `./db/ontology.ttl`.
-* The designer has loaded the ontology into Fuseki as named graph `http://example.org/dnd-adventure/graph/ontology`.
-* The latest verified designer run used model `gpt-5-mini`, produced 188 RDF triples, 15 RDFS classes, and 28 RDF properties, and was verified by querying Fuseki directly.
+* The designer has loaded the ontology into Fuseki as named graph `http://example.org/semantic-web/graph/ontology`.
+* The latest verified designer run used model `gpt-5-mini`, produced 185 RDF triples, 13 RDFS classes, and 28 RDF properties, and was verified by querying Fuseki directly.
 * The semantic web importer milestone is complete, tested, documented, and committed.
 * The importer has produced `./db/instances.ttl` and `./db/semantic_web.ttl`.
 * The importer has loaded the instance graph into Fuseki as named graph `http://example.org/semantic-web/graph/data`, unless overridden by `.env`.
-* The latest verified importer run used model `gpt-5-mini`, produced 186 instance RDF triples and 374 combined triples, and was verified with local RDF/SPARQL checks.
+* The latest verified importer run used model `gpt-5-mini`, inspected ontology from Fuseki, produced 178 instance RDF triples and 363 combined triples, and was verified with local RDF/SPARQL checks.
 * The designer and importer are independent executables. The importer can run on another machine from a handoff package containing `./design.md`, `./db/ontology.ttl`, and the source `./data/*`, but the preferred local handoff between applications is persistent Fuseki.
 * The importer supports ontology inspection by querying Fuseki when available, while retaining `./db/ontology.ttl` as the portable fallback and reload artifact.
 * Fuseki is the intended durable source of truth bridging designer, importer, and viewer. Turtle files are useful as intermediate validation/loading artifacts, portable artifacts, tests, exports, and fallbacks, but future agents should query Fuseki or local RDF graphs for relevant schema/data slices instead of sending large Turtle files wholesale to an LLM.
 * Future scale-up work must address three known limitations: the designer prompt and iteration limits intentionally cap ontology complexity; designer/importer currently read all of `./data/*` instead of using semantic retrieval; and large graph prompting should move toward Fuseki-backed relevant graph slices with a semantic-web embedding index over text-rendered triples.
 * The semantic web viewer milestone is complete, tested, documented, and committed.
 * The viewer queries and exports through Fuseki as its runtime data source; it does not read `./db/semantic_web.ttl` directly.
-* Next work should follow `./PROGRESS.md`, starting at **Milestone 4: End-To-End Product Validation**.
+* End-to-end validation from clean generated outputs succeeded on 2026-05-31.
+* Next work should follow `./PROGRESS.md`, focusing on future scale-up work such as semantic-web graph slicing and semantic-search integration.
 
 ## Setups and Requirements
 

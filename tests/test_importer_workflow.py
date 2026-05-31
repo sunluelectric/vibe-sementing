@@ -154,16 +154,19 @@ def test_importer_fuseki_smoke_loads_test_graph_when_available() -> None:
     payload = parse_json_object(VALID_IMPORT_RESPONSE)
     graph = parse_turtle(payload["instances_turtle"])
     graph_uri = "http://example.org/semantic-web/test/importer-smoke"
-    client.replace_graph(graph_uri, graph.serialize(format="turtle"))
+    try:
+        client.replace_graph(graph_uri, graph.serialize(format="turtle"))
 
-    rows = client.select(
-        f"""
-        SELECT (COUNT(?s) AS ?count) WHERE {{
-          GRAPH <{graph_uri}> {{
-            ?s ?p ?o .
-          }}
-        }}
-        """
-    )
+        rows = client.select(
+            f"""
+            SELECT (COUNT(?s) AS ?count) WHERE {{
+              GRAPH <{graph_uri}> {{
+                ?s ?p ?o .
+              }}
+            }}
+            """
+        )
 
-    assert int(rows[0]["count"]) >= len(graph)
+        assert int(rows[0]["count"]) >= len(graph)
+    finally:
+        client.delete_graph(graph_uri)

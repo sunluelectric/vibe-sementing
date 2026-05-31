@@ -1,108 +1,106 @@
-# dnd-adventure Semantic Schema (design.md)
+# Design for semantic-web (design.md)
 
 ## Overview
 
-This document describes a compact RDF/RDFS schema for representing basic elements of a beginner Dungeons & Dragons adventure (the Goblin Cave of Ashenvale sample). The goal is a small, easy-to-import ontology suitable for Apache Jena Fuseki and later extension. The model uses only RDF and RDFS (no OWL).
+This document describes a compact RDF/RDFS schema to represent the provided Dungeons & Dragons beginner adventure "The Goblin Cave of Ashenvale". The schema is intentionally small and pragmatic so it can be imported into Apache Jena Fuseki and extended later. It covers the core concepts required to import the adventure text and to answer common queries such as: which scenes belong to the adventure, which NPCs and monsters appear in each scene, what items or loot are present, numeric stats (HP, AC, XP), and adventure-level metadata (difficulty, recommended party size, reward).
 
-Base namespace: http://example.org/dnd-adventure#
-Prefixes used: dnd, rdf, rdfs, xsd
+Design goals
+- Keep the vocabulary small (about a dozen classes and a few dozen properties).
+- Use only RDF and RDFS (no OWL) as requested.
+- Use domain terminology from the adventure (Adventure, Scene, Npc, Monster, Player, Item, Weapon, Chest, Potion, PlayerClass, Race, Location).
+- Provide practical datatype properties for numeric values used in gameplay (hp, armorClass, xpValue, goldAmount, recommendedLevel, party size, DCs).
+- Provide object properties to link scenes, characters, items and to express containment and carrying relationships.
+- Provide rdfs:label and rdfs:comment for important classes and properties to aid manual browsing and programmatic use.
 
-Design goals:
-- Keep the model small and pragmatic, modeling core concepts that appear in the sample adventure: Adventure, Quest, Scene, Location, Characters (NPCs, Monsters, Players), Encounters, Items/Weapons, Checks, Rewards and Victory Conditions.
-- Use broad, reusable properties rather than many specialized one-off predicates.
-- Provide rdfs:label and rdfs:comment for important classes and properties to assist human readers and tools.
-- Keep structure shallow and easy to extend.
+## Modeling decisions and rationale
+- Adventure is the top-level container for the scenario (metadata, recommended level/party, available player classes/races, scenes).
+- Scene models each gameplay scene (Village, Hillside Trail, Goblin Warren, Return). Scenes link to a Location for short place metadata and to other scenes via sw:leadsTo for exits.
+- Character is a general class; Player, Npc, and Monster are shallow subclasses. This allows queries that want "all Characters in a Scene" or only Monsters/NPCs.
+- Items are grouped under Item with obvious subclasses (Weapon, Potion, Chest). Chests may contain items; characters may carry items. Items have descriptive/damage fields suitable for import of the provided item text (e.g., "1d4+1 piercing").
+- Numeric/stat properties (hp, armorClass, xpValue, goldAmount) are datatype properties with xsd:integer/decimal types so they can be used in numerical queries and aggregations.
+- Several textual properties (sceneDescription, objectiveText, abilityText, attack descriptions) are modeled as datatype properties (xsd:string). These allow the DM notes and flavor text to be imported and displayed.
 
-## Core classes (15)
-- Adventure — A full adventure or module that can contain quests and scenes.
-- Quest — A goal-driven task inside an adventure (e.g., retrieve stolen goods).
-- Scene — A narrative location/encounter node; a scene has description, exits and encounters.
-- Location — A physical or descriptive place (village, cave entrance, chamber).
-- Character — General role for beings in the adventure (players and non-players).
-- Npc — Non-player character; subclass of Character (quest givers, villagers).
-- Monster — Hostile creature; subclass of Character (goblins, bosses).
-- Player — Player-controlled character (class, race chosen by players).
-- PlayerOption — Options available to players (classes, races) for import and selection.
-- Item — Generic item (loot, chest, potion, gear).
-- Weapon — A kind of Item (scimitar, dagger); subclass of Item.
-- Encounter — A measurable conflict or challenge inside a scene; links to participants.
-- Check — A mechanical skill/ability check (DC and type) used for doors, sneaking, etc.
-- Reward — Rewards for quests or NPC offers (gold, items, XP).
-- VictoryCondition — A named condition describing success for a quest (e.g., "chest and dagger returned").
+This model avoids fine-grained constructs such as separate Attack objects, multiple attack entries per monster, or skill proficiencies; those can be added later if needed.
 
-Notes on subclassing: Npc and Monster are shallow subclasses of Character. Weapon is a subclass of Item. This keeps reasoning simple and familiar for DnD users.
+## Classes (short description)
+- sw:Adventure — top-level scenario container (difficulty, scenes, reward, recommendations).
+- sw:Scene — a scene in the adventure (has location, objectives, description, exits).
+- sw:Location — short place metadata (e.g. "Millhaven", "Hillside Trail").
+- sw:Character — abstract character superclass for all sentient actors.
+- sw:Player — playable character (subclass of Character).
+- sw:Npc — non-player characters (quest givers, villagers) (subclass of Character).
+- sw:Monster — monsters/enemies (subclass of Character).
+- sw:Item — generic item.
+- sw:Weapon — weapon (subclass of Item).
+- sw:Potion — consumable healing potion (subclass of Item).
+- sw:Chest — container item that can contain items (subclass of Item).
+- sw:PlayerClass — player class option (Fighter, Wizard, Rogue).
+- sw:Race — player race option (Human, Elf, Dwarf).
 
-## Key properties (28)
-Broad object and datatype properties were chosen so the schema can express the sample adventure without excessive specificity.
+## Important properties (short description)
+Object properties
+- sw:hasScene (Adventure -> Scene): lists scenes that belong to an adventure.
+- sw:hasLocation (Scene -> Location): associates a scene with a named place.
+- sw:leadsTo (Scene -> Scene): links scene exits to other scenes.
+- sw:hasNPC (Scene -> Npc): NPCs present in a scene.
+- sw:hasMonster (Scene -> Monster): Monsters present in a scene.
+- sw:hasItem (Scene -> Item): Items placed in the scene environment.
+- sw:carries (Character -> Item): items carried by a character (loot, equipment).
+- sw:offersClass (Adventure -> PlayerClass): player classes available for the adventure.
+- sw:hasRaceOption (Adventure -> Race): player race options for the adventure.
+- sw:contains (Chest -> Item): items contained in a chest.
+- sw:encounters (Scene -> Character): a flexible scene->character link for any encounter listing.
 
-Object properties (domain → range shown):
-- dnd:hasQuest (Adventure → Quest) — link an adventure to one or more quests.
-- dnd:hasScene (Adventure → Scene) — scenes contained by an adventure.
-- dnd:locatedIn (Scene → Location) — where the scene takes place.
-- dnd:hasEncounter (Scene → Encounter) — encounters that occur in a scene.
-- dnd:exitTo (Scene → Scene) — scene-to-scene navigation/exits.
-- dnd:carries (Character → Item) — items carried by a character (loot, keys, weapons).
-- dnd:includesItem (Reward → Item) — reward includes named items.
-- dnd:hasReward (Quest → Reward) — reward(s) attached to the quest.
-- dnd:victoryCondition (Quest → VictoryCondition) — success criteria for a quest.
+Datatype properties
+- sw:objectiveText (Scene -> xsd:string): short in-scene objective text.
+- sw:sceneDescription (Scene -> xsd:string): descriptive/DM notes for the scene.
+- sw:hp (Character -> xsd:integer): hit points for a character/monster.
+- sw:armorClass (Character -> xsd:integer): armor class.
+- sw:attackBonus (Character -> xsd:integer): numeric attack bonus used in the adventure text.
+- sw:damage (Item -> xsd:string): textual damage expression (e.g. "1d4+1 piercing").
+- sw:abilityText (Character -> xsd:string): textual abilities (e.g. "Nimble Escape").
+- sw:xpValue (Character -> xsd:integer): XP awarded for defeating a monster.
+- sw:goldAmount (Item -> xsd:decimal): gold amount (for chest contents or found coins).
+- sw:quantity (Item -> xsd:integer): numeric quantity of an item stack.
+- sw:dc (Scene -> xsd:integer): difficulty class for a scene check (e.g. DC 13 Stealth).
+- sw:rewardAmount (Adventure -> xsd:decimal): gold reward offered by the village.
+- sw:recommendedLevel (Adventure -> xsd:integer): recommended party level.
+- sw:partySizeMin / sw:partySizeMax (Adventure -> xsd:integer): recommended party size bounds.
+- sw:difficulty (Adventure -> xsd:string): textual difficulty label ("Beginner-friendly").
 
-Datatype properties (domain → xsd range shown):
-- dnd:hasObjective (Quest → xsd:string) — short textual objective of a quest.
-- dnd:recommendedPartySize (Quest → xsd:string) — human-friendly party size (e.g., "2–4").
-- dnd:recommendedLevel (Quest → xsd:nonNegativeInteger) — recommended character level.
-- dnd:difficultyLevel (Quest → xsd:string) — textual difficulty (e.g., "Beginner-friendly").
-- dnd:name (rdfs:Resource → xsd:string) — general name for resources (characters, items, scenes).
-- dnd:description (rdfs:Resource → xsd:string) — longer textual description usable for scenes, items, locations.
-- dnd:role (Character → xsd:string) — short role text ("Quest Giver", "Merchant").
-- dnd:personality (Character → xsd:string) — brief personality notes ("stern but fair").
-- dnd:hp (Character → xsd:nonNegativeInteger) — hit points for creatures.
-- dnd:armorClass (Character → xsd:nonNegativeInteger) — AC value.
-- dnd:xpValue (Character → xsd:nonNegativeInteger) — XP awarded for defeating the creature.
-- dnd:itemType (Item → xsd:string) — category ("Healing Potion", "Simple Melee Weapon").
-- dnd:itemProperty (Item → xsd:string) — short string listing item properties ("Finesse, Light").
-- dnd:damage (Weapon → xsd:string) — damage expression as text ("1d4+1 piercing").
-- dnd:goldAmount (Reward → xsd:nonNegativeInteger) — gold coins amount.
-- dnd:rewardXP (Reward → xsd:nonNegativeInteger) — XP granted for a reward.
-- dnd:checkDC (Check → xsd:nonNegativeInteger) — numeric DC for checks.
-- dnd:checkType (Check → xsd:string) — skill or ability type ("Dexterity/Stealth").
-- dnd:conditionDescription (VictoryCondition → xsd:string) — textual description of victory.
+All properties include rdfs:label and rdfs:comment in the schema to help human readers and tooling.
 
-Most properties include rdfs:label and rdfs:comment in the Turtle schema.
+## Example mapping notes (how to map supplied data to the model)
+- Create one sw:Adventure resource for "The Goblin Cave of Ashenvale".
+  - sw:difficulty = "Beginner-friendly".
+  - sw:rewardAmount = 50 (for the elder's reward)
+  - sw:recommendedLevel = 1
+  - sw:partySizeMin = 2, sw:partySizeMax = 4
+  - sw:offersClass links to sw:PlayerClass resources for Fighter/Wizard/Rogue (these are classes in the schema, not instances here; when adding data you may create instances like sw:FighterClass).
+  - sw:hasRaceOption links to sw:Race instances (Human/Elf/Dwarf).
+- For each scene create a sw:Scene and link with sw:hasScene on the adventure; set sw:sceneDescription and sw:objectiveText accordingly.
+- For characters (Aldric, Elder Mira, goblins, Grix), create instances of sw:Npc or sw:Monster and set sw:hp, sw:armorClass, sw:abilityText, sw:xpValue where appropriate; link them to the scene via sw:hasNPC or sw:hasMonster (or sw:encounters).
+- For items (Heirloom Dagger, Healing Potion, Chest) create sw:Item or appropriate subclass and set sw:damage, sw:goldAmount, sw:quantity; link carrier via sw:carries and place via sw:hasItem or sw:contains (for chest contents).
 
-## Mapping the sample adventure to the schema
-(Advice on how to convert the sample_adventure.md fields into triples)
+## Importing into Apache Jena Fuseki
+1. Save the supplied Turtle (ontology + instances) into a .ttl file.
+2. Load the file into a Jena TDB dataset or upload via Fuseki UI.
+3. Use SPARQL to query scenes, monsters, items, and adventure metadata. Numeric datatype properties (hp, xpValue, goldAmount) allow numeric queries (SUM, COUNT, FILTER by numeric range).
 
-- The whole scenario is an instance of dnd:Adventure. Attach dnd:hasQuest pointing to a Quest instance representing "Recover merchant's chest".
-- Quest fields: dnd:hasObjective (short summary), dnd:difficultyLevel ("Beginner-friendly"), dnd:recommendedPartySize ("2–4"), dnd:recommendedLevel (1), dnd:hasReward linking to a Reward instance (gold 50 and possible extra), and dnd:victoryCondition describing returned chest + dagger.
-- Scenes are instances of dnd:Scene; each scene links to a dnd:Location via dnd:locatedIn and links to one or more dnd:Encounter with dnd:hasEncounter. Scene exits use dnd:exitTo to link scenes.
-- Encounters list participants by creating Character instances (npc, monster, player) and linking them to the Encounter with dnd:carries and character properties such as dnd:hp, dnd:armorClass and dnd:xpValue.
-- Items in the text (Heirloom Dagger, Healing Potion, Gold Chest) are instances of dnd:Item or dnd:Weapon and receive dnd:itemType, dnd:itemProperty and dnd:damage (for weapons). Characters carrying items use dnd:carries; rewards include items via dnd:includesItem.
-- Checks (lockpicking DCs, stealth DCs, strength checks) are instances of dnd:Check with dnd:checkType and dnd:checkDC and can be attached to Scenes or Encounters using dnd:description or captured in a lightweight linking property in data instances (e.g., attach a blank-check node in data stage — avoided in the ontology).
+## Extension suggestions (later versions)
+- Add Attack and Skill classes to model multiple attacks per monster as first-class resources.
+- Add detailed typed dice objects for damage rather than free text.
+- Add a simple event model (Encounter, CombatRound) for logging play sessions.
+- Add provenance properties for DM notes, source text excerpts, and localization.
 
-Example (conceptual, not actual triples in this schema):
-- :quest1 a dnd:Quest; dnd:hasObjective "Retrieve merchant's chest"; dnd:recommendedPartySize "2–4"; dnd:hasReward :reward1; dnd:victoryCondition :vc1.
-- :scene2 a dnd:Scene; dnd:locatedIn :HillsideTrail; dnd:hasEncounter :enc1; dnd:exitTo :scene3.
-- :goblin1 a dnd:Monster; dnd:name "Goblin"; dnd:hp 7; dnd:armorClass 15; dnd:xpValue 50; dnd:carries :scimitar1.
+## Notes
+- The schema intentionally keeps several textual fields (abilityText, attack text, damage) as literals so the DM's natural language content can be imported directly. If you need machine-parseable combat rules later, introduce separate classes for Attack and DamageRoll.
 
-(Do not add example data in this schema file; instances are to be added when importing the sample adventure.)
-
-## Extension notes / best practices
-- This RDFS schema intentionally avoids deep modeling of dice mechanics (individual attack entries, roll formulas as structured objects). For now, damage and special abilities are textual. If later you need structured mechanics (dice types, attack bonuses), add small structured classes (DiceRoll, Attack) or move to OWL for richer constraints.
-- Use consistent URIs for repeated concepts (e.g., a canonical goblin species resource) when you want to reuse definitions across instances.
-- Keep textual fields (description, itemProperty) short and human-readable; indexing/searching these in Fuseki is straightforward.
-
-## Loading into Jena Fuseki
-1. Save the Turtle ontology (ontology.ttl) and load it into Fuseki as a separate graph or into the default graph.
-2. When importing adventure instances, use the class URIs from this ontology. Instances may be placed in a dataset graph dedicated to instance data, with the ontology kept in the dataset's ontology graph.
-3. Start with a small number of triples for scenes, characters and items and iterate: small schema changes are inexpensive.
-
-## Summary
-This schema provides a compact, practical vocabulary for importing and querying the provided Goblin Cave adventure. It balances expressivity against simplicity and is intended as a starting point for iterative improvement.
 
 
 ---
-Schema version: 1.0
-Author: dnd-adventure semantic designer
+
+Schema namespace: http://example.org/semantic-web#
 
 ## Designer Generation Log
 
@@ -110,130 +108,128 @@ Author: dnd-adventure semantic designer
 
 - Model: `gpt-5-mini`
 - Max attempts: 2
-- Started: 2026-05-30T12:56:47+00:00
+- Started: 2026-05-31T01:40:17+00:00
 
 ## Attempt 1
 
 - Status: LLM request started
-- Timestamp: 2026-05-30T12:56:47+00:00
+- Timestamp: 2026-05-31T01:40:17+00:00
 - Retry feedback included: no
 
 ## Attempt 1 Response
 
 - Status: LLM response received
-- Timestamp: 2026-05-30T12:58:14+00:00
-- Response characters: 17212
+- Timestamp: 2026-05-31T01:41:37+00:00
+- Response characters: 15960
 
 ## Attempt 1 Validation
 
 - Status: passed
-- Triple count: 188
+- Triple count: 185
 
 ### Candidate Design
 
-# dnd-adventure Semantic Schema (design.md)
+# Design for semantic-web (design.md)
 
 ## Overview
 
-This document describes a compact RDF/RDFS schema for representing basic elements of a beginner Dungeons & Dragons adventure (the Goblin Cave of Ashenvale sample). The goal is a small, easy-to-import ontology suitable for Apache Jena Fuseki and later extension. The model uses only RDF and RDFS (no OWL).
+This document describes a compact RDF/RDFS schema to represent the provided Dungeons & Dragons beginner adventure "The Goblin Cave of Ashenvale". The schema is intentionally small and pragmatic so it can be imported into Apache Jena Fuseki and extended later. It covers the core concepts required to import the adventure text and to answer common queries such as: which scenes belong to the adventure, which NPCs and monsters appear in each scene, what items or loot are present, numeric stats (HP, AC, XP), and adventure-level metadata (difficulty, recommended party size, reward).
 
-Base namespace: http://example.org/dnd-adventure#
-Prefixes used: dnd, rdf, rdfs, xsd
+Design goals
+- Keep the vocabulary small (about a dozen classes and a few dozen properties).
+- Use only RDF and RDFS (no OWL) as requested.
+- Use domain terminology from the adventure (Adventure, Scene, Npc, Monster, Player, Item, Weapon, Chest, Potion, PlayerClass, Race, Location).
+- Provide practical datatype properties for numeric values used in gameplay (hp, armorClass, xpValue, goldAmount, recommendedLevel, party size, DCs).
+- Provide object properties to link scenes, characters, items and to express containment and carrying relationships.
+- Provide rdfs:label and rdfs:comment for important classes and properties to aid manual browsing and programmatic use.
 
-Design goals:
-- Keep the model small and pragmatic, modeling core concepts that appear in the sample adventure: Adventure, Quest, Scene, Location, Characters (NPCs, Monsters, Players), Encounters, Items/Weapons, Checks, Rewards and Victory Conditions.
-- Use broad, reusable properties rather than many specialized one-off predicates.
-- Provide rdfs:label and rdfs:comment for important classes and properties to assist human readers and tools.
-- Keep structure shallow and easy to extend.
+## Modeling decisions and rationale
+- Adventure is the top-level container for the scenario (metadata, recommended level/party, available player classes/races, scenes).
+- Scene models each gameplay scene (Village, Hillside Trail, Goblin Warren, Return). Scenes link to a Location for short place metadata and to other scenes via sw:leadsTo for exits.
+- Character is a general class; Player, Npc, and Monster are shallow subclasses. This allows queries that want "all Characters in a Scene" or only Monsters/NPCs.
+- Items are grouped under Item with obvious subclasses (Weapon, Potion, Chest). Chests may contain items; characters may carry items. Items have descriptive/damage fields suitable for import of the provided item text (e.g., "1d4+1 piercing").
+- Numeric/stat properties (hp, armorClass, xpValue, goldAmount) are datatype properties with xsd:integer/decimal types so they can be used in numerical queries and aggregations.
+- Several textual properties (sceneDescription, objectiveText, abilityText, attack descriptions) are modeled as datatype properties (xsd:string). These allow the DM notes and flavor text to be imported and displayed.
 
-## Core classes (15)
-- Adventure — A full adventure or module that can contain quests and scenes.
-- Quest — A goal-driven task inside an adventure (e.g., retrieve stolen goods).
-- Scene — A narrative location/encounter node; a scene has description, exits and encounters.
-- Location — A physical or descriptive place (village, cave entrance, chamber).
-- Character — General role for beings in the adventure (players and non-players).
-- Npc — Non-player character; subclass of Character (quest givers, villagers).
-- Monster — Hostile creature; subclass of Character (goblins, bosses).
-- Player — Player-controlled character (class, race chosen by players).
-- PlayerOption — Options available to players (classes, races) for import and selection.
-- Item — Generic item (loot, chest, potion, gear).
-- Weapon — A kind of Item (scimitar, dagger); subclass of Item.
-- Encounter — A measurable conflict or challenge inside a scene; links to participants.
-- Check — A mechanical skill/ability check (DC and type) used for doors, sneaking, etc.
-- Reward — Rewards for quests or NPC offers (gold, items, XP).
-- VictoryCondition — A named condition describing success for a quest (e.g., "chest and dagger returned").
+This model avoids fine-grained constructs such as separate Attack objects, multiple attack entries per monster, or skill proficiencies; those can be added later if needed.
 
-Notes on subclassing: Npc and Monster are shallow subclasses of Character. Weapon is a subclass of Item. This keeps reasoning simple and familiar for DnD users.
+## Classes (short description)
+- sw:Adventure — top-level scenario container (difficulty, scenes, reward, recommendations).
+- sw:Scene — a scene in the adventure (has location, objectives, description, exits).
+- sw:Location — short place metadata (e.g. "Millhaven", "Hillside Trail").
+- sw:Character — abstract character superclass for all sentient actors.
+- sw:Player — playable character (subclass of Character).
+- sw:Npc — non-player characters (quest givers, villagers) (subclass of Character).
+- sw:Monster — monsters/enemies (subclass of Character).
+- sw:Item — generic item.
+- sw:Weapon — weapon (subclass of Item).
+- sw:Potion — consumable healing potion (subclass of Item).
+- sw:Chest — container item that can contain items (subclass of Item).
+- sw:PlayerClass — player class option (Fighter, Wizard, Rogue).
+- sw:Race — player race option (Human, Elf, Dwarf).
 
-## Key properties (28)
-Broad object and datatype properties were chosen so the schema can express the sample adventure without excessive specificity.
+## Important properties (short description)
+Object properties
+- sw:hasScene (Adventure -> Scene): lists scenes that belong to an adventure.
+- sw:hasLocation (Scene -> Location): associates a scene with a named place.
+- sw:leadsTo (Scene -> Scene): links scene exits to other scenes.
+- sw:hasNPC (Scene -> Npc): NPCs present in a scene.
+- sw:hasMonster (Scene -> Monster): Monsters present in a scene.
+- sw:hasItem (Scene -> Item): Items placed in the scene environment.
+- sw:carries (Character -> Item): items carried by a character (loot, equipment).
+- sw:offersClass (Adventure -> PlayerClass): player classes available for the adventure.
+- sw:hasRaceOption (Adventure -> Race): player race options for the adventure.
+- sw:contains (Chest -> Item): items contained in a chest.
+- sw:encounters (Scene -> Character): a flexible scene->character link for any encounter listing.
 
-Object properties (domain → range shown):
-- dnd:hasQuest (Adventure → Quest) — link an adventure to one or more quests.
-- dnd:hasScene (Adventure → Scene) — scenes contained by an adventure.
-- dnd:locatedIn (Scene → Location) — where the scene takes place.
-- dnd:hasEncounter (Scene → Encounter) — encounters that occur in a scene.
-- dnd:exitTo (Scene → Scene) — scene-to-scene navigation/exits.
-- dnd:carries (Character → Item) — items carried by a character (loot, keys, weapons).
-- dnd:includesItem (Reward → Item) — reward includes named items.
-- dnd:hasReward (Quest → Reward) — reward(s) attached to the quest.
-- dnd:victoryCondition (Quest → VictoryCondition) — success criteria for a quest.
+Datatype properties
+- sw:objectiveText (Scene -> xsd:string): short in-scene objective text.
+- sw:sceneDescription (Scene -> xsd:string): descriptive/DM notes for the scene.
+- sw:hp (Character -> xsd:integer): hit points for a character/monster.
+- sw:armorClass (Character -> xsd:integer): armor class.
+- sw:attackBonus (Character -> xsd:integer): numeric attack bonus used in the adventure text.
+- sw:damage (Item -> xsd:string): textual damage expression (e.g. "1d4+1 piercing").
+- sw:abilityText (Character -> xsd:string): textual abilities (e.g. "Nimble Escape").
+- sw:xpValue (Character -> xsd:integer): XP awarded for defeating a monster.
+- sw:goldAmount (Item -> xsd:decimal): gold amount (for chest contents or found coins).
+- sw:quantity (Item -> xsd:integer): numeric quantity of an item stack.
+- sw:dc (Scene -> xsd:integer): difficulty class for a scene check (e.g. DC 13 Stealth).
+- sw:rewardAmount (Adventure -> xsd:decimal): gold reward offered by the village.
+- sw:recommendedLevel (Adventure -> xsd:integer): recommended party level.
+- sw:partySizeMin / sw:partySizeMax (Adventure -> xsd:integer): recommended party size bounds.
+- sw:difficulty (Adventure -> xsd:string): textual difficulty label ("Beginner-friendly").
 
-Datatype properties (domain → xsd range shown):
-- dnd:hasObjective (Quest → xsd:string) — short textual objective of a quest.
-- dnd:recommendedPartySize (Quest → xsd:string) — human-friendly party size (e.g., "2–4").
-- dnd:recommendedLevel (Quest → xsd:nonNegativeInteger) — recommended character level.
-- dnd:difficultyLevel (Quest → xsd:string) — textual difficulty (e.g., "Beginner-friendly").
-- dnd:name (rdfs:Resource → xsd:string) — general name for resources (characters, items, scenes).
-- dnd:description (rdfs:Resource → xsd:string) — longer textual description usable for scenes, items, locations.
-- dnd:role (Character → xsd:string) — short role text ("Quest Giver", "Merchant").
-- dnd:personality (Character → xsd:string) — brief personality notes ("stern but fair").
-- dnd:hp (Character → xsd:nonNegativeInteger) — hit points for creatures.
-- dnd:armorClass (Character → xsd:nonNegativeInteger) — AC value.
-- dnd:xpValue (Character → xsd:nonNegativeInteger) — XP awarded for defeating the creature.
-- dnd:itemType (Item → xsd:string) — category ("Healing Potion", "Simple Melee Weapon").
-- dnd:itemProperty (Item → xsd:string) — short string listing item properties ("Finesse, Light").
-- dnd:damage (Weapon → xsd:string) — damage expression as text ("1d4+1 piercing").
-- dnd:goldAmount (Reward → xsd:nonNegativeInteger) — gold coins amount.
-- dnd:rewardXP (Reward → xsd:nonNegativeInteger) — XP granted for a reward.
-- dnd:checkDC (Check → xsd:nonNegativeInteger) — numeric DC for checks.
-- dnd:checkType (Check → xsd:string) — skill or ability type ("Dexterity/Stealth").
-- dnd:conditionDescription (VictoryCondition → xsd:string) — textual description of victory.
+All properties include rdfs:label and rdfs:comment in the schema to help human readers and tooling.
 
-Most properties include rdfs:label and rdfs:comment in the Turtle schema.
+## Example mapping notes (how to map supplied data to the model)
+- Create one sw:Adventure resource for "The Goblin Cave of Ashenvale".
+  - sw:difficulty = "Beginner-friendly".
+  - sw:rewardAmount = 50 (for the elder's reward)
+  - sw:recommendedLevel = 1
+  - sw:partySizeMin = 2, sw:partySizeMax = 4
+  - sw:offersClass links to sw:PlayerClass resources for Fighter/Wizard/Rogue (these are classes in the schema, not instances here; when adding data you may create instances like sw:FighterClass).
+  - sw:hasRaceOption links to sw:Race instances (Human/Elf/Dwarf).
+- For each scene create a sw:Scene and link with sw:hasScene on the adventure; set sw:sceneDescription and sw:objectiveText accordingly.
+- For characters (Aldric, Elder Mira, goblins, Grix), create instances of sw:Npc or sw:Monster and set sw:hp, sw:armorClass, sw:abilityText, sw:xpValue where appropriate; link them to the scene via sw:hasNPC or sw:hasMonster (or sw:encounters).
+- For items (Heirloom Dagger, Healing Potion, Chest) create sw:Item or appropriate subclass and set sw:damage, sw:goldAmount, sw:quantity; link carrier via sw:carries and place via sw:hasItem or sw:contains (for chest contents).
 
-## Mapping the sample adventure to the schema
-(Advice on how to convert the sample_adventure.md fields into triples)
+## Importing into Apache Jena Fuseki
+1. Save the supplied Turtle (ontology + instances) into a .ttl file.
+2. Load the file into a Jena TDB dataset or upload via Fuseki UI.
+3. Use SPARQL to query scenes, monsters, items, and adventure metadata. Numeric datatype properties (hp, xpValue, goldAmount) allow numeric queries (SUM, COUNT, FILTER by numeric range).
 
-- The whole scenario is an instance of dnd:Adventure. Attach dnd:hasQuest pointing to a Quest instance representing "Recover merchant's chest".
-- Quest fields: dnd:hasObjective (short summary), dnd:difficultyLevel ("Beginner-friendly"), dnd:recommendedPartySize ("2–4"), dnd:recommendedLevel (1), dnd:hasReward linking to a Reward instance (gold 50 and possible extra), and dnd:victoryCondition describing returned chest + dagger.
-- Scenes are instances of dnd:Scene; each scene links to a dnd:Location via dnd:locatedIn and links to one or more dnd:Encounter with dnd:hasEncounter. Scene exits use dnd:exitTo to link scenes.
-- Encounters list participants by creating Character instances (npc, monster, player) and linking them to the Encounter with dnd:carries and character properties such as dnd:hp, dnd:armorClass and dnd:xpValue.
-- Items in the text (Heirloom Dagger, Healing Potion, Gold Chest) are instances of dnd:Item or dnd:Weapon and receive dnd:itemType, dnd:itemProperty and dnd:damage (for weapons). Characters carrying items use dnd:carries; rewards include items via dnd:includesItem.
-- Checks (lockpicking DCs, stealth DCs, strength checks) are instances of dnd:Check with dnd:checkType and dnd:checkDC and can be attached to Scenes or Encounters using dnd:description or captured in a lightweight linking property in data instances (e.g., attach a blank-check node in data stage — avoided in the ontology).
+## Extension suggestions (later versions)
+- Add Attack and Skill classes to model multiple attacks per monster as first-class resources.
+- Add detailed typed dice objects for damage rather than free text.
+- Add a simple event model (Encounter, CombatRound) for logging play sessions.
+- Add provenance properties for DM notes, source text excerpts, and localization.
 
-Example (conceptual, not actual triples in this schema):
-- :quest1 a dnd:Quest; dnd:hasObjective "Retrieve merchant's chest"; dnd:recommendedPartySize "2–4"; dnd:hasReward :reward1; dnd:victoryCondition :vc1.
-- :scene2 a dnd:Scene; dnd:locatedIn :HillsideTrail; dnd:hasEncounter :enc1; dnd:exitTo :scene3.
-- :goblin1 a dnd:Monster; dnd:name "Goblin"; dnd:hp 7; dnd:armorClass 15; dnd:xpValue 50; dnd:carries :scimitar1.
+## Notes
+- The schema intentionally keeps several textual fields (abilityText, attack text, damage) as literals so the DM's natural language content can be imported directly. If you need machine-parseable combat rules later, introduce separate classes for Attack and DamageRoll.
 
-(Do not add example data in this schema file; instances are to be added when importing the sample adventure.)
-
-## Extension notes / best practices
-- This RDFS schema intentionally avoids deep modeling of dice mechanics (individual attack entries, roll formulas as structured objects). For now, damage and special abilities are textual. If later you need structured mechanics (dice types, attack bonuses), add small structured classes (DiceRoll, Attack) or move to OWL for richer constraints.
-- Use consistent URIs for repeated concepts (e.g., a canonical goblin species resource) when you want to reuse definitions across instances.
-- Keep textual fields (description, itemProperty) short and human-readable; indexing/searching these in Fuseki is straightforward.
-
-## Loading into Jena Fuseki
-1. Save the Turtle ontology (ontology.ttl) and load it into Fuseki as a separate graph or into the default graph.
-2. When importing adventure instances, use the class URIs from this ontology. Instances may be placed in a dataset graph dedicated to instance data, with the ontology kept in the dataset's ontology graph.
-3. Start with a small number of triples for scenes, characters and items and iterate: small schema changes are inexpensive.
-
-## Summary
-This schema provides a compact, practical vocabulary for importing and querying the provided Goblin Cave adventure. It balances expressivity against simplicity and is intended as a starting point for iterative improvement.
 
 
 ---
-Schema version: 1.0
-Author: dnd-adventure semantic designer
+
+Schema namespace: http://example.org/semantic-web#
 

@@ -405,30 +405,39 @@ Expected importer outputs:
 
 ## Current Designer Result
 
-The current checked-in generated ontology was produced from the DnD sample data
-and is deliberately small:
+The current generated ontology was produced from a clean run against the sample
+data and is deliberately small:
 
-- 188 RDF triples.
-- 15 RDFS classes.
+- 185 RDF triples.
+- 13 RDFS classes.
 - 28 RDF properties.
 - RDF validation passed.
-- Fuseki SPARQL query returned 15 ontology classes from the named ontology graph.
+- Fuseki SPARQL query returned 13 ontology classes from the named ontology graph.
 
 ## Current Importer Result
 
-The current checked-in instance graph was produced from the generated DnD sample
-ontology and source data:
+The current generated instance graph was produced from the fresh designer output
+and source data:
 
-- 186 instance RDF triples.
-- 374 combined ontology and instance triples.
+- 178 instance RDF triples.
+- 363 combined ontology and instance triples.
 - Instance RDF validation passed.
 - Fuseki instance graph load target: `fuseki`.
-- Local SPARQL coverage check returned 2 NPCs, 7 monsters, 4 scenes, 5 items,
-  and 2 rewards.
+- Importer ontology source: `fuseki`.
+
+## Current Viewer Result
+
+The viewer was verified against the fresh persistent Fuseki data:
+
+- Fuseki status endpoint reported 363 triples.
+- A representative chatbot question returned a grounded natural-language
+  answer.
+- Turtle export from Fuseki parsed with `rdflib` and contained 363 triples.
+- Test command: `uv run pytest`.
+- Test result: `45 passed, 2 skipped`.
 
 ## Next Milestones
 
-- Run full end-to-end product validation from clean generated outputs.
 - Keep the documented future improvements for semantic-search integration,
   semantic-web embeddings, query-first graph slicing, and large-graph operation
   as later work.

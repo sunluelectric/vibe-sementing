@@ -45,6 +45,17 @@ class FusekiClient:
                 f"Fuseki graph load failed with {response.status_code}: {response.text[:500]}"
             )
 
+    def delete_graph(self, graph_uri: str) -> None:
+        response = requests.delete(
+            self.graph_store_url,
+            params={"graph": graph_uri},
+            timeout=self.timeout_seconds,
+        )
+        if response.status_code not in {200, 202, 204, 404}:
+            raise FusekiUnavailable(
+                f"Fuseki graph delete failed with {response.status_code}: {response.text[:500]}"
+            )
+
     def select(self, sparql: str) -> list[dict[str, str]]:
         response = requests.post(
             self.query_url,
