@@ -27,6 +27,7 @@ class ImporterWorkflowResult:
     triple_count: int
     combined_triple_count: int
     load_target: str
+    retrieval_summary: dict[str, Any]
     fuseki_status: dict[str, Any]
     fuseki_stop_result: dict[str, Any]
 
@@ -48,6 +49,7 @@ class ImporterWorkflow:
         self.last_load_target: str | None = None
         self.last_combined_triple_count: int | None = None
         self.last_stop_result: dict[str, Any] | None = None
+        self.last_retrieval_summary: dict[str, Any] = {}
 
     def build_agent(self) -> Agent:
         return Agent(
@@ -108,6 +110,7 @@ class ImporterWorkflow:
                 triple_count=len(self.last_import.graph),
                 combined_triple_count=self.last_combined_triple_count or 0,
                 load_target=self.last_load_target,
+                retrieval_summary=self.last_retrieval_summary,
                 fuseki_status=self.fuseki_manager.status(),
                 fuseki_stop_result={},
             )
@@ -149,25 +152,71 @@ class ImporterWorkflow:
     def retrieve_import_context(self, query: str | None = None) -> str:
         full_data = self.read_source_data()
         if not self.settings.semantic_search_enabled:
+            self.last_retrieval_summary["source"] = {
+                "used": False,
+                "reason": "disabled",
+                "full_context_chars": len(full_data),
+                "context_chars": len(full_data),
+            }
             return full_data
         if len(full_data) <= self.settings.semantic_context_max_chars:
+            self.last_retrieval_summary["source"] = {
+                "used": False,
+                "reason": "below_threshold",
+                "full_context_chars": len(full_data),
+                "context_chars": len(full_data),
+                "max_chars": self.settings.semantic_context_max_chars,
+            }
             return full_data
         chunks = chunks_from_data_dir(self.settings.data_dir)
         search_query = query or self.read_design_text()
         context = select_context(chunks, search_query, self.settings)
-        return context or full_data[: self.settings.semantic_context_max_chars]
+        selected = context or full_data[: self.settings.semantic_context_max_chars]
+        self.last_retrieval_summary["source"] = {
+            "used": True,
+            "reason": "above_threshold",
+            "full_context_chars": len(full_data),
+            "context_chars": len(selected),
+            "chunk_count": len(chunks),
+            "top_k": self.settings.semantic_search_top_k,
+            "max_chars": self.settings.semantic_context_max_chars,
+        }
+        return selected
 
     def retrieve_schema_context(self, query: str | None = None) -> str:
         ontology_graph, _source = self.load_ontology_graph_for_import()
         ontology_turtle = serialize_graph(ontology_graph)
         if not self.settings.semantic_search_enabled:
+            self.last_retrieval_summary["schema"] = {
+                "used": False,
+                "reason": "disabled",
+                "full_context_chars": len(ontology_turtle),
+                "context_chars": len(ontology_turtle),
+            }
             return ontology_turtle
         if len(ontology_turtle) <= self.settings.semantic_context_max_chars:
+            self.last_retrieval_summary["schema"] = {
+                "used": False,
+                "reason": "below_threshold",
+                "full_context_chars": len(ontology_turtle),
+                "context_chars": len(ontology_turtle),
+                "max_chars": self.settings.semantic_context_max_chars,
+            }
             return ontology_turtle
         chunks = chunks_from_graph(ontology_graph, source="ontology")
         search_query = query or self.retrieve_import_context()
         context = select_context(chunks, search_query, self.settings)
-        return context or ontology_turtle[: self.settings.semantic_context_max_chars]
+        selected = context or ontology_turtle[: self.settings.semantic_context_max_chars]
+        self.last_retrieval_summary["schema"] = {
+            "used": True,
+            "reason": "above_threshold",
+            "full_context_chars": len(ontology_turtle),
+            "context_chars": len(selected),
+            "chunk_count": len(chunks),
+            "top_k": self.settings.semantic_search_top_k,
+            "max_chars": self.settings.semantic_context_max_chars,
+        }
+        return selected
 
     def inspect_ontology(self) -> dict[str, Any]:
         ontology_graph, source = self.load_ontology_graph_for_import()

@@ -16,6 +16,7 @@ def main() -> None:
         f"with {result.combined_triple_count} combined triples"
     )
     print(f"Instance load target: {result.load_target}")
+    print(f"Retrieval summary: {result.retrieval_summary}")
     print(f"Fuseki status: {result.fuseki_status}")
     print(f"Fuseki stop result: {result.fuseki_stop_result}")
 

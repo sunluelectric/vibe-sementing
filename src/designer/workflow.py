@@ -22,6 +22,7 @@ class DesignerWorkflowResult:
     ontology_path: str
     triple_count: int
     load_target: str
+    retrieval_summary: dict[str, Any]
     fuseki_status: dict[str, Any]
     fuseki_stop_result: dict[str, Any]
 
@@ -42,6 +43,7 @@ class DesignerWorkflow:
         self.last_design: DesignResult | None = None
         self.last_load_target: str | None = None
         self.last_stop_result: dict[str, Any] | None = None
+        self.last_retrieval_summary: dict[str, Any] = {}
 
     def build_agent(self) -> Agent:
         return Agent(
@@ -94,6 +96,7 @@ class DesignerWorkflow:
                 ontology_path=str(self.settings.ontology_path),
                 triple_count=len(self.last_design.graph),
                 load_target=self.last_load_target,
+                retrieval_summary=self.last_retrieval_summary,
                 fuseki_status=self.fuseki_manager.status(),
                 fuseki_stop_result={},
             )
@@ -148,13 +151,36 @@ class DesignerWorkflow:
     def retrieve_design_context(self, requirements: str | None = None) -> str:
         full_data = load_project_data(self.settings.data_dir)
         if not self.settings.semantic_search_enabled:
+            self.last_retrieval_summary = {
+                "used": False,
+                "reason": "disabled",
+                "full_context_chars": len(full_data),
+                "context_chars": len(full_data),
+            }
             return full_data
         if len(full_data) <= self.settings.semantic_context_max_chars:
+            self.last_retrieval_summary = {
+                "used": False,
+                "reason": "below_threshold",
+                "full_context_chars": len(full_data),
+                "context_chars": len(full_data),
+                "max_chars": self.settings.semantic_context_max_chars,
+            }
             return full_data
         query = requirements or read_text(self.settings.design_requirements_path)
         chunks = chunks_from_data_dir(self.settings.data_dir)
         context = select_context(chunks, query, self.settings)
-        return context or full_data[: self.settings.semantic_context_max_chars]
+        selected = context or full_data[: self.settings.semantic_context_max_chars]
+        self.last_retrieval_summary = {
+            "used": True,
+            "reason": "above_threshold",
+            "full_context_chars": len(full_data),
+            "context_chars": len(selected),
+            "chunk_count": len(chunks),
+            "top_k": self.settings.semantic_search_top_k,
+            "max_chars": self.settings.semantic_context_max_chars,
+        }
+        return selected
 
     def persist_and_load_ontology(self) -> dict[str, Any]:
         if self.last_design is None:

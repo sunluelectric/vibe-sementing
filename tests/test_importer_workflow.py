@@ -111,6 +111,8 @@ def test_importer_retrieves_source_context_for_large_data(tmp_path) -> None:
     assert len(context) <= 900
     assert "Relevant records" in context
     assert "Source chunk: source.md" in context
+    assert workflow.last_retrieval_summary["source"]["used"] is True
+    assert workflow.last_retrieval_summary["source"]["chunk_count"] > 1
 
 
 def test_importer_retrieves_schema_context_for_large_ontology(tmp_path) -> None:
@@ -135,6 +137,8 @@ def test_importer_retrieves_schema_context_for_large_ontology(tmp_path) -> None:
     assert len(context) <= 900
     assert "Record" in context
     assert "Source chunk: ontology" in context
+    assert workflow.last_retrieval_summary["schema"]["used"] is True
+    assert workflow.last_retrieval_summary["schema"]["chunk_count"] > 1
 
 
 def test_importer_inspects_ontology_from_fuseki_when_available(tmp_path) -> None:

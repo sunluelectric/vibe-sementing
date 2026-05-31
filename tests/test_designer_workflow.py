@@ -117,3 +117,5 @@ def test_designer_retrieves_context_for_large_data(tmp_path) -> None:
     assert len(context) <= 900
     assert "Harbor records" in context
     assert "Source chunk: places.md" in context
+    assert workflow.last_retrieval_summary["used"] is True
+    assert workflow.last_retrieval_summary["chunk_count"] > 1
