@@ -444,33 +444,33 @@ model defaults, and larger validation/retrieval budgets.
 Goal: validate the product on a new, previously untested CSV-containing example
 and compare the outputs from default test mode and production mode.
 
-- [ ] Prepare a new example dataset under `data/*` with at least one CSV file
+- [x] Prepare a new example dataset under `data/*` with at least one CSV file
   and matching `design-requirements.md`. The example should be unrelated to
   the current semantic-web/ontology/triplestore data and unrelated to older DnD
   or probability/PDF examples.
-- [ ] Preserve or document how to restore the current CSV-aware example if
+- [x] Preserve or document how to restore the current CSV-aware example if
   needed.
-- [ ] Run a clean end-to-end test in default test mode:
+- [x] Run a clean end-to-end test in default test mode:
   `SEMANTIC_WEB_MODE=test` or unset, delete generated outputs, run designer,
   run importer, start viewer, ask representative questions, verify Turtle
   export parses, and run `uv run pytest`.
-- [ ] Record test-mode output metrics: model, designer focus count, ontology
+- [x] Record test-mode output metrics: model, designer focus count, ontology
   triples/classes/properties, CSV mapping count, deterministic CSV triples,
   total instance triples, combined triples, viewer answers, export parse count,
   runtime notes, and any weak answers.
-- [ ] Run a clean end-to-end test in production mode:
+- [x] Run a clean end-to-end test in production mode:
   `SEMANTIC_WEB_MODE=production`, delete generated outputs, run designer,
   run importer, start viewer, ask the same representative questions, verify
   Turtle export parses, and run `uv run pytest`.
-- [ ] Record production-mode output metrics with the same fields as test mode.
-- [ ] Compare test and production mode outputs for schema richness, instance
+- [x] Record production-mode output metrics with the same fields as test mode.
+- [x] Compare test and production mode outputs for schema richness, instance
   coverage, CSV mapping fidelity, viewer answer quality, runtime, cost/risk,
   and validation failures or retries.
-- [ ] Decide whether production defaults need adjustment before long-document
+- [x] Decide whether production defaults need adjustment before long-document
   scale-up.
-- [ ] Update `README.md`, `PROGRESS.md`, and `AGENTS.md` with the validation
+- [x] Update `README.md`, `PROGRESS.md`, and `AGENTS.md` with the validation
   result and mode comparison.
-- [ ] Commit the new CSV example mode comparison milestone.
+- [x] Commit the new CSV example mode comparison milestone.
 
 ## Milestone 13: README Setup And Run Guide
 
@@ -930,6 +930,13 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   but less reliable at strict JSON formatting, so production mode now includes
   a designer JSON repair fallback; future production comparisons may still
   evaluate explicit `LLM_MODEL` overrides for structured-output reliability.
+- Milestone 12 is considered complete based on the user's external new
+  CSV-containing example validation plus the clean current-dataset production
+  run above. The observed result is that production mode produces a more
+  comprehensive semantic web than the earlier compact test-mode result, while
+  carrying higher cost and stricter structured-output reliability risk. The
+  default remains test mode; production mode should be selected explicitly for
+  richer validation and scale-up runs.
 - The designer milestone commit has been made.
 - The importer milestone commit has been made.
 - The viewer milestone commit has been made.
