@@ -235,6 +235,15 @@ The viewer includes:
 4. A FastAPI browser UI with chatbot interaction, graph status, queried facts,
    and Turtle export.
 
+The viewer also uses an LLM-assisted class matcher before final answer
+generation. When exact and lexical matching do not identify a class, the viewer
+shows the model the user question, recent chat history, and the graph's class
+labels/comments, then asks it to choose likely class labels from the summary.
+The selected classes are queried for instance counts and facts before the final
+answer prompt. This lets a user ask ordinary questions such as "How many kids
+are stored?" even when the ontology class is named in source-specific language
+such as `TenYearOld`.
+
 Viewer chat history is persisted under:
 
 ```text

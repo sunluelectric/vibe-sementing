@@ -532,7 +532,7 @@ refinement while keeping Fuseki as the runtime source of truth.
   covers and what source areas remain missing.
 - [ ] Validate the scale-up mode on `data/main.pdf` and compare graph coverage
   against the proof-of-concept result.
-- [ ] Run `uv run pytest`.
+- [x] Run `uv run pytest`.
 - [ ] Update `README.md` and `PROGRESS.md` with the scale-up validation result.
 - [ ] Commit the scale-up milestone.
 
@@ -561,6 +561,27 @@ avoidable integer/decimal/string mismatches.
 - [x] Update `README.md`, `PROGRESS.md`, and `AGENTS.md` with the CSV datatype
   robustness behavior.
 - [x] Commit the CSV datatype robustness milestone.
+
+## Milestone 16: Viewer Semantic Class Matching
+
+Goal: improve viewer chatbot recall when user wording does not lexically match
+designer-generated class names. The viewer should use the model's language
+ability to map user terms such as "kids" to ontology classes such as
+`TenYearOld` when graph labels/comments make that match plausible, then query
+those class instances before generating the final answer.
+
+- [x] Add a viewer concept-matching prompt that receives the user question,
+  chat history, and class summary, then returns candidate class labels.
+- [x] Query class instance counts and instances for LLM-matched classes, while
+  keeping the existing exact, lexical, and semantic fact retrieval paths.
+- [x] Bound the matcher output and ignore classes not present in the graph
+  summary.
+- [x] Add focused tests for a non-lexical class match such as "kids" mapping to
+  `TenYearOld`.
+- [x] Run `uv run pytest`.
+- [x] Update `README.md`, `PROGRESS.md`, and `AGENTS.md` with the viewer
+  semantic class matching behavior.
+- [x] Commit the viewer semantic class matching milestone.
 
 ## Current Notes
 
@@ -871,6 +892,11 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   columns. Deterministic CSV import now accepts safe datatype widening and can
   fall back to string literals when the ontology range permits it. `uv run
   pytest` reported 83 passed and 4 skipped.
+- Viewer semantic class matching was added on 2026-06-01. Before final answer
+  generation, the viewer can ask the model to map user wording to class labels
+  from the graph summary when lexical matching misses designer-generated class
+  names. Matched classes are then queried for instance counts and facts. `uv
+  run pytest` reported 84 passed and 4 skipped.
 - The designer milestone commit has been made.
 - The importer milestone commit has been made.
 - The viewer milestone commit has been made.
@@ -895,8 +921,8 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   - Fuseki data graph `http://example.org/semantic-web/graph/data` unless overridden by `.env`
 - Current tests:
   - `uv run pytest`
-  - latest local result after CSV datatype robustness:
-    `83 passed, 4 skipped`
+  - latest local result after viewer semantic class matching:
+    `84 passed, 4 skipped`
 - Current runtime notes:
   - Fuseki may already be running on port `3030`.
   - If not, use the project-local Fuseki base `db/fuseki-run`.
@@ -918,9 +944,10 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
     in Python, and merge those triples with unstructured-source imports.
   - The viewer uses Fuseki as its runtime data source and does not read
     `db/semantic_web.ttl` directly.
-  - The viewer now uses exact subject-label lookup and class-instance aggregate
-    counts before generic relevance search, and its answer prompt is tuned for
-    end-user wording rather than database or RDF implementation wording.
+  - The viewer now uses exact subject-label lookup, class-instance aggregate
+    counts, and LLM-assisted semantic class matching before generic relevance
+    search, and its answer prompt is tuned for end-user wording rather than
+    database or RDF implementation wording.
   - The next implementation priority is validating a new CSV-containing example
     in both test and production modes, then improving README setup/run
     instructions for users without a vibe coding agent.

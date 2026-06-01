@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from src.common.llm import get_text_response
+from src.common.llm import LlmError, get_text_response, parse_json_object
 from src.viewer.query import ViewerQueryService
 
 
@@ -60,6 +60,34 @@ Question-relevant graph facts:
 """
 
 
+CLASS_MATCH_PROMPT = """You are helping a semantic web viewer choose which ontology classes to query.
+
+The user may use ordinary words that do not exactly match designer-generated
+class names. Choose classes from the provided class summary when they are
+plausible semantic matches for the user's wording or conversation history.
+
+Return exactly one JSON object:
+- class_labels: an array of class labels from the class summary.
+
+Rules:
+- Use only labels that appear in the class summary.
+- Return at most 3 labels.
+- Include a class only when it is a plausible match for the user's question.
+- Prefer classes that answer count/list/who/what questions about groups of
+  instances.
+- Return an empty array when no class is a plausible match.
+
+User question:
+{question}
+
+Conversation history:
+{history}
+
+Class summary:
+{classes}
+"""
+
+
 @dataclass(frozen=True)
 class ViewerAnswer:
     question: str
@@ -97,7 +125,21 @@ class ViewerAgent:
             for fact in query_service.semantic_search_facts(question):
                 if fact not in facts:
                     facts.append(fact)
-        facts.extend(_class_label_facts(question, summary, query_service))
+        matched_labels: set[str] = set()
+        class_facts, direct_labels = _class_label_facts(question, summary, query_service)
+        facts.extend(class_facts)
+        matched_labels.update(direct_labels)
+        if not matched_labels:
+            for fact in _llm_matched_class_facts(
+                question=question,
+                history=history or "- No previous turns in this chat session.",
+                summary=summary,
+                query_service=query_service,
+                model=self.model,
+                timeout_seconds=self.timeout_seconds,
+            ):
+                if fact not in facts:
+                    facts.append(fact)
         prompt = VIEWER_PROMPT.format(
             question=question,
             history=history or "- No previous turns in this chat session.",
@@ -134,12 +176,13 @@ def _class_label_facts(
     question: str,
     summary: dict[str, object],
     query_service: ViewerQueryService,
-) -> list[dict[str, str]]:
+) -> tuple[list[dict[str, str]], set[str]]:
     question_text = question.lower()
     rows: list[dict[str, str]] = []
+    matched_labels: set[str] = set()
     classes = summary.get("classes", [])
     if not isinstance(classes, list):
-        return rows
+        return rows, matched_labels
     for item in classes:
         if not isinstance(item, dict):
             continue
@@ -151,6 +194,7 @@ def _class_label_facts(
         variants = _class_variants(label, local_name)
         if any(variant in question_text for variant in variants):
             matched_label = label or local_name
+            matched_labels.add(matched_label)
             if hasattr(query_service, "class_instance_count_by_label"):
                 rows.append(
                     {
@@ -160,6 +204,70 @@ def _class_label_facts(
                     }
                 )
             rows.extend(query_service.class_instances_by_label(matched_label, limit=200))
+    return rows, matched_labels
+
+
+def _llm_matched_class_facts(
+    question: str,
+    history: str,
+    summary: dict[str, object],
+    query_service: ViewerQueryService,
+    model: str,
+    timeout_seconds: int,
+) -> list[dict[str, str]]:
+    class_rows = _class_summary_rows(summary)
+    if not class_rows:
+        return []
+    prompt = CLASS_MATCH_PROMPT.format(
+        question=question,
+        history=history,
+        classes=_format_rows(class_rows),
+    )
+    try:
+        payload = parse_json_object(get_text_response(model, prompt, timeout_seconds))
+    except (LlmError, ValueError):
+        return []
+    requested = payload.get("class_labels", [])
+    if not isinstance(requested, list):
+        return []
+    allowed = {row["label"] for row in class_rows if row.get("label")}
+    rows: list[dict[str, str]] = []
+    for raw_label in requested[:3]:
+        label = str(raw_label).strip()
+        if label not in allowed:
+            continue
+        if hasattr(query_service, "class_instance_count_by_label"):
+            rows.append(
+                {
+                    "classLabel": label,
+                    "classInstanceCount": str(query_service.class_instance_count_by_label(label)),
+                    "matchSource": "llm_class_match",
+                }
+            )
+        rows.extend(query_service.class_instances_by_label(label, limit=200))
+    return rows
+
+
+def _class_summary_rows(summary: dict[str, object]) -> list[dict[str, str]]:
+    classes = summary.get("classes", [])
+    if not isinstance(classes, list):
+        return []
+    rows: list[dict[str, str]] = []
+    for item in classes[:80]:
+        if not isinstance(item, dict):
+            continue
+        class_uri = str(item.get("class") or "").strip()
+        label = str(item.get("label") or "").strip() or _split_camel(_local_name(class_uri))
+        if not label:
+            continue
+        row = {
+            "label": label,
+            "localName": _local_name(class_uri),
+        }
+        comment = str(item.get("comment") or "").strip()
+        if comment:
+            row["comment"] = comment
+        rows.append(row)
     return rows
 
 

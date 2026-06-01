@@ -77,10 +77,11 @@ class ViewerQueryService:
             f"""
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-            SELECT DISTINCT ?class ?label WHERE {{
+            SELECT DISTINCT ?class ?label ?comment WHERE {{
               GRAPH ?graph {{
                 ?class a rdfs:Class .
                 OPTIONAL {{ ?class rdfs:label ?label . }}
+                OPTIONAL {{ ?class rdfs:comment ?comment . }}
               }}
             }}
             ORDER BY LCASE(STR(COALESCE(?label, ?class)))

@@ -34,7 +34,7 @@ class FakeFusekiClient:
                 }
             ]
         if "rdfs:Class" in sparql and "?class" in sparql:
-            return [{"class": "http://example.org/schema#Scene", "label": "Scene"}]
+            return [{"class": "http://example.org/schema#Scene", "label": "Scene", "comment": "A scene."}]
         return [{"instance": "http://example.org/instances#scene1", "label": "Cave Entrance"}]
 
     def construct_turtle(self, sparql: str) -> str:
@@ -107,6 +107,7 @@ def test_viewer_query_helpers_execute_named_graph_queries() -> None:
     turtle = service.export_turtle()
 
     assert classes[0]["label"] == "Scene"
+    assert classes[0]["comment"] == "A scene."
     assert instances[0]["label"] == "Scene"
     assert count == 11
     assert subject_facts[0]["subjectLabel"] == "Cave Entrance"

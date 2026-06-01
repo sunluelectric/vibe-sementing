@@ -68,6 +68,39 @@ class FakeQueryService:
         return 1
 
 
+class SemanticClassQueryService(FakeQueryService):
+    def graph_summary(self) -> dict[str, object]:
+        return {
+            "triple_count": 3,
+            "classes": [
+                {
+                    "class": "http://example.org/schema#TenYearOld",
+                    "label": "Ten Year Old",
+                    "comment": "Children who are ten years old.",
+                },
+            ],
+            "properties": [],
+            "sample_instances": [],
+        }
+
+    def search_facts(self, question: str) -> list[dict[str, str]]:
+        return []
+
+    def class_instances_by_label(self, class_label: str, limit: int = 50) -> list[dict[str, str]]:
+        self.class_lookups.append(class_label)
+        return [
+            {
+                "instance": "http://example.org/instances#alice",
+                "label": "Alice",
+                "predicateLabel": "age",
+                "object": "10",
+            }
+        ]
+
+    def class_instance_count_by_label(self, class_label: str) -> int:
+        return 1
+
+
 def test_viewer_workflow_builds_agents_sdk_shell() -> None:
     workflow = ViewerWorkflow()
 
@@ -132,6 +165,28 @@ def test_viewer_agent_includes_class_instance_count_for_count_questions(monkeypa
     ViewerAgent(model="test-model").answer("How many records are there?", query_service)
 
     assert "classInstanceCount=1" in prompts[0]
+
+
+def test_viewer_agent_uses_llm_to_match_nonlexical_class_terms(monkeypatch) -> None:
+    prompts: list[str] = []
+
+    def fake_get_text_response(model: str, prompt: str, timeout_seconds: int) -> str:
+        prompts.append(prompt)
+        if "choose which ontology classes to query" in prompt:
+            assert "kids" in prompt
+            assert "Ten Year Old" in prompt
+            return '{"class_labels": ["Ten Year Old"]}'
+        return "There is 1 kid: Alice."
+
+    monkeypatch.setattr("src.viewer.agent.get_text_response", fake_get_text_response)
+    query_service = SemanticClassQueryService()
+
+    result = ViewerAgent(model="test-model").answer("How many kids are stored?", query_service)
+
+    assert result.answer == "There is 1 kid: Alice."
+    assert "Ten Year Old" in query_service.class_lookups
+    assert any(fact.get("matchSource") == "llm_class_match" for fact in result.facts)
+    assert "classInstanceCount=1" in prompts[-1]
 
 
 def test_viewer_agent_prioritizes_exact_subject_label_facts(monkeypatch) -> None:
