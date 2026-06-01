@@ -42,6 +42,41 @@ class FakeFusekiClient:
         return "@prefix ex: <http://example.org/> .\nex:s ex:p ex:o .\n"
 
 
+class GraphSliceFusekiClient(FakeFusekiClient):
+    def select(self, sparql: str) -> list[dict[str, str]]:
+        self.selected.append(sparql)
+        if "fuseki-term-index" in sparql:
+            return []
+        if "SELECT DISTINCT ?term" in sparql:
+            return [
+                {
+                    "term": "http://example.org/semantic-web/instance/graphdb",
+                    "label": "GraphDB",
+                    "comment": "Triplestore product.",
+                    "kind": "labeled-resource",
+                    "text": "GraphDB maintainer and license",
+                },
+                {
+                    "term": "http://example.org/semantic-web#license",
+                    "label": "license",
+                    "comment": "Software license.",
+                    "kind": "property",
+                    "text": "license",
+                },
+            ]
+        if "VALUES ?candidate" in sparql:
+            return [
+                {
+                    "subject": "http://example.org/semantic-web/instance/graphdb",
+                    "subjectLabel": "GraphDB",
+                    "predicate": "http://example.org/semantic-web#license",
+                    "predicateLabel": "license",
+                    "object": "Commercial / Free Edition",
+                }
+            ]
+        return super().select(sparql)
+
+
 def test_viewer_query_status_requires_fuseki() -> None:
     service = ViewerQueryService(get_settings(), FakeFusekiClient(available=False))
 
@@ -86,6 +121,17 @@ def test_viewer_query_select_fails_when_fuseki_unavailable() -> None:
 
     with pytest.raises(FusekiUnavailable):
         service.select("SELECT * WHERE { ?s ?p ?o }")
+
+
+def test_viewer_semantic_search_facts_uses_fuseki_graph_slice() -> None:
+    client = GraphSliceFusekiClient()
+    service = ViewerQueryService(get_settings(), client)
+
+    rows = service.semantic_search_facts("What is the GraphDB license?")
+
+    assert rows[0]["subjectLabel"] == "GraphDB"
+    assert any("SELECT DISTINCT ?term" in query for query in client.selected)
+    assert any("VALUES ?candidate" in query for query in client.selected)
 
 
 def test_viewer_fuseki_smoke_queries_when_available() -> None:

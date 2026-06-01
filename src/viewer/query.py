@@ -5,6 +5,7 @@ from typing import Protocol
 
 from src.common.config import Settings
 from src.common.fuseki import FusekiUnavailable
+from src.common.graph_slice import GraphSliceService
 from src.common.semantic_search import rows_to_chunks, search_chunks
 
 
@@ -249,6 +250,9 @@ class ViewerQueryService:
 
     def semantic_search_facts(self, question: str, limit: int = 200) -> list[dict[str, str]]:
         self._require_available()
+        rows, slice_result = GraphSliceService(self.settings, self.client).fact_rows(question, limit=limit)
+        if slice_result.used:
+            return rows
         rows = self.select(
             f"""
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>

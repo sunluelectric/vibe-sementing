@@ -136,7 +136,7 @@ Goal: the semantic web importer reads `design.md`, `db/ontology.ttl`, and
 - [x] Add optional ontology inspection by querying Fuseki when available.
 - [x] Keep `db/ontology.ttl` as the portable fallback and cross-machine handoff artifact.
 - [x] Add tests for Fuseki ontology inspection with local Turtle fallback.
-- [ ] Replace whole-graph prompting with Fuseki-backed relevant graph slices.
+- [x] Replace whole-graph prompting with Fuseki-backed relevant graph slices.
   Build a semantic-web embedding strategy: render ontology/data triples into
   plain-text chunks, embed those chunks with semantic-search technology, use
   vector search to identify relevant classes/properties/facts for a task, then
@@ -826,6 +826,13 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   timeout, and relaxes the designer ontology triple limit. Explicit environment
   overrides still win in both modes. `uv run pytest` reported 78 passed and
   4 skipped.
+- Fuseki-backed graph slicing was added on 2026-06-01. Importer schema prompt
+  context can now be built from a Fuseki term index and targeted ontology
+  `CONSTRUCT` slices instead of prompt-context retrieval depending on a full
+  ontology Turtle serialization. Viewer semantic fact retrieval can now select
+  relevant Fuseki terms first and then query facts around only those candidate
+  terms. Local RDF chunking remains the fallback for offline and portable runs.
+  `uv run pytest` reported 80 passed and 4 skipped.
 - The designer milestone commit has been made.
 - The importer milestone commit has been made.
 - The viewer milestone commit has been made.

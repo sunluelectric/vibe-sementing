@@ -94,18 +94,19 @@ back to `db/ontology.ttl`; when Fuseki is reachable, that fallback graph is
 loaded into Fuseki before import continues. If Fuseki is unavailable, the
 importer still writes local Turtle artifacts.
 
-For larger semantic webs, the intended long-term handoff is database/query-first
-rather than whole-Turtle-prompt-first. Turtle remains useful for review, export,
-tests, portability, and fallback, but agents should consume relevant graph
-slices through Fuseki or local RDF/SPARQL queries instead of sending large
-Turtle files wholesale to an LLM.
+For larger semantic webs, the handoff is database/query-first rather than
+whole-Turtle-prompt-first. Turtle remains useful for review, export, tests,
+portability, and fallback, but agents consume relevant graph slices through
+Fuseki or local RDF/SPARQL retrieval instead of sending large Turtle files
+wholesale to an LLM.
 
-Future graph-slicing strategy: build a semantic-search index over the semantic
-web itself. The likely approach is to render ontology and instance triples into
-plain-text chunks, embed those chunks, use vector search to find the most
-relevant classes, properties, and facts for a task, and then issue targeted
-Fuseki queries around those terms. This combines Fuseki as the graph source of
-truth with embeddings as a relevance layer for large semantic webs.
+Graph slicing is implemented through `src/common/graph_slice.py`. The workflow
+queries Fuseki for a compact term index, uses semantic search to choose
+relevant classes, properties, and resources, then issues targeted SPARQL
+queries around those candidates. The importer uses this path for ontology
+prompt context when Fuseki is available, and the viewer uses it for
+question-relevant fact retrieval. Local RDF graph chunking remains the fallback
+for offline tests and portable runs.
 
 Fuseki uses project-local persistent TDB2 storage by default and is the intended
 golden source of truth that bridges the designer, importer, and viewer. The
@@ -346,10 +347,12 @@ The retrieval layer can chunk:
 - RDF graphs, grouped into readable subject-centered chunks.
 - SPARQL result rows for viewer fact ranking.
 
-Small data still uses the previous full-context path. When designer source data,
-importer source data, importer ontology Turtle, or bounded viewer facts exceed
-`SEMANTIC_CONTEXT_MAX_CHARS`, the workflows retrieve relevant chunks instead of
-sending the whole input to the model.
+Small source data still uses the previous full-context path. When designer
+source data or importer source data exceeds `SEMANTIC_CONTEXT_MAX_CHARS`, the
+workflows retrieve relevant chunks instead of sending the whole input to the
+model. For graph context, the importer and viewer prefer Fuseki-backed term
+selection and targeted graph slices when Fuseki is available, with local RDF
+chunk retrieval as fallback.
 
 For large designer runs, retrieval is now iterative and model-planned:
 

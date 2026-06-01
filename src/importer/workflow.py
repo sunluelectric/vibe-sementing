@@ -10,6 +10,7 @@ from src.common.files import load_project_data, read_text
 from src.common.files import write_text
 from src.common.fuseki import client_from_settings, load_graph_to_fuseki_or_file
 from src.common.fuseki_manager import FusekiManager
+from src.common.graph_slice import GraphSliceService
 from rdflib import Graph
 
 from src.common.rdf import combine_turtle_files, load_graph, parse_turtle, serialize_graph
@@ -195,6 +196,23 @@ class ImporterWorkflow:
         return selected
 
     def retrieve_schema_context(self, query: str | None = None) -> str:
+        if self.settings.semantic_search_enabled and query and self.fuseki_client.is_available():
+            slice_result = GraphSliceService(self.settings, self.fuseki_client).ontology_context(
+                self.settings.ontology_graph_uri,
+                query,
+                max_chars=self.settings.semantic_context_max_chars,
+            )
+            if slice_result.used:
+                self.last_retrieval_summary["schema"] = {
+                    "used": True,
+                    "reason": "fuseki_graph_slice",
+                    "context_chars": len(slice_result.context),
+                    "candidate_count": slice_result.candidate_count,
+                    "selected_count": slice_result.selected_count,
+                    "query_count": slice_result.query_count,
+                    "max_chars": self.settings.semantic_context_max_chars,
+                }
+                return slice_result.context
         ontology_graph, _source = self.load_ontology_graph_for_import()
         ontology_turtle = serialize_graph(ontology_graph)
         if not self.settings.semantic_search_enabled:
@@ -407,7 +425,12 @@ class ImporterWorkflow:
                 )
                 break
             source_data = select_context(source_chunks, focus.query, slice_settings)
-            ontology_turtle = select_context(schema_chunks, focus.query, slice_settings)
+            graph_slice_result = GraphSliceService(slice_settings, self.fuseki_client).ontology_context(
+                self.settings.ontology_graph_uri,
+                focus.query,
+                max_chars=self.settings.importer_slice_context_max_chars,
+            )
+            ontology_turtle = graph_slice_result.context or select_context(schema_chunks, focus.query, slice_settings)
             self.record_import_progress(
                 "## Import Batch Retrieval\n\n"
                 f"- Batch: {batch_number}\n"
@@ -415,6 +438,7 @@ class ImporterWorkflow:
                 f"- Purpose: {focus.purpose}\n"
                 f"- Source context characters: {len(source_data)}\n"
                 f"- Schema context characters: {len(ontology_turtle)}\n"
+                f"- Schema context source: {'fuseki_graph_slice' if graph_slice_result.used else 'local_graph_chunks'}\n"
             )
             slice_result = agent.generate_instance_slice(
                 design_text=design_text,
@@ -437,6 +461,8 @@ class ImporterWorkflow:
                     "purpose": focus.purpose,
                     "source_context_chars": len(source_data),
                     "schema_context_chars": len(ontology_turtle),
+                    "schema_context_source": "fuseki_graph_slice" if graph_slice_result.used else "local_graph_chunks",
+                    "schema_selected_terms": graph_slice_result.selected_count,
                     "slice_triples": len(slice_result.graph),
                     "merged_triples": len(merged_graph),
                 }

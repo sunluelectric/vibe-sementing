@@ -26,6 +26,8 @@ class OfflineFusekiClient:
 class OnlineFusekiClient(OfflineFusekiClient):
     def __init__(self) -> None:
         self.loaded: list[tuple[str, str]] = []
+        self.selected: list[str] = []
+        self.constructed: list[str] = []
         self.construct_response = VALID_ONTOLOGY_TURTLE
 
     def is_available(self) -> bool:
@@ -34,7 +36,25 @@ class OnlineFusekiClient(OfflineFusekiClient):
     def replace_graph(self, graph_uri: str, turtle: str) -> None:
         self.loaded.append((graph_uri, turtle))
 
+    def select(self, sparql: str) -> list[dict[str, str]]:
+        self.selected.append(sparql)
+        return [
+            {
+                "term": "http://example.org/semantic-web#Record",
+                "label": "Record",
+                "comment": "A record entity.",
+                "kind": "class",
+            },
+            {
+                "term": "http://example.org/semantic-web#name",
+                "label": "name",
+                "comment": "Record name.",
+                "kind": "property",
+            },
+        ]
+
     def construct_turtle(self, sparql: str) -> str:
+        self.constructed.append(sparql)
         return self.construct_response
 
 
@@ -141,6 +161,28 @@ def test_importer_retrieves_schema_context_for_large_ontology(tmp_path) -> None:
     assert "Source chunk: ontology" in context
     assert workflow.last_retrieval_summary["schema"]["used"] is True
     assert workflow.last_retrieval_summary["schema"]["chunk_count"] > 1
+
+
+def test_importer_retrieves_schema_context_from_fuseki_graph_slice(tmp_path) -> None:
+    workflow = _workflow_with_temp_paths(tmp_path)
+    client = OnlineFusekiClient()
+    client.construct_response = (
+        "@prefix sw: <http://example.org/semantic-web#> .\n"
+        "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n"
+        "sw:Record a rdfs:Class ; rdfs:label \"Record\" .\n"
+        "sw:name a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> ; rdfs:label \"name\" .\n"
+    )
+    workflow.fuseki_client = client
+
+    context = workflow.retrieve_schema_context("record name")
+
+    assert "Fuseki ontology graph" in context
+    assert "Record" in context
+    assert workflow.last_retrieval_summary["schema"]["reason"] == "fuseki_graph_slice"
+    assert client.selected
+    assert client.constructed
+    assert "VALUES ?term" in client.constructed[0]
+    assert "CONSTRUCT { ?s ?p ?o }" not in client.constructed[0]
 
 
 def test_importer_iterative_retrieval_merges_model_planned_slices(tmp_path) -> None:
