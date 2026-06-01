@@ -371,7 +371,7 @@ Implementation checklist:
   with multiple columns, numeric/date/string fields, missing values, and at
   least one relationship-like column. Add matching `design-requirements.md`
   text that describes the desired semantic web in domain-neutral terms.
-- [ ] Preserve or document how to restore the current PDF proof-of-concept
+- [x] Preserve or document how to restore the current PDF proof-of-concept
   input after CSV validation if needed.
 - [x] Add a CSV profiler utility that reports file name, row count, column
   names, inferred datatype per column, null counts, distinct counts or capped
@@ -937,6 +937,11 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   carrying higher cost and stricter structured-output reliability risk. The
   default remains test mode; production mode should be selected explicitly for
   richer validation and scale-up runs.
+- The historical PDF proof-of-concept input, formerly referenced as
+  `data/main.pdf`, is no longer preserved in the active repository dataset.
+  Future PDF validation should use a restored copy if available or a new
+  representative PDF dataset; the current active example is the semantic-web,
+  ontology, and triplestore CSV dataset.
 - The designer milestone commit has been made.
 - The importer milestone commit has been made.
 - The viewer milestone commit has been made.
