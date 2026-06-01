@@ -536,6 +536,32 @@ refinement while keeping Fuseki as the runtime source of truth.
 - [ ] Update `README.md` and `PROGRESS.md` with the scale-up validation result.
 - [ ] Commit the scale-up milestone.
 
+## Milestone 15: CSV Datatype Robustness
+
+Goal: make CSV-aware design and import more robust when column datatypes are
+ambiguous, dirty, or semantically different from their surface values. The
+designer should receive conservative datatype guidance, and the deterministic
+CSV importer should support safe datatype compatibility instead of failing on
+avoidable integer/decimal/string mismatches.
+
+- [x] Extend CSV profiling with datatype compatibility notes, including risky
+  numeric-looking identifiers, leading-zero values, mixed examples, and safer
+  string fallbacks.
+- [x] Update designer CSV context and prompt guidance so uncertain CSV columns
+  prefer `xsd:string`, and numeric/date/boolean ranges are used only when the
+  profile and column semantics clearly support them.
+- [x] Update CSV import validation to accept safe datatype widening, such as
+  integer mappings for decimal ontology ranges and string-compatible ontology
+  ranges for dirty values.
+- [x] Update deterministic CSV literal generation to choose ontology-compatible
+  literals and fall back to strings only when the ontology range permits it.
+- [x] Add focused tests for conservative CSV profiling, designer CSV context,
+  range compatibility, numeric widening, and safe string fallback.
+- [x] Run `uv run pytest`.
+- [x] Update `README.md`, `PROGRESS.md`, and `AGENTS.md` with the CSV datatype
+  robustness behavior.
+- [x] Commit the CSV datatype robustness milestone.
+
 ## Current Notes
 
 - Initial dependency installation succeeded.
@@ -838,6 +864,13 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   uses the comprehensive designer prompt, raises retrieval and importer
   budgets, increases context limits, lengthens the timeout, and relaxes the
   ontology triple limit. Milestone 12 will use this mode for comparison.
+- CSV datatype robustness was added on 2026-06-01. CSV profiles now include
+  compatible datatype notes and warnings for risky columns such as identifiers,
+  leading-zero values, and mixed numeric strings. Designer prompts now treat
+  CSV profile datatypes as recommendations and prefer strings for uncertain
+  columns. Deterministic CSV import now accepts safe datatype widening and can
+  fall back to string literals when the ontology range permits it. `uv run
+  pytest` reported 83 passed and 4 skipped.
 - The designer milestone commit has been made.
 - The importer milestone commit has been made.
 - The viewer milestone commit has been made.
@@ -862,8 +895,8 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   - Fuseki data graph `http://example.org/semantic-web/graph/data` unless overridden by `.env`
 - Current tests:
   - `uv run pytest`
-  - latest local result after Fuseki-backed graph slicing:
-    `80 passed, 4 skipped`
+  - latest local result after CSV datatype robustness:
+    `83 passed, 4 skipped`
 - Current runtime notes:
   - Fuseki may already be running on port `3030`.
   - If not, use the project-local Fuseki base `db/fuseki-run`.

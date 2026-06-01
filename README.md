@@ -389,9 +389,16 @@ CSV files are handled as structured data rather than as unstructured text.
 
 The designer receives CSV profile summaries from `src/common/csv_profile.py`.
 Profiles include file name, row count, column names, inferred datatypes, null
-counts, capped distinct/example values, and a few sample rows. This lets the
-designer include tabular structure in the ontology without prompt-stuffing all
-rows.
+counts, capped distinct/example values, datatype compatibility notes, warnings
+for risky columns such as identifiers and leading-zero values, and a few sample
+rows. This lets the designer include tabular structure in the ontology without
+prompt-stuffing all rows.
+
+CSV datatype inference is intentionally conservative. Profile datatypes are
+recommendations, not guarantees. The designer prompt tells the model to prefer
+`xsd:string` for identifiers, codes, leading-zero values, mixed-format values,
+and uncertain columns, and to use numeric/date/boolean ranges only when both
+the profile and column meaning clearly support that type.
 
 The importer uses `src/importer/csv_import.py` for deterministic CSV import:
 
@@ -402,8 +409,11 @@ The importer uses `src/importer/csv_import.py` for deterministic CSV import:
 3. Python validates the mapping against CSV headers, ontology classes,
    ontology properties, property ranges, supported datatypes, and URI template
    placeholders.
-4. Python iterates through the CSV rows and emits RDF with `rdflib`.
-5. The deterministic CSV graph is merged with the unstructured-source import
+4. Python applies safe datatype compatibility rules, such as allowing integer
+   mappings for decimal ontology ranges and falling back to strings for dirty
+   values only when the ontology range permits string literals.
+5. Python iterates through the CSV rows and emits RDF with `rdflib`.
+6. The deterministic CSV graph is merged with the unstructured-source import
    graph and validated as one instance graph.
 
 This keeps CSV bulk conversion repeatable and testable while still using the

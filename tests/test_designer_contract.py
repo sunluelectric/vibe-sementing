@@ -47,6 +47,8 @@ def test_designer_agent_runs_with_stubbed_response() -> None:
     class StubDesigner(DesignerAgent):
         def _run_direct_design_call(self, prompt: str) -> str:
             assert "Design a compact RDF/RDFS semantic web schema" in prompt
+            assert "For CSV columns, treat profile datatypes as recommendations" in prompt
+            assert "Prefer xsd:string for identifiers" in prompt
             return VALID_DESIGN_RESPONSE
 
     result = StubDesigner("test-model").run("requirements", "data", max_attempts=1)
@@ -60,6 +62,7 @@ def test_designer_agent_uses_production_prompt() -> None:
         def _run_direct_design_call(self, prompt: str) -> str:
             assert "Design a comprehensive RDF/RDFS semantic web schema" in prompt
             assert "Do not intentionally keep the ontology small" in prompt
+            assert "For CSV columns, treat profile datatypes as recommendations" in prompt
             return VALID_DESIGN_RESPONSE
 
     result = StubDesigner("test-model", mode="production", ontology_triple_limit=2000).run(

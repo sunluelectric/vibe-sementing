@@ -195,11 +195,17 @@ def generate_csv_instances(
                     value = normalized_row.get(column_mapping.column, "")
                     if mapping.skip_nulls and _is_null(value):
                         continue
+                    property_uri = URIRef(column_mapping.property_uri)
                     graph.add(
                         (
                             subject,
-                            URIRef(column_mapping.property_uri),
-                            _literal(value, column_mapping.datatype),
+                            property_uri,
+                            _literal_for_property(
+                                value,
+                                column_mapping.datatype,
+                                ontology_graph,
+                                property_uri,
+                            ),
                         )
                     )
                 for relationship in mapping.relationship_mappings:
@@ -235,6 +241,7 @@ def _mapping_profile(profile: CsvProfile) -> str:
         examples = "; ".join(column.examples) if column.examples else "none"
         lines.append(
             f"- {column.name}: datatype={column.inferred_datatype}; "
+            f"compatible_datatypes={', '.join(column.compatible_datatypes or (column.inferred_datatype,))}; "
             f"nulls={column.null_count}; examples={examples}"
         )
     return "\n".join(lines)
@@ -276,11 +283,20 @@ def _validate_property_range(
     ranges = set(ontology_graph.objects(property_uri, RDFS.range))
     if not ranges:
         return
-    allowed = {expected_range, RDFS.Resource, RDFS.Literal}
+    allowed = _compatible_ranges(expected_range)
     if expected_range in {XSD.string, XSD.integer, XSD.decimal, XSD.boolean, XSD.date, XSD.dateTime, XSD.anyURI}:
         allowed.add(RDFS.Literal)
     if not any(range_value in allowed for range_value in ranges):
         errors.append(f"CSV property {property_uri} range does not match expected {expected_range}.")
+
+
+def _compatible_ranges(expected_range: URIRef) -> set[URIRef]:
+    allowed = {expected_range, RDFS.Resource, RDFS.Literal}
+    if expected_range == XSD.integer:
+        allowed.update({XSD.decimal, XSD.string})
+    elif expected_range in {XSD.decimal, XSD.boolean, XSD.date, XSD.dateTime, XSD.anyURI}:
+        allowed.add(XSD.string)
+    return allowed
 
 
 def _render_template(template: str, row: dict[str, str]) -> str:
@@ -319,6 +335,42 @@ def _literal(value: str, datatype: str) -> Literal:
     if datatype == "anyURI":
         return Literal(value, datatype=XSD.anyURI)
     return Literal(value, datatype=XSD.string)
+
+
+def _literal_for_property(
+    value: str,
+    datatype: str,
+    ontology_graph: Graph,
+    property_uri: URIRef,
+) -> Literal:
+    ranges = set(ontology_graph.objects(property_uri, RDFS.range))
+    preferred_datatype = _datatype_for_ranges(datatype, ranges, value)
+    try:
+        return _literal(value, preferred_datatype)
+    except ValueError:
+        if _range_allows_string(ranges):
+            return Literal(value, datatype=XSD.string)
+        raise
+
+
+def _datatype_for_ranges(datatype: str, ranges: set[URIRef], value: str) -> str:
+    if datatype == "integer" and XSD.decimal in ranges and not _is_integer_literal(value):
+        return "decimal"
+    if datatype in DATATYPE_URIS:
+        return datatype
+    return "string"
+
+
+def _range_allows_string(ranges: set[URIRef]) -> bool:
+    return not ranges or bool(ranges & {XSD.string, RDFS.Literal, RDFS.Resource})
+
+
+def _is_integer_literal(value: str) -> bool:
+    try:
+        int(value)
+        return True
+    except ValueError:
+        return False
 
 
 def _boolean_value(value: str) -> bool:

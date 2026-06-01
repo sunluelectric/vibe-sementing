@@ -25,6 +25,8 @@ sw:Organization a rdfs:Class .
 sw:name a rdf:Property ; rdfs:domain rdfs:Resource ; rdfs:range xsd:string .
 sw:licenseType a rdf:Property ; rdfs:domain sw:Triplestore ; rdfs:range xsd:string .
 sw:isOpenSource a rdf:Property ; rdfs:domain sw:Triplestore ; rdfs:range xsd:boolean .
+sw:rating a rdf:Property ; rdfs:domain sw:Triplestore ; rdfs:range xsd:decimal .
+sw:externalCode a rdf:Property ; rdfs:domain sw:Triplestore ; rdfs:range xsd:string .
 sw:maintainedBy a rdf:Property ; rdfs:domain sw:Triplestore ; rdfs:range sw:Organization .
 """
 
@@ -147,3 +149,77 @@ def test_generate_csv_instances_deterministically_converts_rows(tmp_path) -> Non
     assert (apache, RDF.type, sw.Organization) in graph
     assert (jena, sw.isOpenSource, None) in graph
     assert any(str(obj) == "true" and obj.datatype == XSD.boolean for obj in graph.objects(jena, sw.isOpenSource))
+
+
+def test_csv_import_widens_integer_mapping_to_decimal_range(tmp_path) -> None:
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    (data_dir / "stores.csv").write_text(
+        "Triplestore Name,Rating\n"
+        "Apache Jena TDB,5\n"
+        "GraphDB,4.5\n",
+        encoding="utf-8",
+    )
+    ontology_graph = parse_turtle(ONTOLOGY)
+    sw = Namespace("http://example.org/semantic-web#")
+    inst = Namespace("http://example.org/semantic-web/instance/")
+    plan = CsvImportPlan(
+        mappings=(
+            CsvFileMapping(
+                csv_file="stores.csv",
+                row_class_uri="http://example.org/semantic-web#Triplestore",
+                subject_uri_template="http://example.org/semantic-web/instance/triplestore/{Triplestore Name|slug}",
+                column_mappings=(
+                    CsvColumnMapping(
+                        column="Rating",
+                        property_uri="http://example.org/semantic-web#rating",
+                        datatype="integer",
+                    ),
+                ),
+            ),
+        )
+    )
+
+    validation = validate_csv_import_plan(plan, ontology_graph, data_dir)
+    graph = generate_csv_instances(plan, ontology_graph, data_dir)
+
+    assert validation.ok
+    graphdb = URIRef(inst["triplestore/graphdb"])
+    assert any(str(obj) == "4.5" and obj.datatype == XSD.decimal for obj in graph.objects(graphdb, sw.rating))
+
+
+def test_csv_import_falls_back_to_string_when_range_allows_string(tmp_path) -> None:
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    (data_dir / "stores.csv").write_text(
+        "Triplestore Name,External Code\n"
+        "Apache Jena TDB,00123\n"
+        "GraphDB,A-45\n",
+        encoding="utf-8",
+    )
+    ontology_graph = parse_turtle(ONTOLOGY)
+    sw = Namespace("http://example.org/semantic-web#")
+    inst = Namespace("http://example.org/semantic-web/instance/")
+    plan = CsvImportPlan(
+        mappings=(
+            CsvFileMapping(
+                csv_file="stores.csv",
+                row_class_uri="http://example.org/semantic-web#Triplestore",
+                subject_uri_template="http://example.org/semantic-web/instance/triplestore/{Triplestore Name|slug}",
+                column_mappings=(
+                    CsvColumnMapping(
+                        column="External Code",
+                        property_uri="http://example.org/semantic-web#externalCode",
+                        datatype="integer",
+                    ),
+                ),
+            ),
+        )
+    )
+
+    validation = validate_csv_import_plan(plan, ontology_graph, data_dir)
+    graph = generate_csv_instances(plan, ontology_graph, data_dir)
+
+    assert validation.ok
+    graphdb = URIRef(inst["triplestore/graphdb"])
+    assert any(str(obj) == "A-45" and obj.datatype == XSD.string for obj in graph.objects(graphdb, sw.externalCode))

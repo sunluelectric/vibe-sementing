@@ -37,6 +37,13 @@ Ontology requirements:
 - Include a shallow subclass hierarchy only where it is obvious from the input.
 - Include practical object and datatype properties with rdfs:domain and
   rdfs:range.
+- For CSV columns, treat profile datatypes as recommendations rather than
+  guarantees. Prefer xsd:string for identifiers, codes, leading-zero values,
+  mixed-format values, high-risk columns, and any column whose meaning is not
+  clearly numeric/date/boolean. Use xsd:integer, xsd:decimal, xsd:boolean,
+  xsd:date, or xsd:dateTime only when the profile and column semantics both
+  clearly support that datatype. Prefer xsd:decimal over xsd:integer when a
+  numeric column may contain fractional values.
 - Use rdfs:label and rdfs:comment on important classes and properties.
 - Prefer broad reusable properties over highly specific one-off properties.
 - Avoid enumerating source facts as schema terms.
@@ -79,6 +86,13 @@ Ontology requirements:
   supports it.
 - Include practical object and datatype properties with rdfs:domain and
   rdfs:range where practical.
+- For CSV columns, treat profile datatypes as recommendations rather than
+  guarantees. Prefer xsd:string for identifiers, codes, leading-zero values,
+  mixed-format values, high-risk columns, and any column whose meaning is not
+  clearly numeric/date/boolean. Use xsd:integer, xsd:decimal, xsd:boolean,
+  xsd:date, or xsd:dateTime only when the profile and column semantics both
+  clearly support that datatype. Prefer xsd:decimal over xsd:integer when a
+  numeric column may contain fractional values.
 - Use rdfs:label and rdfs:comment on important classes and properties.
 - Prefer reusable modeling patterns, but do not collapse distinct source
   concepts merely to stay brief.

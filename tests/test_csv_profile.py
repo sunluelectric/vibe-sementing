@@ -37,6 +37,27 @@ def test_csv_profile_rendering_does_not_dump_all_rows(tmp_path) -> None:
     assert "Row 6: name: Row 5" not in rendered
 
 
+def test_csv_profile_marks_numeric_looking_identifiers_as_string_risk(tmp_path) -> None:
+    csv_path = tmp_path / "assets.csv"
+    csv_path.write_text(
+        "Asset ID,Score\n"
+        "00123,10\n"
+        "00456,11.5\n",
+        encoding="utf-8",
+    )
+
+    profile = profile_csv(csv_path)
+    columns = {column.name: column for column in profile.columns}
+    rendered = render_csv_profile(profile)
+
+    assert columns["Asset ID"].compatible_datatypes == ("string",)
+    assert any("identifier" in warning for warning in columns["Asset ID"].warnings)
+    assert any("leading zeros" in warning for warning in columns["Asset ID"].warnings)
+    assert columns["Score"].compatible_datatypes == ("decimal", "string")
+    assert "CSV datatype guidance" in rendered
+    assert "prefer string" in rendered.lower()
+
+
 def test_project_data_uses_csv_profile_instead_of_full_csv_dump(tmp_path) -> None:
     (tmp_path / "table.csv").write_text(
         "name,value\n"
