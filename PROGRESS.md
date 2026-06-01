@@ -583,6 +583,21 @@ those class instances before generating the final answer.
   semantic class matching behavior.
 - [x] Commit the viewer semantic class matching milestone.
 
+## Milestone 17: Current Dataset Production End-To-End Validation
+
+Goal: validate the current semantic-web/ontology/triplestore dataset in
+`SEMANTIC_WEB_MODE=production` before the later Milestone 12 new-example mode
+comparison.
+
+- [x] Run the semantic web designer in production mode.
+- [x] Run the semantic web importer in production mode.
+- [x] Start or verify Fuseki against the persistent project-local TDB2 data.
+- [x] Verify viewer status and Turtle export from Fuseki.
+- [x] Ask a representative viewer question through the viewer workflow/API.
+- [x] Run `uv run pytest`.
+- [x] Record production-mode metrics and findings in `PROGRESS.md`.
+- [x] Commit the current-dataset production validation.
+
 ## Current Notes
 
 - Initial dependency installation succeeded.
@@ -897,6 +912,24 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   from the graph summary when lexical matching misses designer-generated class
   names. Matched classes are then queried for instance counts and facts. `uv
   run pytest` reported 84 passed and 4 skipped.
+- Current-dataset production end-to-end validation succeeded on 2026-06-01
+  after deleting `design.md`, `import.md`, and all files under `db/`.
+  `SEMANTIC_WEB_MODE=production` used `gpt-5.5`, the comprehensive designer
+  prompt, larger context limits, and production retrieval/import budgets. The
+  first production designer attempt returned long non-JSON output; a JSON
+  repair fallback was added and tested, after which the designer produced 541
+  ontology triples, 94 RDFS classes, and 30 RDF properties. The importer
+  inspected ontology terms from Fuseki, retried CSV mapping once after range
+  validation feedback, produced 480 instance triples, and wrote 1,021 combined
+  triples. Deterministic CSV import produced 77 triples from one validated CSV
+  mapping. Viewer status reported 1,021 Fuseki triples, Turtle export parsed
+  with 1,021 triples, and the viewer answered that 11 triplestores are listed,
+  naming examples including AllegroGraph, Amazon Neptune, Apache Jena TDB,
+  Blazegraph, GraphDB, Stardog, and Virtuoso. `uv run pytest` reported 87
+  passed and 2 skipped. Note: `gpt-5.5` was capable of richer ontology output
+  but less reliable at strict JSON formatting, so production mode now includes
+  a designer JSON repair fallback; future production comparisons may still
+  evaluate explicit `LLM_MODEL` overrides for structured-output reliability.
 - The designer milestone commit has been made.
 - The importer milestone commit has been made.
 - The viewer milestone commit has been made.
@@ -921,8 +954,8 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   - Fuseki data graph `http://example.org/semantic-web/graph/data` unless overridden by `.env`
 - Current tests:
   - `uv run pytest`
-  - latest local result after viewer semantic class matching:
-    `84 passed, 4 skipped`
+  - latest local result after current-dataset production validation:
+    `87 passed, 2 skipped`
 - Current runtime notes:
   - Fuseki may already be running on port `3030`.
   - If not, use the project-local Fuseki base `db/fuseki-run`.

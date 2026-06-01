@@ -160,6 +160,24 @@ Retrieved source context:
 """
 
 
+DESIGN_JSON_REPAIR_PROMPT = """Convert the semantic web designer response below into the required JSON object.
+
+Return exactly one JSON object and no other text.
+
+Required JSON keys:
+- design_markdown: markdown documentation for design.md.
+- ontology_turtle: valid Turtle containing only the ontology/schema.
+
+Do not redesign the ontology. Preserve the design content and Turtle from the
+response as closely as possible. If the response contains markdown and Turtle
+sections instead of JSON, place the markdown in design_markdown and the Turtle
+in ontology_turtle.
+
+Designer response:
+{text}
+"""
+
+
 @dataclass(frozen=True)
 class DesignFocus:
     query: str
@@ -325,7 +343,7 @@ class DesignerAgent:
                 f"- Response characters: {len(text)}\n",
             )
             try:
-                payload = parse_json_object(text)
+                payload = self._parse_design_payload(text, progress_path)
                 design_markdown = str(payload["design_markdown"]).strip()
                 ontology_turtle = str(payload["ontology_turtle"]).strip()
                 graph = parse_turtle(ontology_turtle)
@@ -363,6 +381,29 @@ class DesignerAgent:
 
     def _run_direct_design_call(self, prompt: str) -> str:
         return get_text_response(self.model, prompt, self.timeout_seconds)
+
+    def _parse_design_payload(self, text: str, progress_path: Path | None = None) -> dict:
+        try:
+            return parse_json_object(text)
+        except Exception as exc:
+            self._record_progress(
+                progress_path,
+                "## JSON Repair\n\n"
+                f"- Status: started\n"
+                f"- Reason: {type(exc).__name__}: {exc}\n",
+            )
+            repaired = get_text_response(
+                self.model,
+                DESIGN_JSON_REPAIR_PROMPT.format(text=text),
+                self.timeout_seconds,
+            )
+            self._record_progress(
+                progress_path,
+                "## JSON Repair Result\n\n"
+                f"- Status: received\n"
+                f"- Response characters: {len(repaired)}\n",
+            )
+            return parse_json_object(repaired)
 
     def _designer_prompt(self) -> str:
         if self.mode == "production":

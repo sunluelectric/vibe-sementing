@@ -74,6 +74,33 @@ def test_designer_agent_uses_production_prompt() -> None:
     assert result.design_markdown.startswith("# Test Design")
 
 
+def test_designer_agent_repairs_non_json_design_response(monkeypatch, tmp_path) -> None:
+    repair_prompts: list[str] = []
+
+    def fake_get_text_response(model: str, prompt: str, timeout_seconds: int) -> str:
+        repair_prompts.append(prompt)
+        return VALID_DESIGN_RESPONSE
+
+    monkeypatch.setattr("src.designer.agent.get_text_response", fake_get_text_response)
+
+    class StubDesigner(DesignerAgent):
+        def _run_direct_design_call(self, prompt: str) -> str:
+            return "# Design\n\nValid content, but not JSON."
+
+    progress_path = tmp_path / "design.md"
+    result = StubDesigner("test-model").run(
+        "requirements",
+        "data",
+        max_attempts=1,
+        progress_path=progress_path,
+    )
+
+    assert result.design_markdown.startswith("# Test Design")
+    assert "Convert the semantic web designer response" in repair_prompts[0]
+    progress = progress_path.read_text(encoding="utf-8")
+    assert "JSON Repair" in progress
+
+
 def test_designer_agent_writes_progress_after_stubbed_call(tmp_path) -> None:
     class StubDesigner(DesignerAgent):
         def _run_direct_design_call(self, prompt: str) -> str:

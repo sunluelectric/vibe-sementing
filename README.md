@@ -615,52 +615,58 @@ Expected importer outputs:
 
 ## Current Designer Result
 
-The current generated ontology was produced from a clean iterative
-retrieval-guided run against semantic-web and ontology markdown files plus
-`data/commonly seen triplestores.csv`:
+The current generated ontology was produced from a clean production-mode run
+against semantic-web and ontology markdown files plus
+`data/commonly seen triplestores.csv`, after deleting `design.md`, `import.md`,
+and the previous `db/*` outputs:
 
-- 165 RDF triples.
-- 16 RDFS classes.
-- 21 RDF properties.
+- Model: `gpt-5.5`.
+- Mode: `production`.
+- 541 RDF triples.
+- 94 RDFS classes.
+- 30 RDF properties.
 - RDF validation passed.
-- The designer used 4 model-planned semantic-search focuses.
-- The CSV source was represented to the designer as a profile instead of full
-  row text.
+- The source context was below the production context cap, so the designer used
+  full profiled source context rather than iterative retrieval slices.
+- The CSV source was represented to the designer as a conservative profile
+  instead of full row text.
+- The first production model response was long non-JSON text; the designer JSON
+  repair fallback converted it into the required design/ontology JSON shape
+  before validation.
 - Fuseki loaded the ontology into the named ontology graph.
 
 ## Current Importer Result
 
-The current generated instance graph was produced from the fresh iterative
+The current generated instance graph was produced from the fresh production
 designer output and source data:
 
 - Instance RDF validation passed.
 - Fuseki instance graph load target: `fuseki`.
 - Importer ontology source: `fuseki`.
-- The importer produced 241 instance RDF triples and 406 combined ontology and
+- The importer produced 480 instance RDF triples and 1,021 combined ontology and
   instance triples.
-- Deterministic CSV import produced 157 triples from one validated CSV mapping.
+- Deterministic CSV import produced 77 triples from one validated CSV mapping
+  after one mapping-validation retry.
 - The generated graph includes 11 triplestore instances and related API,
   license, maintainer, and feature resources.
-- The markdown import path added 84 additional instance triples from the
+- The markdown import path added 403 additional instance triples from the
   semantic-web and ontology documents.
 
 ## Current Viewer Result
 
 The viewer was verified against the fresh persistent Fuseki data from the
-iterative designer/importer run:
+production designer/importer run:
 
-- Fuseki status endpoint reported 406 triples.
-- CSV-specific chatbot questions returned grounded answers: 11 triplestores,
-  4 open-source triplestores, Apache Jena TDB APIs, GraphDB maintainer/license,
-  commercial-license triplestores, and Virtuoso's key feature.
+- Fuseki status endpoint reported 1,021 triples.
+- Turtle export from Fuseki parsed with `rdflib` and contained 1,021 triples.
+- A representative chatbot question returned a grounded answer that 11
+  triplestores are listed and named examples including AllegroGraph, Amazon
+  Neptune, Apache Jena TDB, Blazegraph, GraphDB, Stardog, and Virtuoso.
 - Viewer answer prompting was tightened to avoid exposing implementation
   phrasing such as database, graph, node, label, URI, predicate, or raw query
   details unless the user asks technical implementation questions.
-- FastAPI endpoint checks for status, chat session creation, question answering,
-  and Turtle export passed.
-- Turtle export from Fuseki parsed with `rdflib` and contained 406 triples.
-- Latest local test result after viewer count/relevance updates:
-  `74 passed, 2 skipped`.
+- Latest local test result after production validation:
+  `87 passed, 2 skipped`.
 
 ## Proof-Of-Concept Boundary
 
