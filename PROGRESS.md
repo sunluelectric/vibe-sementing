@@ -517,10 +517,10 @@ refinement while keeping Fuseki as the runtime source of truth.
 - [ ] Improve PDF preprocessing into section-aware chunks using extracted
   headings, table-of-contents structure, page numbers, formulas, tables, figure
   captions, and code blocks where available.
-- [ ] Add a scale-up configuration profile for long documents with higher
+- [x] Add a scale-up configuration profile for long documents with higher
   `DESIGNER_RETRIEVAL_FOCUSES`, higher `IMPORTER_RETRIEVAL_BATCHES`, larger
   slice context caps, and optional stronger `LLM_MODEL` settings.
-- [ ] Add prompt modes that explicitly ask for comprehensive coverage instead
+- [x] Add prompt modes that explicitly ask for comprehensive coverage instead
   of only a compact first-pass semantic web.
 - [ ] Add ontology refinement passes that review uncovered evidence and propose
   schema additions only when the existing ontology cannot represent important
@@ -833,6 +833,11 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   relevant Fuseki terms first and then query facts around only those candidate
   terms. Local RDF chunking remains the fallback for offline and portable runs.
   `uv run pytest` reported 80 passed and 4 skipped.
+- The baseline scale-up mechanism is in place through
+  `SEMANTIC_WEB_MODE=production`: it switches the default model to `gpt-5.5`,
+  uses the comprehensive designer prompt, raises retrieval and importer
+  budgets, increases context limits, lengthens the timeout, and relaxes the
+  ontology triple limit. Milestone 12 will use this mode for comparison.
 - The designer milestone commit has been made.
 - The importer milestone commit has been made.
 - The viewer milestone commit has been made.
@@ -857,8 +862,8 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   - Fuseki data graph `http://example.org/semantic-web/graph/data` unless overridden by `.env`
 - Current tests:
   - `uv run pytest`
-  - latest local result after test/production mode switch:
-    `78 passed, 4 skipped`
+  - latest local result after Fuseki-backed graph slicing:
+    `80 passed, 4 skipped`
 - Current runtime notes:
   - Fuseki may already be running on port `3030`.
   - If not, use the project-local Fuseki base `db/fuseki-run`.
