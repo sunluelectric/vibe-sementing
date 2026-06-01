@@ -505,11 +505,14 @@ possibly without preliminary installations.
 - [ ] Run documentation sanity checks and `uv run pytest`.
 - [ ] Commit the README setup/run guide update.
 
-## Milestone 14: Long-Document Coverage Scale-Up
+## Milestone 14: Long-Document Coverage Completion
 
 Goal: move beyond proof-of-concept semantic webs for long source documents by
-improving coverage, structure extraction, iteration depth, and schema/instance
-refinement while keeping Fuseki as the runtime source of truth.
+improving coverage tracking, source structure extraction, and refinement loops
+while keeping Fuseki as the runtime source of truth. The baseline scale-up
+mechanism is already complete through production mode, larger budgets,
+comprehensive prompts, Fuseki-backed graph slicing, and JSON repair. This
+milestone tracks only the remaining long-document coverage work.
 
 - [ ] Add a coverage ledger for designer/importer runs that records source
   chapters, sections, page ranges, formulas, tables, code examples, tools,
@@ -517,11 +520,6 @@ refinement while keeping Fuseki as the runtime source of truth.
 - [ ] Improve PDF preprocessing into section-aware chunks using extracted
   headings, table-of-contents structure, page numbers, formulas, tables, figure
   captions, and code blocks where available.
-- [x] Add a scale-up configuration profile for long documents with higher
-  `DESIGNER_RETRIEVAL_FOCUSES`, higher `IMPORTER_RETRIEVAL_BATCHES`, larger
-  slice context caps, and optional stronger `LLM_MODEL` settings.
-- [x] Add prompt modes that explicitly ask for comprehensive coverage instead
-  of only a compact first-pass semantic web.
 - [ ] Add ontology refinement passes that review uncovered evidence and propose
   schema additions only when the existing ontology cannot represent important
   content.
@@ -530,11 +528,13 @@ refinement while keeping Fuseki as the runtime source of truth.
   a configured budget is reached.
 - [ ] Add viewer or script-based coverage reports that summarize what the graph
   covers and what source areas remain missing.
-- [ ] Validate the scale-up mode on `data/main.pdf` and compare graph coverage
-  against the proof-of-concept result.
-- [x] Run `uv run pytest`.
-- [ ] Update `README.md` and `PROGRESS.md` with the scale-up validation result.
-- [ ] Commit the scale-up milestone.
+- [ ] Validate long-document coverage improvements on a representative PDF
+  dataset, such as a restored `data/main.pdf`, and compare graph coverage
+  against the earlier proof-of-concept result.
+- [ ] Run `uv run pytest`.
+- [ ] Update `README.md` and `PROGRESS.md` with the long-document coverage
+  validation result.
+- [ ] Commit the long-document coverage milestone.
 
 ## Milestone 15: CSV Datatype Robustness
 
