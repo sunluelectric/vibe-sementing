@@ -125,6 +125,11 @@ Required behavior:
 - Query Fuseki to answer user questions.
 - Use exact entity lookup, class-instance counts, semantic class matching, and
   relevant fact retrieval before final answer generation.
+- Use `./design.md` as reference context for interpreting ontology labels when
+  user wording does not match schema labels directly. Do not use it as the
+  runtime source of instance facts.
+- When schema-label matching is ambiguous, ask the user for clarification or
+  present likely labels for the user to choose from.
 - Keep answers end-user-facing. Avoid database, RDF, URI, predicate, graph, or
   raw query wording unless the user asks implementation-level questions.
 - Provide an export endpoint or UI control for Turtle export.

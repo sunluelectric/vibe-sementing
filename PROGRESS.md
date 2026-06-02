@@ -46,7 +46,8 @@ The following work is complete, tested, documented, and committed.
 - Semantic web viewer:
   FastAPI browser chatbot, chat sessions, Fuseki-backed status, question
   answering, exact subject lookup, class counts, LLM-assisted semantic class
-  matching, relevant fact retrieval, and Turtle export.
+  matching, `design.md` reference context for schema-label interpretation,
+  ambiguity clarification, relevant fact retrieval, and Turtle export.
 - Semantic search and graph slicing:
   shared retrieval layer for markdown, text, PDF, CSV, RDF graph chunks, and
   SPARQL result rows; deterministic local search; optional OpenAI embeddings;
@@ -84,7 +85,7 @@ Latest completed validation:
   `SEMANTIC_WEB_MODE=production`, `gpt-5.5`, 541 ontology triples, 480 instance
   triples, and 1,021 combined/export triples.
 - Latest local test result:
-  `uv run pytest` reported 85 passed and 4 skipped.
+  `uv run pytest` reported 86 passed and 4 skipped.
 - Recent documentation commits:
   `3dff973 Improve project setup documentation`,
   `a4ef360 Document uv commands and framework packages`,
@@ -167,6 +168,8 @@ Behavior to preserve:
   artifacts.
 - Viewer uses Fuseki at runtime and does not read `db/semantic_web.ttl`
   directly.
+- Viewer may read `design.md` as reference context for mapping ordinary user
+  wording to ontology labels, but must still ground answers in Fuseki facts.
 - `SEMANTIC_WEB_MODE=test` is the default compact workflow. Production mode
   uses stronger defaults and larger budgets for richer runs.
 

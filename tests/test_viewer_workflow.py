@@ -101,6 +101,27 @@ class SemanticClassQueryService(FakeQueryService):
         return 1
 
 
+class AmbiguousClassQueryService(SemanticClassQueryService):
+    def graph_summary(self) -> dict[str, object]:
+        return {
+            "triple_count": 3,
+            "classes": [
+                {
+                    "class": "http://example.org/schema#TenYearOld",
+                    "label": "Ten Year Old",
+                    "comment": "Children who are ten years old.",
+                },
+                {
+                    "class": "http://example.org/schema#YouthGroup",
+                    "label": "Youth Group",
+                    "comment": "Groups for young people.",
+                },
+            ],
+            "properties": [],
+            "sample_instances": [],
+        }
+
+
 def test_viewer_workflow_builds_agents_sdk_shell() -> None:
     workflow = ViewerWorkflow()
 
@@ -181,12 +202,40 @@ def test_viewer_agent_uses_llm_to_match_nonlexical_class_terms(monkeypatch) -> N
     monkeypatch.setattr("src.viewer.agent.get_text_response", fake_get_text_response)
     query_service = SemanticClassQueryService()
 
-    result = ViewerAgent(model="test-model").answer("How many kids are stored?", query_service)
+    result = ViewerAgent(model="test-model").answer(
+        "How many kids are stored?",
+        query_service,
+        design_text="# Design\nTen Year Old represents kids in the records.",
+    )
 
     assert result.answer == "There is 1 kid: Alice."
     assert "Ten Year Old" in query_service.class_lookups
     assert any(fact.get("matchSource") == "llm_class_match" for fact in result.facts)
     assert "classInstanceCount=1" in prompts[-1]
+    assert "Design document excerpt" in prompts[0]
+    assert "Ten Year Old represents kids" in prompts[0]
+
+
+def test_viewer_agent_treats_multiple_llm_class_matches_as_clarification(monkeypatch) -> None:
+    prompts: list[str] = []
+
+    def fake_get_text_response(model: str, prompt: str, timeout_seconds: int) -> str:
+        prompts.append(prompt)
+        if "choose which ontology classes to query" in prompt:
+            return '{"class_labels": ["Ten Year Old", "Youth Group"]}'
+        assert "probableClassLabel=Ten Year Old" in prompt
+        assert "probableClassLabel=Youth Group" in prompt
+        return "I found two likely meanings: Ten Year Old and Youth Group. Which one do you mean?"
+
+    monkeypatch.setattr("src.viewer.agent.get_text_response", fake_get_text_response)
+    query_service = AmbiguousClassQueryService()
+
+    result = ViewerAgent(model="test-model").answer("List the kids.", query_service)
+
+    assert "Which one do you mean" in result.answer
+    assert query_service.class_lookups == []
+    assert {fact.get("probableClassLabel") for fact in result.facts} == {"Ten Year Old", "Youth Group"}
+    assert all(fact.get("matchSource") == "llm_class_ambiguity" for fact in result.facts)
 
 
 def test_viewer_agent_prioritizes_exact_subject_label_facts(monkeypatch) -> None:
@@ -205,14 +254,21 @@ def test_viewer_agent_prioritizes_exact_subject_label_facts(monkeypatch) -> None
 
 
 def test_viewer_workflow_answer_question_with_stubbed_agent(monkeypatch, tmp_path) -> None:
-    settings = replace(get_settings(), db_dir=tmp_path, viewer_chat_dir=tmp_path / "chat")
+    settings = replace(
+        get_settings(),
+        db_dir=tmp_path,
+        viewer_chat_dir=tmp_path / "chat",
+        design_doc_path=tmp_path / "design.md",
+    )
+    settings.design_doc_path.write_text("# Design", encoding="utf-8")
     workflow = ViewerWorkflow(settings)
     workflow.query_service = FakeQueryService()
     session = workflow.create_chat_session()
 
-    def fake_answer(self, question, query_service, history=""):
+    def fake_answer(self, question, query_service, history="", design_text=""):
         from src.viewer.agent import ViewerAnswer
 
+        assert design_text == "# Design"
         return ViewerAnswer(
             question=question,
             answer="Stub answer.",

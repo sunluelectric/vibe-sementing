@@ -41,6 +41,9 @@ language:
   cannot confidently connect to the graph facts or conversation history, ask a
   brief clarification question such as "What does XXX mean in your question?"
   or "Can you be more specific about XXX?".
+- If the supplied facts include probable class labels but no matching instance
+  facts, ask the user which label they mean and list the likely labels in plain
+  language.
 - Keep the answer concise unless the user asks for detail.
 
 User question:
@@ -85,6 +88,9 @@ Conversation history:
 
 Class summary:
 {classes}
+
+Design document excerpt:
+{design}
 """
 
 
@@ -105,6 +111,7 @@ class ViewerAgent:
         question: str,
         query_service: ViewerQueryService,
         history: str = "",
+        design_text: str = "",
     ) -> ViewerAnswer:
         question = question.strip()
         if not question:
@@ -130,14 +137,21 @@ class ViewerAgent:
         facts.extend(class_facts)
         matched_labels.update(direct_labels)
         if not matched_labels:
-            for fact in _llm_matched_class_facts(
+            llm_class_facts, llm_labels = _llm_matched_class_facts(
                 question=question,
                 history=history or "- No previous turns in this chat session.",
                 summary=summary,
+                design_text=design_text,
                 query_service=query_service,
                 model=self.model,
                 timeout_seconds=self.timeout_seconds,
-            ):
+            )
+            matched_labels.update(llm_labels)
+            for fact in llm_class_facts:
+                if fact not in facts:
+                    facts.append(fact)
+        if not matched_labels:
+            for fact in _probable_class_label_facts(question, summary):
                 if fact not in facts:
                     facts.append(fact)
         prompt = VIEWER_PROMPT.format(
@@ -211,31 +225,41 @@ def _llm_matched_class_facts(
     question: str,
     history: str,
     summary: dict[str, object],
+    design_text: str,
     query_service: ViewerQueryService,
     model: str,
     timeout_seconds: int,
-) -> list[dict[str, str]]:
+) -> tuple[list[dict[str, str]], set[str]]:
     class_rows = _class_summary_rows(summary)
     if not class_rows:
-        return []
+        return [], set()
     prompt = CLASS_MATCH_PROMPT.format(
         question=question,
         history=history,
         classes=_format_rows(class_rows),
+        design=_design_excerpt(design_text),
     )
     try:
         payload = parse_json_object(get_text_response(model, prompt, timeout_seconds))
     except (LlmError, ValueError):
-        return []
+        return [], set()
     requested = payload.get("class_labels", [])
     if not isinstance(requested, list):
-        return []
+        return [], set()
     allowed = {row["label"] for row in class_rows if row.get("label")}
-    rows: list[dict[str, str]] = []
+    labels = []
     for raw_label in requested[:3]:
         label = str(raw_label).strip()
-        if label not in allowed:
-            continue
+        if label in allowed and label not in labels:
+            labels.append(label)
+    rows: list[dict[str, str]] = []
+    if len(labels) > 1:
+        for label in labels:
+            rows.append({"probableClassLabel": label, "matchSource": "llm_class_ambiguity"})
+        return rows, set()
+    matched_labels: set[str] = set()
+    for label in labels:
+        matched_labels.add(label)
         if hasattr(query_service, "class_instance_count_by_label"):
             rows.append(
                 {
@@ -245,7 +269,33 @@ def _llm_matched_class_facts(
                 }
             )
         rows.extend(query_service.class_instances_by_label(label, limit=200))
-    return rows
+    return rows, matched_labels
+
+
+def _probable_class_label_facts(question: str, summary: dict[str, object], limit: int = 3) -> list[dict[str, str]]:
+    class_rows = _class_summary_rows(summary)
+    if not class_rows:
+        return []
+    question_terms = set(_tokens(question))
+    scored: list[tuple[int, dict[str, str]]] = []
+    for row in class_rows:
+        haystack = " ".join(str(row.get(key, "")) for key in ("label", "localName", "comment"))
+        score = len(question_terms.intersection(_tokens(haystack)))
+        if score:
+            scored.append((score, row))
+    scored.sort(key=lambda item: (-item[0], item[1].get("label", "")))
+    facts: list[dict[str, str]] = []
+    for _score, row in scored[:limit]:
+        fact = {
+            "probableClassLabel": row["label"],
+            "matchSource": "probable_class_label",
+        }
+        if row.get("comment"):
+            fact["comment"] = row["comment"]
+        if row.get("localName"):
+            fact["localName"] = row["localName"]
+        facts.append(fact)
+    return facts
 
 
 def _class_summary_rows(summary: dict[str, object]) -> list[dict[str, str]]:
@@ -284,6 +334,29 @@ def _class_variants(label: str, local_name: str) -> set[str]:
             variants.add(acronym)
             variants.add(acronym + "s")
     return variants
+
+
+def _design_excerpt(design_text: str, max_chars: int = 4000) -> str:
+    text = design_text.strip()
+    if not text:
+        return "- No design document was available."
+    if len(text) <= max_chars:
+        return text
+    return text[:max_chars].rstrip() + "\n[truncated]"
+
+
+def _tokens(text: str) -> list[str]:
+    normalized = []
+    for char in text.lower():
+        normalized.append(char if char.isalnum() else " ")
+    terms: list[str] = []
+    for term in "".join(normalized).split():
+        if len(term) < 3:
+            continue
+        if term in {"the", "and", "for", "with", "about", "from", "that", "this", "what", "which", "list"}:
+            continue
+        terms.append(term)
+    return terms
 
 
 def _local_name(uri: str) -> str:

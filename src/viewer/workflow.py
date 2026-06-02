@@ -6,6 +6,7 @@ from typing import Any
 from agents import Agent, function_tool
 
 from src.common.config import Settings, get_settings
+from src.common.files import read_text
 from src.common.fuseki import client_from_settings
 from src.viewer.agent import ViewerAgent, ViewerAnswer
 from src.viewer.chat import ChatStore, format_history
@@ -53,7 +54,7 @@ class ViewerWorkflow:
         result = ViewerAgent(
             model=self.settings.llm_model,
             timeout_seconds=self.settings.llm_timeout_seconds,
-        ).answer(question, self.query_service, history=history)
+        ).answer(question, self.query_service, history=history, design_text=self.read_design_reference())
         if session_id:
             self.chat_store.append_turn(
                 session_id=session_id,
@@ -88,6 +89,11 @@ class ViewerWorkflow:
 
     def search_facts(self, question: str) -> list[dict[str, str]]:
         return self.query_service.search_facts(question)
+
+    def read_design_reference(self) -> str:
+        if not self.settings.design_doc_path.exists():
+            return ""
+        return read_text(self.settings.design_doc_path)
 
     def export_turtle(self) -> str:
         return self.query_service.export_turtle()

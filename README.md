@@ -472,7 +472,7 @@ Artifact roles:
 
 | Artifact | Role |
 | --- | --- |
-| `design.md` | Human-readable ontology design and importer reference. |
+| `design.md` | Human-readable ontology design, importer reference, and viewer reference for interpreting schema labels. |
 | `import.md` | Importer progress log. |
 | `db/ontology.ttl` | Validated ontology Turtle, review file, portable fallback, and reload artifact. |
 | `db/instances.ttl` | Validated instance Turtle. |
@@ -482,7 +482,9 @@ Artifact roles:
 | `chat/viewer/` | Runtime viewer chat transcripts. |
 
 The viewer queries and exports through Fuseki. It does not use
-`db/semantic_web.ttl` as its runtime data source.
+`db/semantic_web.ttl` as its runtime data source. It may read `design.md` as
+reference context when mapping ordinary user wording to ontology labels, but
+answers must still be grounded in facts queried from Fuseki.
 
 ## 10. CSV Handling
 
@@ -535,6 +537,13 @@ passes, and coverage reports.
 ## 12. Viewer API
 
 The viewer starts a FastAPI app.
+
+When a user asks with ordinary wording that does not match ontology labels, the
+viewer first queries schema labels and comments from Fuseki, then uses the
+generated `design.md` as reference context for semantic class matching. If one
+likely class is found, it queries that class. If several labels are plausible,
+it asks the user to clarify or choose among likely labels instead of silently
+guessing.
 
 Useful endpoints:
 
