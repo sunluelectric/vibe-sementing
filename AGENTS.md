@@ -1,159 +1,315 @@
 # Semantic Web Processor
 
-This project is developed jointly by sunlu.electric@github and Codex using Python.
+This file is the high-level requirements and handoff document for a coding
+agent. It describes the system that should be built, the required features, the
+expected setup, and the main technology choices. Detailed implementation
+history belongs in `PROGRESS.md`; user-facing setup and operation details
+belong in `README.md`.
 
-## Introduction
+## Product Goal
 
-## Project Overview
+Build a Python application that can design, import, query, and export a
+semantic web from local user-provided data.
 
-This project is a one-stop solution to design, insert and query semantic web based on user input structured and unstructured data.
+The application should support both structured and unstructured input files
+placed directly under `./data/*`:
 
-Important domain boundary:
-* The DnD adventure is example input data only. The application is a general-purpose semantic web designer, importer, and viewer.
-* Do not hardcode DnD-specific classes, properties, namespaces, validation rules, prompts, graph URIs, SPARQL queries, importer behavior, or viewer behavior in `./src/*`.
-* Product code in `./src/*` should derive ontology terms and instance mappings from `./design-requirements.md`, `./data/*`, generated `./design.md`, generated ontology files, and runtime configuration.
-* If development needs checks against the currently generated DnD example result, put those checks in scripts or tests under `./tests/*`, not in reusable product modules.
-* The default configuration and prompts should stay domain-neutral. Domain-specific examples may appear in documentation or generated artifacts, but should not become assumptions in the application code.
+- Markdown files.
+- Plain text files.
+- PDF files.
+- CSV files.
 
-The project includes three independent executable codes. They are:
-* Semantic web designer (`./src/designer/*`): an OpenAI Agents SDK workflow that consumes the design requirement and data, checks or starts Apache Jena Fuseki, uses direct OpenAI API calls as controlled design tools, iteratively validates RDF/RDFS output, writes intermediate Turtle for testing and review, and implements the ontology in Fuseki using Jena-compatible graph operations.
-* Semantic web importer (`./src/importer/*`): an OpenAI Agents SDK tool that interprets the semantic web design and then consumes the data and fill instances into the semantic web according to the data.
-* Semantic web viewer (`./src/viewer/*`): an chatbot AI agent with browser-based UI, that consumes the user questions from the UI, and based on the questions query the semantic web, and based on the returned results answer the questions; there are also options on the UI that allow the user to export and download the semantic web in Turtle (`.ttl`) or other commonly seen formats, in which case the semantic web viewer needs to (use the triplestore's capability to) convert the data into the required format.
+The system should produce an RDF/RDFS semantic web, store it in Apache Jena
+Fuseki, and provide a browser-based chatbot viewer that answers user questions
+by querying the stored semantic web.
 
-## Current Development State
+## Domain Boundary
 
-* The semantic web designer milestone is complete, tested, and documented.
-* The original designer milestone and later verification updates for progressive `./design.md` logging, compact prompting, generic product-code validation, the default model, and iterative retrieval-guided design have been committed.
-* The designer has produced `./design.md` and `./db/ontology.ttl`.
-* The designer has loaded the ontology into Fuseki as named graph `http://example.org/semantic-web/graph/ontology`.
-* The latest verified designer run used production mode with model `gpt-5.5`, produced 541 RDF triples, 94 RDFS classes, and 30 RDF properties, and was verified through a clean non-DnD CSV-aware end-to-end run against semantic-web and ontology markdown files plus a triplestore CSV. The first production designer response was long non-JSON output, so the designer now includes a JSON repair fallback before RDF validation.
-* The semantic web importer milestone is complete, tested, documented, and committed.
-* The importer now supports iterative retrieval-guided import batches for large-data runs and writes progressive run status to `./import.md`.
-* The importer now supports CSV-aware deterministic import: CSV files are summarized as conservative profiles with datatype compatibility notes, the model plans constrained row-to-RDF mapping JSON, Python validates mappings against the generated ontology and CSV headers, applies safe datatype compatibility rules, and Python loops over all CSV rows to emit RDF instances.
-* The importer has produced `./db/instances.ttl` and `./db/semantic_web.ttl`.
-* The importer has loaded the instance graph into Fuseki as named graph `http://example.org/semantic-web/graph/data`, unless overridden by `.env`.
-* The latest verified importer run used production mode with model `gpt-5.5`, inspected ontology from Fuseki, produced 480 instance RDF triples and 1,021 combined triples, including 77 deterministic CSV triples from one validated CSV mapping after one validation retry, and was verified through viewer workflow checks, Turtle export parsing, and local RDF/SPARQL checks.
-* The designer and importer are independent executables. The importer can run on another machine from a handoff package containing `./design.md`, `./db/ontology.ttl`, and the source `./data/*`, but the preferred local handoff between applications is persistent Fuseki.
-* The importer supports ontology inspection by querying Fuseki when available, while retaining `./db/ontology.ttl` as the portable fallback and reload artifact.
-* Fuseki is the intended durable source of truth bridging designer, importer, and viewer. Turtle files are useful as intermediate validation/loading artifacts, portable artifacts, tests, exports, and fallbacks. The importer and viewer now use Fuseki-backed term selection and targeted graph slices for prompt context when Fuseki is available, with local RDF graph chunking as the portable fallback.
-* The non-DnD CSV-aware validation proves the architecture is domain-neutral and that structured rows can be imported deterministically. The current generated semantic web is still a proof of concept for the markdown documents, because unstructured-source extraction remains bounded by compact prompts and validation limits.
-* Future scale-up work should improve coverage and graph richness for unstructured long documents with stronger models, more explicit comprehensive-coverage prompts, higher retrieval and importer iteration limits, section/page-level coverage tracking, better PDF preprocessing for headings/equations/tables/code, and schema refinement passes.
-* The semantic web viewer milestone is complete, tested, documented, and committed.
-* The viewer queries and exports through Fuseki as its runtime data source; it does not read `./db/semantic_web.ttl` directly.
-* The viewer now uses class-instance aggregate counts for count-style class questions, exact subject-label fact lookup for named-entity questions, and LLM-assisted semantic class matching when user wording does not lexically match designer-generated class names. Viewer answers should be end-user-facing and avoid database/RDF implementation wording unless the user asks technical implementation questions.
-* End-to-end validation from clean generated outputs succeeded on 2026-06-01 in production mode against semantic-web and ontology markdown files plus `./data/commonly seen triplestores.csv`. The viewer answered that 11 triplestores are listed and named representative examples. Turtle export parsed successfully with 1,021 triples, and `uv run pytest` reported 87 passed and 2 skipped after production validation.
-* Next work should follow `./PROGRESS.md`, specifically scale-up work for richer coverage beyond proof-of-concept semantic webs.
+The product must be domain-neutral.
 
-## Setups and Requirements
+- Do not hardcode DnD-specific classes, properties, namespaces, validation
+  rules, prompts, graph URIs, SPARQL queries, importer behavior, or viewer
+  behavior in `./src/*`.
+- Do not hardcode assumptions from the current semantic-web, ontology, or
+  triplestore example into product modules.
+- Product code in `./src/*` should derive ontology terms and instance mappings
+  from `./design-requirements.md`, `./data/*`, generated `./design.md`,
+  generated ontology files, Fuseki contents, and runtime configuration.
+- Domain-specific examples may appear in documentation, generated artifacts, or
+  tests, but reusable product code must remain general-purpose.
+- If example-specific checks are needed, put them in `./tests/*` or scripts,
+  not in reusable product modules.
 
-### Preparations that have been carried out
+## Main Executables
 
-* `git` is installed on the server; `git init` has been performed to the project folder
-* `uv` is installed on the server; `uv init` has been performed to the project folder
-* Apache Jena Fuseki is used as the triplesotre and has been installed on the server. Details are given in **Locations of Files**
-* OpenAI API key has been prepared and saved in the project folder under `.env`. Details are given in **Locations of Files**
-* The semantic web designer, importer, and viewer will need to access structured and unstructured data. It may happen that the file sizes or file counts are large. In those cases, the agentic AI frameworks need to chunk documents and perform semantic search instead of prompt-stuffing all of `./data/*`. A shared semantic-search layer is provided in `./src/common/semantic_search.py`, and a standalone document search tool is provided in `./tools/semantic-search/*`. Read the code and documents there to understand how to use them.
-  * Product data loading and semantic-search chunking support markdown, text, PDF, and CSV files under `./data/*`.
-  * The standalone semantic search tool supports PDF, HTML, markdown, text, and CSV files as inputs.
-  * The semantic search tool comes with a .env file, inside which are configurations for the tool, such as a seperate `OPENAI_API_KEY` of the tool, choice of models and embedding methods, locations of files by default, etc. Modify them if needed. For example, the locaiton of files definately needs to be changed.
+The project should contain three independent executable applications.
 
-### Locations of Files
+### Semantic Web Designer
 
-* OpenAI API key and LLM instances in agentic AI frameworks
-  * The project develops and deploys multiple agentic AI frameworks for semantic web design, data insertation and result query. LLM will be used in the agentic AI frameworks
-  * OpenAI API Key can be found in `.env` file, as environment variable `OPENAI_API_KEY`
-  * The default mode is `SEMANTIC_WEB_MODE=test`, which uses `gpt-5-mini`, compact designer prompts, and smaller validation/retrieval budgets. Set `SEMANTIC_WEB_MODE=production` in `.env` to use the comprehensive designer prompt, `gpt-5.5` by default, larger retrieval/import budgets, longer timeout, and relaxed designer ontology triple limit. Override the model with `LLM_MODEL` in either mode when needed.
+Location: `./src/designer/*`
 
-* Design requirements
-  * Design requirements is given in `./design-requirements.md`
+The designer reads `./design-requirements.md` and `./data/*`, designs a compact
+RDF/RDFS ontology, validates it, writes human-readable documentation, and loads
+the ontology into Fuseki.
 
-* Data
-  * The data to be used for semantic web design and insertation is saved in `./data/*`
-  * Product workflows support unstructured markdown, text, and PDF files, plus structured CSV files.
+Required behavior:
 
-* Semantic web database
-  * Semantic web should be stored in `./db/*`
+- Use the OpenAI Agents SDK as the workflow framework.
+- Do not use CrewAI for the designer.
+- The actual ontology generation step may use direct OpenAI API calls, but it
+  must be controlled by the designer workflow.
+- Check whether Apache Jena Fuseki is available.
+- Start Fuseki when needed and possible.
+- Read the design requirements and top-level source files under `./data/*`.
+- Use semantic-search retrieval instead of prompt-stuffing when the source data
+  is large.
+- Generate a compact first-pass RDF/RDFS ontology.
+- Validate generated Turtle with RDF parsing and project-specific checks.
+- Retry with validation feedback when the ontology is invalid.
+- Write `./design.md` progressively while the run is active.
+- Leave the final design at the top of `./design.md` and append a generation
+  log for human review and importer reference.
+- Write `./db/ontology.ttl` as a validated intermediate artifact for review,
+  portability, tests, fallback, and Fuseki loading.
+- Load the ontology into Fuseki as a named graph.
 
-* Triplestore
-  * Apache Jena Fuseki is installed on the server
-  * The location is `/opt/apache-jena-fuseki-6.1.0`
-  * Designer and importer workflows stop Fuseki automatically only when the workflow started Fuseki itself. If Fuseki was already running before the workflow, leave it running.
-  * The tree is given by
-  ```
-  .
-    ├── fuseki-backup
-    ├── fuseki-plain
-    ├── fuseki-server
-    ├── fuseki-server.bat
-    ├── fuseki-server.jar
-    ├── LICENSE
-    ├── log4j2.properties
-    ├── NOTICE
-    ├── README
-    ├── run
-    │   ├── backups
-    │   ├── config.ttl
-    │   ├── configuration
-    │   ├── databases
-    │   ├── logs
-    │   ├── shiro.ini
-    │   ├── system_files
-    │   └── templates
-    │       ├── config-mem
-    │       ├── config-tdb
-    │       ├── config-tdb2
-    │       ├── config-tdb2-dir
-    │       ├── config-tdb2-mem
-    │       ├── config-tdb-dir
-    │       └── config-tdb-mem
-    └── service
-        └── service
-            ├── fuseki.initd
-            └── fuseki.service
-  ```
+The designer should focus mainly on RDF and RDFS. OWL may be used if helpful,
+but complex OWL reasoning is not required.
 
-### Requirements for semantic web designer
+### Semantic Web Importer
 
-* Use OpenAI Agents SDK as the overall workflow framework.
-* Do not use CrewAI for the designer.
-* The actual ontology design step can use direct OpenAI API calls, but those calls should be controlled by the designer workflow and wrapped as workflow tools or equivalent internal steps.
-* The designer workflow should include at least these stages:
-  * Check whether Apache Jena Fuseki is available.
-  * Start Apache Jena Fuseki when needed and possible.
-  * Read `./design-requirements.md` and `./data/*`.
-  * Generate a compact semantic web design and ontology.
-  * Validate the generated ontology with RDF parsing and project-specific checks.
-  * Iterate the design a few times, using validation feedback to improve quality.
-  * Write `./design.md` progressively while the design is running, then leave the final design at the top and append a generation log for human review and for the importer.
-  * Write Turtle (`.ttl`) only as an intermediate artifact for testing, review, fallback, and Jena loading.
-  * Implement the ontology in Apache Jena Fuseki using Jena-compatible graph operations.
-* Focus mainly on RDF and RDFS; OWL can be used but it is not required. In other words, implement class and property hierarchy, but not necessarily implementing complicated OWL-defined class and properties
-* Keep the first-pass ontology compact. The current designer prompt asks for about 10 to 16 classes, 15 to 28 properties, and fewer than 220 triples.
-* Iteratively improve the design
-* Implement the design to the semantic web, with the installed triplestore Apache Jena Fuseki
-* Document the design in `./design.md`; later the semantic web importer agentic AI framework will read the document, using which to understand the semantic web design, so that it can insert data into it
+Location: `./src/importer/*`
 
-### Requirements for semantic web importer
+The importer reads the generated design, the ontology, and source data, then
+inserts instance data into the semantic web without changing the ontology.
 
-* Understand the semantic web design, either by querying the database, or by reading `./design.md`, or both.
-* Read files in `./data/*`, understand them, and insert the data into the semantic web.
-* Do not change the semantic web structure designed by semantic web designer. Try to fit the instances into it.
+Required behavior:
 
-### Requirements for semantic web viewer
+- Use the OpenAI Agents SDK as the workflow framework.
+- Understand the semantic web design by querying Fuseki when available and by
+  reading `./design.md` as human-readable reference.
+- Use `./db/ontology.ttl` as a portable fallback and reload artifact.
+- Read top-level source files from `./data/*`.
+- Do not change the ontology produced by the designer.
+- Validate that importer output does not define new `rdfs:Class` or
+  `rdf:Property` terms outside the generated ontology.
+- Write `./import.md` progressively during long runs.
+- Write `./db/instances.ttl` as a validated intermediate artifact.
+- Write `./db/semantic_web.ttl` as a combined review/export/fallback artifact.
+- Load the instance graph into Fuseki as a named graph.
 
-* Understand the semtic web design, either by querying the database, or by reading `./design.md`, or both.
-* When started, a browser-based UI should pop up, inside which is a chatbot. The user can interact with the chatbot and ask questions about the data in the semantic web. The semantic web viewer should query the semantic web and answer the questions accordingly.
-* The semantic web can be exported and downloaded from the UI. For example, there can be a button on the UI that says `Export as Turtle`, and let the user download the semantic web as Turtle.
+CSV import should be deterministic after mapping:
 
-### Other requirements
+- Profile CSV files instead of sending every row to the model.
+- Ask the model for a constrained row-to-RDF mapping JSON.
+- Validate the mapping against CSV headers and existing ontology terms.
+- Apply safe datatype compatibility rules.
+- Use Python to iterate over all rows and emit RDF instances.
+- Merge deterministic CSV triples with LLM-assisted imports from unstructured
+  markdown, text, and PDF sources.
 
-* Plan then implement. Save the plan in `./PROGRESS.md`. Carry out the steps one by one according to the plan. After finishing each step, checkbox in `./PROGRESS.md`.
-* Test after each step before checking the checkbox.
-* Update `README.md` with detailed implementation and explanation after milestones.
-* Perform `git add` and `git commit` after milestones.
-* Do NOT use emoji in any document, including `./design.md`, `./PROGRESS.md`, `README.md`, and any other documents.
-* Intermediate files and testing scripts can be saved at `./tests/*`.
+For large unstructured sources, the importer should use retrieval-guided import
+batches, validate each slice, merge valid triples, and continue until coverage
+is complete or the configured budget is reached.
 
-## Example: Semantic web for a DnD game
+### Semantic Web Viewer
 
-The following is a use case of the project. It helps Codex understand the purpose, input/output and flow of the project execution.
+Location: `./src/viewer/*`
+
+The viewer provides a FastAPI browser UI with chatbot and export controls.
+
+Required behavior:
+
+- Use Fuseki as the runtime data source.
+- Do not read `./db/semantic_web.ttl` directly at viewer runtime.
+- Query Fuseki to answer user questions.
+- Use exact entity lookup, class-instance counts, semantic class matching, and
+  relevant fact retrieval before final answer generation.
+- Keep answers end-user-facing. Avoid database, RDF, URI, predicate, graph, or
+  raw query wording unless the user asks implementation-level questions.
+- Provide an export endpoint or UI control for Turtle export.
+- Use Fuseki's graph/query capability for export rather than serializing a
+  local file as the runtime source.
+- Persist browser chat sessions under `./chat/viewer/` as runtime artifacts.
+
+Expected endpoints:
+
+- `GET /`: browser chatbot page.
+- `GET /api/status`: Fuseki status and graph triple count.
+- `POST /api/chat/session`: create a viewer chat session.
+- `GET /api/chat/{session_id}`: read a persisted chat session.
+- `POST /api/question`: answer a question for a session.
+- `GET /api/export.ttl`: export the semantic web as Turtle.
+
+## Data And Handoff Model
+
+Fuseki is the primary machine-readable source of truth between the designer,
+importer, and viewer.
+
+Expected data flow:
+
+1. User provides `./design-requirements.md` and source files under `./data/*`.
+2. Designer creates `./design.md` and `./db/ontology.ttl`.
+3. Designer loads the ontology into Fuseki named graph
+   `http://example.org/semantic-web/graph/ontology`, unless overridden.
+4. Importer reads `./design.md`, inspects ontology terms from Fuseki when
+   available, and falls back to `./db/ontology.ttl` when needed.
+5. Importer creates `./db/instances.ttl` and `./db/semantic_web.ttl`.
+6. Importer loads instances into Fuseki named graph
+   `http://example.org/semantic-web/graph/data`, unless overridden.
+7. Viewer queries and exports through Fuseki.
+
+Artifact roles:
+
+- `./design.md`: human-readable design and importer reference.
+- `./import.md`: progressive importer run log.
+- `./db/ontology.ttl`: portable ontology artifact, validation artifact, and
+  Fuseki reload fallback.
+- `./db/instances.ttl`: portable instance artifact and validation artifact.
+- `./db/semantic_web.ttl`: combined review/export/fallback artifact.
+- Fuseki named graphs: intended runtime source of truth.
+
+Designer and importer workflows should stop Fuseki only when that workflow
+started Fuseki itself. If Fuseki was already running before the workflow, leave
+it running.
+
+For large graphs, agents should consume relevant graph slices from Fuseki or
+local RDF/SPARQL fallback instead of prompt-stuffing whole Turtle files.
+
+## Setup Assumptions
+
+The project is developed in Python.
+
+Expected local prerequisites:
+
+- `git`.
+- `uv`.
+- Python 3.12 or newer.
+- Java suitable for Apache Jena Fuseki.
+- Apache Jena Fuseki.
+- OpenAI API key.
+
+Apache Jena Fuseki is expected at:
+
+```text
+/opt/apache-jena-fuseki-6.1.0
+```
+
+Use project-local Fuseki runtime and storage directories:
+
+```text
+db/fuseki-run
+db/fuseki-data
+db/fuseki.log
+```
+
+Do not use `/opt/apache-jena-fuseki-6.1.0/run` as the project runtime base,
+because it may not be writable.
+
+The project reads configuration from `.env`. Important settings include:
+
+- `OPENAI_API_KEY`.
+- `SEMANTIC_WEB_MODE`.
+- `LLM_MODEL`.
+- `FUSEKI_BASE_URL`.
+- `FUSEKI_DATASET`.
+- `FUSEKI_HOME`.
+- `FUSEKI_DATA_DIR`.
+- `ONTOLOGY_GRAPH_URI`.
+- `DATA_GRAPH_URI`.
+- `VIEWER_HOST`.
+- `VIEWER_PORT`.
+- Semantic-search and retrieval budget settings.
+
+Default mode should be `SEMANTIC_WEB_MODE=test`, using a compact workflow and a
+smaller default model. `SEMANTIC_WEB_MODE=production` should use richer prompts,
+larger retrieval/import budgets, longer timeouts, and a stronger default model.
+Explicit environment overrides should work in both modes.
+
+## Semantic Search And Scaling Requirements
+
+The system must support data that is too large to fit safely into one prompt.
+
+Required behavior:
+
+- Use shared semantic-search utilities for markdown, text, PDF, CSV, RDF graph
+  chunks, and SPARQL result rows.
+- Use deterministic local vector search for tests and optional OpenAI
+  embeddings for larger product runs.
+- Represent CSV files to the designer as conservative profiles.
+- Use model-planned retrieval focuses for large designer runs.
+- Use model-planned retrieval batches for large importer runs.
+- Use Fuseki-backed term selection and targeted graph slices for importer and
+  viewer context when Fuseki is available.
+- Keep local RDF/SPARQL retrieval as a portable fallback.
+
+Future scale-up work should improve long-document coverage with:
+
+- Coverage ledgers for source sections, page ranges, formulas, tables, code
+  examples, tools, named concepts, and imported graph areas.
+- Better PDF preprocessing for headings, table-of-contents structure, page
+  numbers, equations, tables, captions, and code blocks.
+- Ontology refinement passes based on uncovered evidence.
+- Importer continuation passes that resume from existing Fuseki data and avoid
+  duplicate instances.
+- Viewer or script-based coverage reports.
+
+## Brief Usage
+
+Install dependencies:
+
+```bash
+uv sync --dev
+```
+
+Run tests:
+
+```bash
+uv run pytest
+```
+
+Run the designer:
+
+```bash
+uv run python -m src.designer.main
+```
+
+Run the importer:
+
+```bash
+uv run python -m src.importer.main
+```
+
+Run the viewer:
+
+```bash
+uv run python -m src.viewer.main
+```
+
+The viewer should start a browser-accessible FastAPI application, defaulting to
+`http://127.0.0.1:8000` unless configured otherwise. A user can open that URL
+in a browser.
+
+To use a new dataset:
+
+1. Replace `./design-requirements.md`.
+2. Replace top-level files under `./data/*`.
+3. Remove generated review/fallback artifacts from the previous run.
+4. Run designer.
+5. Run importer.
+6. Run viewer.
+7. Export and validate Turtle when needed.
+
+Do not delete Fuseki runtime directories while Fuseki is running.
+
+## Development Requirements
+
+- Plan then implement. Save the active plan in `./PROGRESS.md`.
+- Carry out steps one by one according to the plan.
+- After finishing each step, test it before checking the box in
+  `./PROGRESS.md`.
+- Update `README.md` with detailed setup, usage, implementation, and milestone
+  explanations.
+- Commit completed milestones with `git add` and `git commit`.
+- Do not use emoji in any project document.
+- Intermediate files and testing scripts may be saved under `./tests/*`.

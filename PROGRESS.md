@@ -478,32 +478,32 @@ Goal: rewrite or substantially improve `README.md` so a user can set up and
 run the application end to end on a machine without a vibe coding agent and
 possibly without preliminary installations.
 
-- [ ] Document prerequisites clearly: supported Python version, `uv`, git,
+- [x] Document prerequisites clearly: supported Python version, `uv`, git,
   Apache Jena Fuseki, Java requirements for Fuseki, OpenAI API key, and network
   access expectations.
-- [ ] Document first-time setup from a fresh clone: dependency installation,
+- [x] Document first-time setup from a fresh clone: dependency installation,
   `.env` creation, API key configuration, Fuseki location/configuration, and
   writable project-local Fuseki runtime/storage directories.
-- [ ] Document `.env` settings in practical groups: OpenAI/model settings,
+- [x] Document `.env` settings in practical groups: OpenAI/model settings,
   test/production mode, retrieval limits, designer/importer iterations, Fuseki
   endpoints and graph URIs, viewer host/port, and semantic-search provider.
-- [ ] Explain test mode versus production mode, including default model,
+- [x] Explain test mode versus production mode, including default model,
   prompt behavior, retrieval/batch budgets, ontology triple limits, expected
   runtime/cost tradeoffs, and how explicit overrides work.
-- [ ] Document how to replace `design-requirements.md` and `data/*` with a new
+- [x] Document how to replace `design-requirements.md` and `data/*` with a new
   dataset, including CSV, markdown/text, and PDF inputs.
-- [ ] Document clean end-to-end run commands: stop stale Fuseki, remove
+- [x] Document clean end-to-end run commands: stop stale Fuseki, remove
   generated outputs, run designer, run importer, start viewer, ask questions,
   export Turtle, and run tests.
-- [ ] Document troubleshooting for common failures: missing API key, unknown
+- [x] Document troubleshooting for common failures: missing API key, unknown
   model, Fuseki port already bound, unwritable Fuseki base, graph load fallback,
   bad Turtle, invalid CSV mapping, viewer showing missing facts, and export
   parse failure.
-- [ ] Document expected generated artifacts and which ones are runtime source
+- [x] Document expected generated artifacts and which ones are runtime source
   of truth versus review/export/fallback files.
-- [ ] Add a concise quick-start path and a more detailed setup/reference path.
-- [ ] Run documentation sanity checks and `uv run pytest`.
-- [ ] Commit the README setup/run guide update.
+- [x] Add a concise quick-start path and a more detailed setup/reference path.
+- [x] Run documentation sanity checks and `uv run pytest`.
+- [x] Commit the README setup/run guide update.
 
 ## Milestone 14: Long-Document Coverage Completion
 
@@ -942,14 +942,16 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   Future PDF validation should use a restored copy if available or a new
   representative PDF dataset; the current active example is the semantic-web,
   ontology, and triplestore CSV dataset.
+- The README setup/run guide was rewritten for end users and documentation
+  sanity checks passed. `uv run pytest` reported 85 passed and 4 skipped.
 - The designer milestone commit has been made.
 - The importer milestone commit has been made.
 - The viewer milestone commit has been made.
 
 ### Immediate Next Step
 
-- Start `Milestone 12: New CSV Example Mode Comparison`, then continue to
-  `Milestone 13: README Setup And Run Guide`.
+- Start `Milestone 13: README Setup And Run Guide`, then continue to
+  `Milestone 14: Long-Document Coverage Completion`.
 
 ## Handoff For Next Codex Instance
 
@@ -966,8 +968,8 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   - Fuseki data graph `http://example.org/semantic-web/graph/data` unless overridden by `.env`
 - Current tests:
   - `uv run pytest`
-  - latest local result after current-dataset production validation:
-    `87 passed, 2 skipped`
+  - latest local result after the README setup/run guide update:
+    `85 passed, 4 skipped`
 - Current runtime notes:
   - Fuseki may already be running on port `3030`.
   - If not, use the project-local Fuseki base `db/fuseki-run`.
@@ -993,9 +995,9 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
     counts, and LLM-assisted semantic class matching before generic relevance
     search, and its answer prompt is tuned for end-user wording rather than
     database or RDF implementation wording.
-  - The next implementation priority is validating a new CSV-containing example
-    in both test and production modes, then improving README setup/run
-    instructions for users without a vibe coding agent.
+  - The next implementation priority is improving README setup/run instructions
+    for users without a vibe coding agent, then expanding long-document
+    coverage beyond the current proof-of-concept graph.
   - The current semantic-web/ontology/triplestore graph validates the
     CSV-aware architecture, while unstructured markdown/PDF extraction remains
     compact and should be expanded through the long-document coverage milestone.
