@@ -586,8 +586,7 @@ those class instances before generating the final answer.
 ## Milestone 17: Current Dataset Production End-To-End Validation
 
 Goal: validate the current semantic-web/ontology/triplestore dataset in
-`SEMANTIC_WEB_MODE=production` before the later Milestone 12 new-example mode
-comparison.
+`SEMANTIC_WEB_MODE=production` and record the current production baseline.
 
 - [x] Run the semantic web designer in production mode.
 - [x] Run the semantic web importer in production mode.
@@ -598,409 +597,81 @@ comparison.
 - [x] Record production-mode metrics and findings in `PROGRESS.md`.
 - [x] Commit the current-dataset production validation.
 
-## Current Notes
+## Current Status
 
-- Initial dependency installation succeeded.
-- CrewAI was tried early, then removed from the designer architecture.
-- The semantic web designer milestone is complete, tested, documented, and committed.
-- Later verification updates changed the default designer model to `gpt-5-mini`,
-  tightened the compact ontology prompt, and added progressive `design.md`
-  logging. These updates have been committed.
-- The semantic web importer milestone is complete, tested, documented, and committed.
-- Designer and importer are independent executables. The importer can run on a
-  different machine from a handoff package containing `design.md`,
-  `db/ontology.ttl`, and `data/*`.
-- The importer now prefers ontology terms from Fuseki when available, with
-  `db/ontology.ttl` fallback for portability and graph reload.
-- Product data ingestion and semantic-search chunking now support PDF source
-  files through PyMuPDF, in addition to markdown, text, and CSV.
-- Non-DnD end-to-end validation succeeded on 2026-06-01 using
-  `data/main.pdf`, a probability, statistics, and data-science notebook.
-  The designer produced 202 ontology triples, 22 RDFS classes, and 23 RDF
-  properties. The importer produced 108 instance triples and 310 combined
-  triples. Viewer workflow and FastAPI checks answered grounded notebook
-  questions about distributions, Poisson facts, CLT/LLN assumptions, and sample
-  mean reasoning. Fuseki Turtle export parsed with 310 triples, and
-  `uv run pytest` reported 63 passed and 2 skipped.
-- The non-DnD PDF semantic web is a proof of concept, not complete notebook
-  coverage. The current prompts and limits intentionally favor a compact,
-  validated graph over exhaustive extraction. Richer coverage should be possible
-  by scaling up model strength, retrieval focus count, importer batches,
-  context limits, coverage tracking, and schema/instance refinement loops.
-- Long-term graph handoff should be database/query-first rather than
-  whole-Turtle-prompt-first. Turtle remains useful for review, export, tests,
-  portability, and fallback, but agents should consume relevant graph slices
-  through Fuseki or local RDF/SPARQL queries when graphs become large.
+- The designer, importer, and viewer are implemented, tested, documented, and
+  committed.
+- Fuseki is the runtime source of truth between applications. Turtle files
+  remain validation, review, export, portability, and fallback artifacts.
+- `design.md` is a human-readable design and importer reference, not the main
+  machine-readable handoff when Fuseki is available.
+- The active dataset is `data/semantic web.md`, `data/ontology.md`, and
+  `data/commonly seen triplestores.csv`.
+- The latest documented production validation used `SEMANTIC_WEB_MODE=production`
+  and `gpt-5.5`, producing 541 ontology triples, 480 instance triples, and
+  1,021 combined/export triples.
+- The latest local test result is `uv run pytest`: 85 passed, 4 skipped.
+- Recent documentation commits:
+  - `3dff973 Improve project setup documentation`
+  - `a4ef360 Document uv commands and framework packages`
 
-## Current Designer Limitations And Scale-Up Notes
+## Active Plan
 
-The semantic web designer milestone is intentionally a workflow-first MVP. The
-goal was to prove that the product can read inputs, generate a semantic web
-design, validate it, write `design.md`, write an intermediate Turtle ontology,
-start or connect to Apache Jena Fuseki, and load the ontology into Fuseki.
+The next implementation work is `Milestone 14: Long-Document Coverage
+Completion`.
 
-### Deliberate Simplifications
+Immediate priorities:
 
-- The designer still supports direct loading of markdown, text, PDF, and CSV files
-  through `src/common/files.py` for small data.
-- For larger inputs, the designer now uses shared semantic-search retrieval and
-  model-planned focus queries before final ontology synthesis.
-- Direct data loading is acceptable for small samples, while retrieval is the
-  intended path for larger files or many files.
-- The ontology prompt explicitly asks the model to keep the schema simple.
-- The current prompt says to avoid complex or exhaustive modeling.
-- The current prompt asks for RDF/RDFS only and explicitly avoids OWL in the
-  first version.
-- The current prompt asks for about 10 to 16 classes and 15 to 28 properties.
-- The current prompt asks the model to keep the full Turtle under 220 triples.
-- The current validation rejects ontologies over 260 triples as too complex for
-  the first version.
-- These simplicity constraints were added because earlier broader design prompts
-  made the designer take too long and made the workflow harder to stabilize.
+1. Add a designer/importer coverage ledger.
+2. Improve PDF preprocessing into section-aware chunks.
+3. Add ontology refinement and importer continuation passes.
+4. Add coverage reports.
+5. Validate on a representative long PDF dataset.
 
-### Workarounds Taken
+## Handoff For Next Coding Agent
 
-- CrewAI was removed from the designer because it added orchestration overhead
-  and made execution less predictable.
-- The designer now uses an OpenAI Agents SDK workflow shell, but operational
-  steps are executed explicitly instead of asking the model to decide the full
-  workflow sequence.
-- The direct OpenAI API design call is still model-driven, but it is constrained
-  by a small prompt, validation, and retry feedback.
-- The default model is now `gpt-5-mini`, which replaced the earlier `gpt-5.5`
-  default after `gpt-5.5-mini` was rejected by the API as an unknown model.
-- `design.md` is written progressively during designer runs. It records run
-  start, each attempt start, LLM response or failure, validation status, and the
-  accepted candidate design. After success, the final design is written at the
-  top and the progress history is appended as `Designer Generation Log`.
-- Turtle is used as a validated intermediate artifact for review, tests, and
-  Fuseki loading. It is not the final runtime target.
-- Fuseki startup needed a project-local writable runtime base. The manager now
-  sets `FUSEKI_BASE` to `db/fuseki-run`.
-- Fuseki readiness needed a SPARQL `ASK` POST request. A GET request to the
-  query endpoint was not reliable for Fuseki 6.
-- Fuseki cleanup now stops workflow-owned Fuseki processes after designer and
-  importer runs. If Fuseki was already running before the workflow, it is
-  treated as externally owned and left running.
+Start by reading `AGENTS.md`, `README.md`, and this file.
 
-### Fuseki Usage Instructions For Future Work
+Important runtime facts:
 
-- Fuseki is installed at `/opt/apache-jena-fuseki-6.1.0`.
-- Do not use the default Fuseki base under
-  `/opt/apache-jena-fuseki-6.1.0/run` for this project. It may not be writable.
-- Use the project-local runtime base `db/fuseki-run`.
-- The working startup pattern is:
+- Python dependencies are managed with `uv`.
+- Run tests with `uv run pytest`.
+- Fuseki may already be running on port `3030`.
+- If Fuseki is not running, workflows use project-local runtime/storage:
+  `db/fuseki-run`, `db/fuseki-data`, and `db/fuseki.log`.
+- Do not use `/opt/apache-jena-fuseki-6.1.0/run` as this project's Fuseki base.
+- Fuseki readiness should use SPARQL `ASK` through `POST`, not `GET` on the
+  query endpoint.
 
-```bash
-FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
-  /opt/apache-jena-fuseki-6.1.0/fuseki-server \
-  --tdb2 \
-  --loc=/home/sunlu/Projects/semantic-web-processor/db/fuseki-data \
-  --update --localhost /semantic-web-processor
-```
+Current generated outputs:
 
-- Keep `--update` enabled so graph loading and SPARQL updates work.
-- Keep `--tdb2 --loc=.../db/fuseki-data` enabled so Fuseki persists graph data
-  across shutdowns.
-- Keep `--localhost` for local development.
-- Logs should go to `db/fuseki.log`.
-- Designer and importer cleanup stops only workflow-owned Fuseki processes.
-  Existing Fuseki processes are left alone.
-- If Fuseki reports port `3030` is already bound, check for stale Fuseki
-  processes with `pgrep -af fuseki`.
-- Do not use `GET /semantic-web-processor/query` as the main readiness check.
-- Use a SPARQL `ASK { ?s ?p ?o }` request through `POST` to check readiness.
-- Load ontology data through:
-  `http://localhost:3030/semantic-web-processor/data`
-- Query data through:
-  `http://localhost:3030/semantic-web-processor/query`
-- The designer ontology graph URI is:
+- `design.md`
+- `import.md`
+- `db/ontology.ttl`
+- `db/instances.ttl`
+- `db/semantic_web.ttl`
+- Fuseki ontology graph:
   `http://example.org/semantic-web/graph/ontology`
-- Verify ontology implementation with a named-graph SPARQL query against the
-  ontology graph, not only by checking that `db/ontology.ttl` exists.
+- Fuseki data graph:
+  `http://example.org/semantic-web/graph/data`, unless overridden by `.env`
 
-### Future Scale-Up Requirements
+Current behavior to preserve:
 
-- Retrieval support has been added to the designer and importer. Future work
-  should validate it on larger and non-DnD datasets.
-- The standalone `./tools/semantic-search` tool now supports markdown, text, and
-  CSV in addition to PDF and HTML; the product workflows use the shared
-  retrieval layer under `src/common/semantic_search.py`.
-- Designer and importer workflow tools now retrieve relevant source/schema
-  chunks instead of prompt-stuffing whole inputs when configured thresholds are
-  exceeded.
-- Relax the current prompt limits only after retrieval and validation are strong
-  enough.
-- Do not remove all simplicity guidance at once. A better scale-up path is:
-  first generate a small core ontology, then run one or more refinement stages
-  that expand the ontology only when retrieved data proves the need.
-- Replace the current fixed size limits with quality-oriented constraints, such
-  as importer usability, clear class/property hierarchy, validation coverage,
-  and avoiding overfitting to one sample file.
-- Consider adding a separate schema review/refinement agent step that evaluates
-  whether new classes or properties are justified by the data.
-- Treat Fuseki as the long-term source of truth for implemented ontology and
-  instance graphs. Fuseki now starts with project-local persistent TDB2 storage
-  by default, so graph data can survive machine shutdown. `design.md` should
-  remain reference documentation for humans and agents, not the only
-  machine-readable contract.
-- Future importer/viewer agents should query Fuseki for relevant graph slices
-  when available, with local RDF/Turtle fallback for portability and tests.
-  For large graphs, use a semantic-web embedding index over text-rendered
-  triples to find candidate classes, properties, and facts before issuing
-  targeted Fuseki queries.
+- Product code must remain domain-neutral.
+- Designer uses OpenAI Agents SDK orchestration with direct OpenAI design calls,
+  RDF validation, JSON repair fallback, progressive `design.md` logging, and
+  Fuseki ontology loading.
+- Importer uses Fuseki ontology inspection when available, `db/ontology.ttl`
+  fallback, deterministic CSV import, retrieval-guided unstructured import, and
+  progressive `import.md` logging.
+- Viewer uses Fuseki at runtime and does not read `db/semantic_web.ttl`
+  directly. It uses exact subject lookup, class counts, LLM-assisted class
+  matching, and relevant fact retrieval before final answer generation.
+- `SEMANTIC_WEB_MODE=test` is the default compact workflow. Production mode
+  uses stronger defaults and larger budgets for richer runs.
 
-## Current Status Summary
+Open item:
 
-### Successful
-
-- Repository structure and project instructions were inspected.
-- The project goal was clarified as three separate executables:
-  - semantic web designer in `src/designer`
-  - semantic web importer in `src/importer`
-  - semantic web viewer in `src/viewer`
-- The broad initial implementation checklist was replaced with this detailed milestone plan.
-- Baseline dependencies were added to `pyproject.toml`.
-- Dependencies were installed successfully with `uv sync --all-extras --dev`.
-- A shared foundation layer was added:
-  - `src/common/config.py`
-  - `src/common/files.py`
-  - `src/common/rdf.py`
-  - `src/common/fuseki.py`
-  - `src/common/llm.py`
-- The first designer framework pieces were added:
-  - `src/designer/agent.py`
-  - `src/designer/main.py`
-  - `src/designer/workflow.py`
-- The designer now has:
-  - a structured input and output contract
-  - direct LLM execution path
-  - OpenAI Agents SDK workflow orchestration
-  - tools for Fuseki status, Fuseki startup, iterative design, and ontology persistence/load
-  - bounded LLM timeout configuration
-  - retry feedback when generated output fails validation
-  - RDF/Turtle parsing validation
-  - generic RDF/RDFS schema validation
-  - Jena Fuseki as the intended implementation target
-  - Turtle as an intermediate artifact and fallback
-- The importer framework was added:
-  - `src/importer/agent.py`
-  - `src/importer/main.py`
-  - `src/importer/validation.py`
-  - `src/importer/workflow.py`
-- The importer now has:
-  - a structured input and output contract
-  - direct LLM execution path
-  - OpenAI Agents SDK workflow orchestration
-  - tools for reading design text, reading source data, inspecting ontology terms, iterative import, and instance persistence/load
-  - bounded LLM timeout configuration
-  - retry feedback when generated output fails validation
-  - RDF/Turtle parsing validation
-  - ontology-driven no-schema-mutation validation
-  - Jena Fuseki as the intended implementation target
-  - Turtle as an intermediate artifact and fallback
-- Initial tests were added:
-  - `tests/test_foundation.py`
-  - `tests/test_designer_contract.py`
-  - `tests/test_designer_workflow.py`
-  - `tests/test_importer_contract.py`
-  - `tests/test_importer_workflow.py`
-  - `tests/test_importer_product_output.py`
-- Historical lightweight test suite result:
-  - command: `uv run pytest`
-  - result: `28 passed`
-
-### Historical Issues And Fixes
-
-- The first live designer run using the early CrewAI path was stopped because it produced no progress output for too long.
-- CrewAI was removed from the designer plan, code, dependency metadata, and local environment.
-- A second live designer run using the direct LLM path was also stopped because it still took too long without visible progress.
-- A live designer run using model-decided Agents SDK orchestration was stopped because the first orchestration call took too long without visible progress.
-- The designer workflow was revised to keep the Agents SDK shell and tools but execute the operational steps explicitly.
-- A later explicit-workflow live designer run reached the design step but was stopped because the design prompt was still too broad.
-- The designer prompt was revised to require a simple first-version RDF/RDFS ontology, first with about 12 to 18 classes and 20 to 35 properties, then later tightened to about 10 to 16 classes and 15 to 28 properties with fewer than 220 triples requested.
-- Default designer validation attempts were reduced to 2 while stabilizing the product run.
-- The designer default model was changed from `gpt-5.5` to `gpt-5-mini` to reduce cost and latency for the compact design task. An attempted `gpt-5.5-mini` default was rejected by the API as an unknown model.
-- Progressive `design.md` logging was added after a long LLM call made it hard to tell whether the workflow was still active. LLM request failures and timeouts are now recorded in `design.md` and can feed retry attempts.
-- Fuseki startup initially failed because the default Fuseki base under `/opt` was not writable. The manager now sets `FUSEKI_BASE` to `db/fuseki-run`.
-- Fuseki readiness initially failed because Fuseki 6 handles SPARQL availability by POST, not by GET. The client now uses `ASK { ?s ?p ?o }`.
-- The designer product run completed successfully with `load_target: fuseki`.
-- Historical designer output: `design.md`, `db/ontology.ttl`, and a named Fuseki graph.
-- Latest ontology verification after the compact prompt and `gpt-5-mini` rerun: 188 triples, 15 classes, 28 properties, RDF validation passed, Fuseki SPARQL query returned 15 ontology classes.
-- Final designer test command: `uv run pytest`, result `14 passed`.
-- Importer work was approved by the user and completed.
-- `design.md` and `db/ontology.ttl` have been produced by the designer.
-- `db/instances.ttl` and `db/semantic_web.ttl` have been produced by the importer.
-- The importer framework has been implemented.
-- The importer now prefers Fuseki ontology inspection and falls back to
-  `db/ontology.ttl` when Fuseki is unavailable or the ontology graph is empty.
-- Fuseki startup now uses persistent project-local TDB2 storage under
-  `db/fuseki-data` instead of `--mem`.
-- The semantic web viewer framework has been implemented and verified against
-  Fuseki as the runtime data source.
-- Viewer chat sessions are persisted as JSON files under `chat/viewer/`.
-  Opening or refreshing the browser creates a new transcript file, and later
-  questions in the same page session include recent conversation history.
-- Semantic web design and data insertion have been completed by the product.
-- Fuseki ontology loading has been successfully performed.
-- Fuseki instance loading has been successfully performed.
-- End-to-end validation from a clean generated-output state succeeded on
-  2026-05-31. Fresh output: 185 ontology triples, 13 classes, 28 properties,
-  178 instance triples, 363 combined triples, 363 Fuseki triples, chatbot answer
-  verified through the viewer API, and Fuseki Turtle export parsed with rdflib.
-- A later clean forced-retrieval end-to-end validation on 2026-05-31 succeeded
-  after adding robust schema-slice fallback parsing. The iterative designer used
-  two model-planned semantic-search focuses, produced 148 ontology triples, the
-  importer produced 57 instance triples and 205 combined triples, the viewer
-  answered through the API, exported Turtle parsed with rdflib, and
-  `uv run pytest` reported 56 passed and 2 skipped.
-- The latest clean iterative designer/importer end-to-end validation on
-  2026-05-31 produced 148 ontology triples, 16 classes, 17 properties, 121
-  instance triples, 269 combined triples, 269 Fuseki triples, and viewer
-  answers for broad, follow-up, stateful, and reasoning questions. Turtle export
-  parsed with rdflib, and `uv run pytest` reported 60 passed and 2 skipped.
-- After adding progressive importer logging, `uv run pytest` reported 59 passed
-  and 4 skipped without live Fuseki running.
-- Non-DnD PDF end-to-end validation on 2026-06-01 succeeded. The current
-  generated semantic web is based on `data/main.pdf`, not the older DnD sample:
-  202 ontology triples, 108 instance triples, 310 combined/Fuseki triples,
-  grounded viewer answers for distribution, theorem, and sample-mean questions,
-  parsed Turtle export, and `uv run pytest` reported 63 passed and 2 skipped.
-- CSV-aware end-to-end validation on 2026-06-01 succeeded. The current
-  generated semantic web is based on semantic-web and ontology markdown files
-  plus `data/commonly seen triplestores.csv`: 165 ontology triples, 16 RDFS
-  classes, 21 RDF properties, 241 instance triples, 406 combined/Fuseki triples,
-  11 triplestore instances, and 157 deterministic CSV triples from one
-  validated CSV mapping. Viewer status, chat session creation, question
-  answering about open-source triplestores and Apache Jena TDB APIs/protocols,
-  and Turtle export passed. `uv run pytest` reported 72 passed and 2 skipped.
-- Viewer follow-up fixes on 2026-06-01 added class-instance aggregate counts
-  for class count questions, exact subject-label fact lookup for named entity
-  questions, and stricter end-user answer phrasing that avoids implementation
-  details unless explicitly requested. Manual API checks answered CSV-specific
-  questions correctly: 11 triplestores, 4 open-source triplestores, Apache Jena
-  TDB APIs, GraphDB maintainer/license, commercial-license triplestores, and
-  Virtuoso's key feature. `uv run pytest` reported 74 passed and 2 skipped.
-- Test/production mode switch was added on 2026-06-01. `SEMANTIC_WEB_MODE=test`
-  remains the default compact workflow with `gpt-5-mini`. Setting
-  `SEMANTIC_WEB_MODE=production` switches default model to `gpt-5.5`, uses the
-  comprehensive designer prompt, raises retrieval/import budgets, lengthens the
-  timeout, and relaxes the designer ontology triple limit. Explicit environment
-  overrides still win in both modes. `uv run pytest` reported 78 passed and
-  4 skipped.
-- Fuseki-backed graph slicing was added on 2026-06-01. Importer schema prompt
-  context can now be built from a Fuseki term index and targeted ontology
-  `CONSTRUCT` slices instead of prompt-context retrieval depending on a full
-  ontology Turtle serialization. Viewer semantic fact retrieval can now select
-  relevant Fuseki terms first and then query facts around only those candidate
-  terms. Local RDF chunking remains the fallback for offline and portable runs.
-  `uv run pytest` reported 80 passed and 4 skipped.
-- The baseline scale-up mechanism is in place through
-  `SEMANTIC_WEB_MODE=production`: it switches the default model to `gpt-5.5`,
-  uses the comprehensive designer prompt, raises retrieval and importer
-  budgets, increases context limits, lengthens the timeout, and relaxes the
-  ontology triple limit. Milestone 12 will use this mode for comparison.
-- CSV datatype robustness was added on 2026-06-01. CSV profiles now include
-  compatible datatype notes and warnings for risky columns such as identifiers,
-  leading-zero values, and mixed numeric strings. Designer prompts now treat
-  CSV profile datatypes as recommendations and prefer strings for uncertain
-  columns. Deterministic CSV import now accepts safe datatype widening and can
-  fall back to string literals when the ontology range permits it. `uv run
-  pytest` reported 83 passed and 4 skipped.
-- Viewer semantic class matching was added on 2026-06-01. Before final answer
-  generation, the viewer can ask the model to map user wording to class labels
-  from the graph summary when lexical matching misses designer-generated class
-  names. Matched classes are then queried for instance counts and facts. `uv
-  run pytest` reported 84 passed and 4 skipped.
-- Current-dataset production end-to-end validation succeeded on 2026-06-01
-  after deleting `design.md`, `import.md`, and all files under `db/`.
-  `SEMANTIC_WEB_MODE=production` used `gpt-5.5`, the comprehensive designer
-  prompt, larger context limits, and production retrieval/import budgets. The
-  first production designer attempt returned long non-JSON output; a JSON
-  repair fallback was added and tested, after which the designer produced 541
-  ontology triples, 94 RDFS classes, and 30 RDF properties. The importer
-  inspected ontology terms from Fuseki, retried CSV mapping once after range
-  validation feedback, produced 480 instance triples, and wrote 1,021 combined
-  triples. Deterministic CSV import produced 77 triples from one validated CSV
-  mapping. Viewer status reported 1,021 Fuseki triples, Turtle export parsed
-  with 1,021 triples, and the viewer answered that 11 triplestores are listed,
-  naming examples including AllegroGraph, Amazon Neptune, Apache Jena TDB,
-  Blazegraph, GraphDB, Stardog, and Virtuoso. `uv run pytest` reported 87
-  passed and 2 skipped. Note: `gpt-5.5` was capable of richer ontology output
-  but less reliable at strict JSON formatting, so production mode now includes
-  a designer JSON repair fallback; future production comparisons may still
-  evaluate explicit `LLM_MODEL` overrides for structured-output reliability.
-- Milestone 12 is considered complete based on the user's external new
-  CSV-containing example validation plus the clean current-dataset production
-  run above. The observed result is that production mode produces a more
-  comprehensive semantic web than the earlier compact test-mode result, while
-  carrying higher cost and stricter structured-output reliability risk. The
-  default remains test mode; production mode should be selected explicitly for
-  richer validation and scale-up runs.
-- The historical PDF proof-of-concept input, formerly referenced as
-  `data/main.pdf`, is no longer preserved in the active repository dataset.
-  Future PDF validation should use a restored copy if available or a new
-  representative PDF dataset; the current active example is the semantic-web,
-  ontology, and triplestore CSV dataset.
-- The README setup/run guide was rewritten for end users and documentation
-  sanity checks passed. `uv run pytest` reported 85 passed and 4 skipped.
-- The README was further refined with clearer `uv sync` and `uv run` usage plus
-  a framework/package overview for the designer, importer, and viewer. `uv run
-  pytest` reported 85 passed and 4 skipped.
-- The designer milestone commit has been made.
-- The importer milestone commit has been made.
-- The viewer milestone commit has been made.
-
-### Immediate Next Step
-
-- Start `Milestone 13: README Setup And Run Guide`, then continue to
-  `Milestone 14: Long-Document Coverage Completion`.
-
-## Handoff For Next Codex Instance
-
-- Start by reading `AGENTS.md`, `README.md`, and this file.
-- The semantic web designer is complete and committed.
-- The semantic web importer is complete and committed.
-- Current generated outputs are:
-  - `design.md`
-  - `import.md`
-  - `db/ontology.ttl`
-  - `db/instances.ttl`
-  - `db/semantic_web.ttl`
-  - Fuseki ontology graph `http://example.org/semantic-web/graph/ontology`
-  - Fuseki data graph `http://example.org/semantic-web/graph/data` unless overridden by `.env`
-- Current tests:
-  - `uv run pytest`
-  - latest local result after the README setup/run guide update:
-    `85 passed, 4 skipped`
-- Current runtime notes:
-  - Fuseki may already be running on port `3030`.
-  - If not, use the project-local Fuseki base `db/fuseki-run`.
-  - Persistent Fuseki data is stored in `db/fuseki-data`.
-  - Do not use `/opt/apache-jena-fuseki-6.1.0/run` as the runtime base.
-  - Use SPARQL `ASK` via `POST` for readiness checks.
-- Current development boundary:
-  - Designer, importer, and viewer milestones are implemented.
-  - Designer uses iterative model-planned semantic-search focuses for large
-    data.
-  - `SEMANTIC_WEB_MODE=test` is the default compact workflow. Set
-    `SEMANTIC_WEB_MODE=production` in `.env` to use comprehensive designer
-    prompts, `gpt-5.5` by default, larger retrieval/import budgets, and a
-    relaxed ontology triple limit.
-  - Importer uses iterative model-planned import batches for large data and
-    writes progressive run status to `import.md`.
-  - Importer uses deterministic CSV import for CSV sources: profile the CSV,
-    plan a constrained mapping JSON, validate the mapping, loop over every row
-    in Python, and merge those triples with unstructured-source imports.
-  - The viewer uses Fuseki as its runtime data source and does not read
-    `db/semantic_web.ttl` directly.
-  - The viewer now uses exact subject-label lookup, class-instance aggregate
-    counts, and LLM-assisted semantic class matching before generic relevance
-    search, and its answer prompt is tuned for end-user wording rather than
-    database or RDF implementation wording.
-  - The next implementation priority is improving README setup/run instructions
-    for users without a vibe coding agent, then expanding long-document
-    coverage beyond the current proof-of-concept graph.
-  - The current semantic-web/ontology/triplestore graph validates the
-    CSV-aware architecture, while unstructured markdown/PDF extraction remains
-    compact and should be expanded through the long-document coverage milestone.
+- Long unstructured markdown/PDF coverage is still proof-of-concept level.
+  Milestone 14 should improve coverage tracking, PDF chunking, schema
+  refinement, importer continuation, and coverage reporting.
