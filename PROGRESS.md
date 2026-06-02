@@ -80,12 +80,18 @@ Latest completed validation:
 - Current active dataset:
   `data/semantic web.md`, `data/ontology.md`, and
   `data/commonly seen triplestores.csv`.
-- Previous documented production run:
-  `SEMANTIC_WEB_MODE=production`, `gpt-5.5`, 541 ontology triples, 480 instance
-  triples, and 1,021 combined/export triples. The default production model is
-  now `gpt-5.4`.
+- Latest production run:
+  `SEMANTIC_WEB_MODE=production`, `gpt-5.4`, 427 ontology triples, 59 RDFS
+  classes, 36 RDF properties, 520 instance triples, and 947 combined/export
+  triples. The run included 190 deterministic CSV triples from one validated
+  CSV mapping.
+- Latest viewer validation:
+  `/api/status` reported 947 triples; the viewer answered the triplestore count
+  as 11, handled a stateful "list all of them" follow-up, translated ordinary
+  wording such as "database systems" to generated schema labels, and exported
+  Turtle that parsed successfully with 947 triples.
 - Latest local test result:
-  `uv run pytest` reported 87 passed and 4 skipped.
+  `uv run pytest` reported 90 passed and 2 skipped.
 - Recent documentation commits:
   `3dff973 Improve project setup documentation`,
   `a4ef360 Document uv commands and framework packages`,

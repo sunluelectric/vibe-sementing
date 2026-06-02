@@ -117,6 +117,16 @@ def test_viewer_query_helpers_execute_named_graph_queries() -> None:
     assert turtle.startswith("@prefix")
 
 
+def test_viewer_graph_summary_uses_broad_schema_limits() -> None:
+    client = FakeFusekiClient()
+    service = ViewerQueryService(get_settings(), client)
+
+    service.graph_summary()
+
+    assert any("LIMIT 200" in query and "?class" in query for query in client.selected)
+    assert any("LIMIT 200" in query and "?property" in query for query in client.selected)
+
+
 def test_viewer_query_select_fails_when_fuseki_unavailable() -> None:
     service = ViewerQueryService(get_settings(), FakeFusekiClient(available=False))
 

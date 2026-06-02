@@ -189,9 +189,9 @@ class ViewerQueryService:
     def graph_summary(self) -> dict[str, object]:
         return {
             "triple_count": self.triple_count(),
-            "classes": self.classes(limit=40),
-            "properties": self.properties(limit=60),
-            "sample_instances": self.instances(limit=40),
+            "classes": self.classes(limit=200),
+            "properties": self.properties(limit=200),
+            "sample_instances": self.instances(limit=80),
         }
 
     def search_facts(self, question: str, limit: int = 80) -> list[dict[str, str]]:
