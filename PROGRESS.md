@@ -944,6 +944,9 @@ FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
   ontology, and triplestore CSV dataset.
 - The README setup/run guide was rewritten for end users and documentation
   sanity checks passed. `uv run pytest` reported 85 passed and 4 skipped.
+- The README was further refined with clearer `uv sync` and `uv run` usage plus
+  a framework/package overview for the designer, importer, and viewer. `uv run
+  pytest` reported 85 passed and 4 skipped.
 - The designer milestone commit has been made.
 - The importer milestone commit has been made.
 - The viewer milestone commit has been made.

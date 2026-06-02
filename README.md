@@ -145,6 +145,18 @@ You need:
 - An OpenAI API key.
 - Internet access for OpenAI API calls and first-time dependency installation.
 
+If `uv` is not installed yet, install it from the official uv instructions:
+
+```text
+https://docs.astral.sh/uv/getting-started/installation/
+```
+
+After installing it, check that your terminal can find it:
+
+```bash
+uv --version
+```
+
 ### Get The Code
 
 ```bash
@@ -160,9 +172,16 @@ If you already have the project folder, open a terminal in:
 
 ### Install Python Dependencies
 
+This project uses `uv` to create and manage the Python environment. Run this
+once after cloning the project, and again whenever `pyproject.toml` or
+`uv.lock` changes:
+
 ```bash
 uv sync --dev
 ```
+
+The `--dev` option installs the normal application packages plus developer
+tools such as `pytest`.
 
 ### Create `.env`
 
@@ -189,7 +208,63 @@ VIEWER_PORT=8000
 
 Do not commit `.env`. It contains secrets.
 
-## 5. First Run
+## 5. Frameworks And Main Packages
+
+This project is a Python application built from three agentic AI workflows plus
+a browser viewer. The same environment is managed by `uv`.
+
+### Whole Project
+
+| Package | Used For |
+| --- | --- |
+| `uv` | Creates the Python environment, installs packages, and runs commands inside the project environment. |
+| `python-dotenv` | Loads `.env` settings such as `OPENAI_API_KEY`, Fuseki URLs, model names, and mode settings. |
+| `pytest` | Runs the automated test suite. |
+
+### Designer
+
+The designer combines an agent workflow with strict RDF validation.
+
+| Package or tool | Used For |
+| --- | --- |
+| `openai-agents` | Provides the OpenAI Agents SDK workflow shell and workflow tools. |
+| `openai` | Makes controlled model calls for ontology design and JSON repair. |
+| `rdflib` | Parses and validates generated Turtle, counts triples, and handles RDF/RDFS graphs. |
+| `requests` | Talks to Fuseki HTTP endpoints for graph loading and status checks. |
+| Apache Jena Fuseki | Stores the generated ontology as a named graph. |
+| `pymupdf` | Extracts text from PDF source files before design/retrieval. |
+
+### Importer
+
+The importer uses the same agent framework, but its job is instance generation
+without ontology mutation.
+
+| Package or tool | Used For |
+| --- | --- |
+| `openai-agents` | Provides the importer workflow shell and tool structure. |
+| `openai` | Plans import slices and constrained CSV mapping JSON. |
+| `rdflib` | Validates instance Turtle, checks ontology-term usage, merges graphs, and serializes Turtle. |
+| `requests` | Queries and updates Fuseki through HTTP. |
+| Apache Jena Fuseki | Supplies ontology terms and stores imported instance data. |
+| Python CSV handling | Reads CSV files and deterministically emits RDF rows after mapping validation. |
+| `pandas` | Installed for tabular-data work and future CSV/dataframe utilities. |
+
+### Viewer
+
+The viewer is a web app backed by Fuseki queries.
+
+| Package or tool | Used For |
+| --- | --- |
+| `fastapi` | Provides the browser UI and API endpoints. |
+| `uvicorn` | Runs the FastAPI web server. |
+| `pydantic` | Validates API request and response objects. |
+| `openai-agents` | Provides the viewer workflow shell and query tools. |
+| `openai` | Generates final natural-language answers from queried facts. |
+| `rdflib` | Parses and validates RDF/Turtle in tests and fallback paths. |
+| `requests` | Sends SPARQL and graph-store requests to Fuseki. |
+| Apache Jena Fuseki | Runtime data source for chatbot answers and Turtle export. |
+
+## 6. First Run
 
 The current repository already contains example input:
 
@@ -201,6 +276,10 @@ data/commonly seen triplestores.csv
 ```
 
 Run the full pipeline in this order.
+
+All commands below use `uv run`. That means `uv` runs the command inside the
+project's managed Python environment, so you do not need to manually activate a
+virtual environment.
 
 ### Step 1: Run The Designer
 
@@ -264,7 +343,7 @@ What is the difference between semantic web and ontology?
 
 The viewer can also export the semantic web as Turtle.
 
-## 6. Use Your Own Data
+## 7. Use Your Own Data
 
 To use a new dataset:
 
@@ -308,7 +387,7 @@ standards, systems, features, relationships, and evidence from the files.
 
 You do not need to write RDF or SPARQL in the requirement file.
 
-## 7. Test Mode And Production Mode
+## 8. Test Mode And Production Mode
 
 The default mode is `test`.
 
@@ -360,7 +439,7 @@ Important settings:
 | `VIEWER_HOST` | Viewer web server host. |
 | `VIEWER_PORT` | Viewer web server port. |
 
-## 8. How Data Moves Through The System
+## 9. How Data Moves Through The System
 
 Fuseki is the main machine-readable handoff between applications.
 
@@ -405,7 +484,7 @@ Artifact roles:
 The viewer queries and exports through Fuseki. It does not use
 `db/semantic_web.ttl` as its runtime data source.
 
-## 9. CSV Handling
+## 10. CSV Handling
 
 CSV files are treated as structured data.
 
@@ -427,7 +506,7 @@ the rows:
 
 This makes CSV import repeatable and testable.
 
-## 10. Large Documents And Semantic Search
+## 11. Large Documents And Semantic Search
 
 The project supports retrieval-backed runs when source data or graph context is
 too large for one prompt.
@@ -453,7 +532,7 @@ exhaustive coverage. Future scale-up work should add coverage ledgers, better
 PDF section extraction, ontology refinement passes, importer continuation
 passes, and coverage reports.
 
-## 11. Viewer API
+## 12. Viewer API
 
 The viewer starts a FastAPI app.
 
@@ -482,7 +561,7 @@ curl -X POST http://127.0.0.1:8000/api/question \
   -d '{"session_id":"SESSION_ID_HERE","question":"How many triplestores are listed?"}'
 ```
 
-## 12. Run Tests
+## 13. Run Tests
 
 Run the test suite:
 
@@ -493,7 +572,7 @@ uv run pytest
 Some Fuseki smoke tests may be skipped when Fuseki is not available. That is
 expected for offline or lightweight test runs.
 
-## 13. Troubleshooting
+## 14. Troubleshooting
 
 ### Missing OpenAI API Key
 
@@ -583,7 +662,7 @@ Fix:
 3. Confirm Fuseki is reachable and the correct dataset is configured.
 4. Run `uv run pytest` after regeneration.
 
-## 14. Current Example Result
+## 15. Current Example Result
 
 The current repository example uses:
 
