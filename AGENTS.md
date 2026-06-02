@@ -226,10 +226,10 @@ The project reads configuration from `.env`. Important settings include:
 - `VIEWER_PORT`.
 - Semantic-search and retrieval budget settings.
 
-Default mode should be `SEMANTIC_WEB_MODE=test`, using a compact workflow and a
-smaller default model. `SEMANTIC_WEB_MODE=production` should use richer prompts,
-larger retrieval/import budgets, longer timeouts, and a stronger default model.
-Explicit environment overrides should work in both modes.
+Default mode should be `SEMANTIC_WEB_MODE=production`, using richer prompts,
+larger retrieval/import budgets, longer timeouts, and `gpt-5.4` by default.
+`SEMANTIC_WEB_MODE=test` should use a compact workflow and `gpt-5.4-mini` by
+default. Explicit environment overrides should work in both modes.
 
 ## Semantic Search And Scaling Requirements
 

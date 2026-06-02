@@ -26,7 +26,7 @@ def test_load_project_data_reads_markdown_and_csv(tmp_path: Path) -> None:
     assert "Row 1: name: A; value: 1" in loaded
 
 
-def test_settings_default_to_test_mode(monkeypatch) -> None:
+def test_settings_default_to_production_mode(monkeypatch) -> None:
     monkeypatch.delenv("SEMANTIC_WEB_MODE", raising=False)
     monkeypatch.delenv("LLM_MODEL", raising=False)
     monkeypatch.delenv("DESIGNER_RETRIEVAL_FOCUSES", raising=False)
@@ -35,8 +35,24 @@ def test_settings_default_to_test_mode(monkeypatch) -> None:
 
     settings = get_settings()
 
+    assert settings.semantic_web_mode == "production"
+    assert settings.llm_model == "gpt-5.4"
+    assert settings.designer_retrieval_focuses == 8
+    assert settings.importer_retrieval_batches == 10
+    assert settings.designer_ontology_triple_limit == 2000
+
+
+def test_settings_test_mode_defaults(monkeypatch) -> None:
+    monkeypatch.setenv("SEMANTIC_WEB_MODE", "test")
+    monkeypatch.delenv("LLM_MODEL", raising=False)
+    monkeypatch.delenv("DESIGNER_RETRIEVAL_FOCUSES", raising=False)
+    monkeypatch.delenv("IMPORTER_RETRIEVAL_BATCHES", raising=False)
+    monkeypatch.delenv("DESIGNER_ONTOLOGY_TRIPLE_LIMIT", raising=False)
+
+    settings = Settings()
+
     assert settings.semantic_web_mode == "test"
-    assert settings.llm_model == "gpt-5-mini"
+    assert settings.llm_model == "gpt-5.4-mini"
     assert settings.designer_retrieval_focuses == 4
     assert settings.importer_retrieval_batches == 4
     assert settings.designer_ontology_triple_limit == 260
@@ -52,7 +68,7 @@ def test_settings_production_mode_defaults(monkeypatch) -> None:
     settings = Settings()
 
     assert settings.semantic_web_mode == "production"
-    assert settings.llm_model == "gpt-5.5"
+    assert settings.llm_model == "gpt-5.4"
     assert settings.designer_retrieval_focuses == 8
     assert settings.importer_retrieval_batches == 10
     assert settings.designer_ontology_triple_limit == 2000

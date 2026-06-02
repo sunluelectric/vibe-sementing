@@ -63,9 +63,8 @@ The following work is complete, tested, documented, and committed.
   mapping validation, safe datatype compatibility, and deterministic row-to-RDF
   generation.
 - Test and production modes:
-  `SEMANTIC_WEB_MODE=test` as the compact default and
-  `SEMANTIC_WEB_MODE=production` for richer prompts, stronger defaults, larger
-  budgets, and relaxed ontology triple limits.
+  `SEMANTIC_WEB_MODE=production` as the richer default with `gpt-5.4`, and
+  `SEMANTIC_WEB_MODE=test` as the compact mode with `gpt-5.4-mini`.
 - Domain-neutral validations:
   non-DnD PDF validation, CSV-aware validation, mode comparison, current
   dataset production validation, viewer workflow/API checks, and Turtle export
@@ -81,11 +80,12 @@ Latest completed validation:
 - Current active dataset:
   `data/semantic web.md`, `data/ontology.md`, and
   `data/commonly seen triplestores.csv`.
-- Latest documented production run:
+- Previous documented production run:
   `SEMANTIC_WEB_MODE=production`, `gpt-5.5`, 541 ontology triples, 480 instance
-  triples, and 1,021 combined/export triples.
+  triples, and 1,021 combined/export triples. The default production model is
+  now `gpt-5.4`.
 - Latest local test result:
-  `uv run pytest` reported 86 passed and 4 skipped.
+  `uv run pytest` reported 87 passed and 4 skipped.
 - Recent documentation commits:
   `3dff973 Improve project setup documentation`,
   `a4ef360 Document uv commands and framework packages`,
@@ -170,8 +170,8 @@ Behavior to preserve:
   directly.
 - Viewer may read `design.md` as reference context for mapping ordinary user
   wording to ontology labels, but must still ground answers in Fuseki facts.
-- `SEMANTIC_WEB_MODE=test` is the default compact workflow. Production mode
-  uses stronger defaults and larger budgets for richer runs.
+- `SEMANTIC_WEB_MODE=production` is the default workflow and uses `gpt-5.4`.
+  Test mode is the compact workflow and uses `gpt-5.4-mini`.
 
 Open item:
 

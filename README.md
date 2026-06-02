@@ -197,7 +197,7 @@ Recommended local example:
 
 ```text
 OPENAI_API_KEY=your_api_key_here
-SEMANTIC_WEB_MODE=test
+SEMANTIC_WEB_MODE=production
 FUSEKI_HOME=/opt/apache-jena-fuseki-6.1.0
 FUSEKI_BASE_URL=http://localhost:3030
 FUSEKI_DATASET=semantic-web-processor
@@ -387,31 +387,31 @@ standards, systems, features, relationships, and evidence from the files.
 
 You do not need to write RDF or SPARQL in the requirement file.
 
-## 8. Test Mode And Production Mode
+## 8. Production Mode And Test Mode
 
-The default mode is `test`.
-
-```text
-SEMANTIC_WEB_MODE=test
-```
-
-Test mode is cheaper and faster. It uses a compact designer prompt, smaller
-retrieval budgets, and `gpt-5-mini` by default.
-
-Production mode is for richer runs:
+The default mode is `production`.
 
 ```text
 SEMANTIC_WEB_MODE=production
 ```
 
-Production mode uses more comprehensive prompts, larger retrieval and importer
-budgets, longer timeouts, a relaxed ontology triple limit, and `gpt-5.5` by
-default.
+Production mode is for richer runs. It uses more comprehensive prompts, larger
+retrieval and importer budgets, longer timeouts, a relaxed ontology triple
+limit, and `gpt-5.4` by default.
+
+Test mode is cheaper and faster:
+
+```text
+SEMANTIC_WEB_MODE=test
+```
+
+Test mode uses a compact designer prompt, smaller retrieval budgets, and
+`gpt-5.4-mini` by default.
 
 You can override the model in either mode:
 
 ```text
-LLM_MODEL=gpt-5.5
+LLM_MODEL=gpt-5.4
 ```
 
 Important settings:
@@ -681,7 +681,7 @@ data/ontology.md
 data/commonly seen triplestores.csv
 ```
 
-The latest documented production validation used `SEMANTIC_WEB_MODE=production`
+A previous documented production validation used `SEMANTIC_WEB_MODE=production`
 with `gpt-5.5`. It produced:
 
 - 541 ontology triples.

@@ -12,10 +12,10 @@ load_dotenv(ROOT_DIR / ".env", override=True)
 
 
 def _mode() -> str:
-    value = os.getenv("SEMANTIC_WEB_MODE", "test").strip().lower()
-    if value in {"production", "prod"}:
-        return "production"
-    return "test"
+    value = os.getenv("SEMANTIC_WEB_MODE", "production").strip().lower()
+    if value in {"test", "testing"}:
+        return "test"
+    return "production"
 
 
 def _mode_default(test_value: str, production_value: str) -> str:
@@ -27,7 +27,7 @@ def _env_int(name: str, test_value: int, production_value: int) -> int:
 
 
 def _llm_model() -> str:
-    return os.getenv("LLM_MODEL", _mode_default("gpt-5-mini", "gpt-5.5"))
+    return os.getenv("LLM_MODEL", _mode_default("gpt-5.4-mini", "gpt-5.4"))
 
 
 def _semantic_search_enabled() -> bool:
