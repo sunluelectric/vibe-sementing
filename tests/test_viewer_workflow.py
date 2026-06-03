@@ -127,7 +127,7 @@ def test_viewer_workflow_builds_agents_sdk_shell() -> None:
 
     agent = workflow.build_agent()
 
-    assert agent.name == "Semantic Web Viewer Workflow Agent"
+    assert agent.name == "Vibe Semanting Viewer Workflow Agent"
     assert {tool.name for tool in agent.tools} == {
         "get_graph_status",
         "get_graph_summary",

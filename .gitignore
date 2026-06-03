@@ -19,3 +19,11 @@ db/fuseki.log
 
 # Runtime chat transcripts
 chat/viewer/*.json
+
+# Generated graph visualization output
+db/semantic_web_plot.html
+tools/semantic-web-plot/output/
+tools/semantic-web-plot/.venv/
+tools/semantic-web-plot/.uv-cache/
+tools/semantic-web-plot/.pytest_cache/
+tools/semantic-web-plot/.git/

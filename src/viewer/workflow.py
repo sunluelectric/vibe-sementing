@@ -8,8 +8,10 @@ from agents import Agent, function_tool
 from src.common.config import Settings, get_settings
 from src.common.files import read_text
 from src.common.fuseki import client_from_settings
+from src.common.fuseki_manager import FusekiManager
 from src.viewer.agent import ViewerAgent, ViewerAnswer
 from src.viewer.chat import ChatStore, format_history
+from src.viewer.plot import ViewerPlotService
 from src.viewer.query import ViewerQueryService
 
 
@@ -27,12 +29,24 @@ class ViewerWorkflow:
     def __init__(self, settings: Settings | None = None):
         self.settings = settings or get_settings()
         self.fuseki_client = client_from_settings(self.settings)
+        self.fuseki_manager = FusekiManager(
+            fuseki_home=self.settings.fuseki_home,
+            fuseki_run_dir=self.settings.fuseki_run_dir,
+            fuseki_data_dir=self.settings.fuseki_data_dir,
+            fuseki_log_path=self.settings.fuseki_log_path,
+            dataset=self.settings.fuseki_dataset,
+            client=self.fuseki_client,
+            start_timeout_seconds=self.settings.fuseki_start_timeout_seconds,
+        )
         self.query_service = ViewerQueryService(self.settings, self.fuseki_client)
+        self.plot_service = ViewerPlotService(self.settings)
         self.chat_store = ChatStore(self.settings.viewer_chat_dir)
+        self.last_fuseki_start_result: dict[str, Any] | None = None
+        self.last_fuseki_stop_result: dict[str, Any] | None = None
 
     def build_agent(self) -> Agent:
         return Agent(
-            name="Semantic Web Viewer Workflow Agent",
+            name="Vibe Semanting Viewer Workflow Agent",
             instructions=(
                 "You answer semantic web questions by querying Fuseki through the "
                 "provided tools. Fuseki is the runtime data source. Do not read local "
@@ -81,6 +95,24 @@ class ViewerWorkflow:
     def graph_status(self) -> dict[str, Any]:
         return asdict(self.query_service.status())
 
+    def start_fuseki_if_needed(self) -> dict[str, Any]:
+        result = self.fuseki_manager.start()
+        self.last_fuseki_start_result = {
+            "status": result.status,
+            "message": result.message,
+            "pid": result.pid,
+        }
+        return self.last_fuseki_start_result
+
+    def stop_fuseki_if_started(self) -> dict[str, Any]:
+        result = self.fuseki_manager.stop_if_started()
+        self.last_fuseki_stop_result = {
+            "status": result.status,
+            "message": result.message,
+            "pid": result.pid,
+        }
+        return self.last_fuseki_stop_result
+
     def graph_summary(self) -> dict[str, object]:
         return self.query_service.graph_summary()
 
@@ -97,6 +129,9 @@ class ViewerWorkflow:
 
     def export_turtle(self) -> str:
         return self.query_service.export_turtle()
+
+    def plot_html(self) -> str:
+        return self.plot_service.render_turtle(self.export_turtle())
 
 
 def _workflow() -> ViewerWorkflow:

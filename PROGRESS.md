@@ -1,4 +1,4 @@
-# Semantic Web Processor Progress
+# Vibe Semanting Progress
 
 This file is the working plan and handoff log. It has two jobs:
 
@@ -47,7 +47,8 @@ The following work is complete, tested, documented, and committed.
   FastAPI browser chatbot, chat sessions, Fuseki-backed status, question
   answering, exact subject lookup, class counts, LLM-assisted semantic class
   matching, `design.md` reference context for schema-label interpretation,
-  ambiguity clarification, relevant fact retrieval, and Turtle export.
+  ambiguity clarification, relevant fact retrieval, Turtle export, and
+  interactive graph rendering through the standalone semantic-web plot tool.
 - Semantic search and graph slicing:
   shared retrieval layer for markdown, text, PDF, CSV, RDF graph chunks, and
   SPARQL result rows; deterministic local search; optional OpenAI embeddings;
@@ -89,15 +90,38 @@ Latest completed validation:
   `/api/status` reported 947 triples; the viewer answered the triplestore count
   as 11, handled a stateful "list all of them" follow-up, translated ordinary
   wording such as "database systems" to generated schema labels, and exported
-  Turtle that parsed successfully with 947 triples.
+  Turtle that parsed successfully with 947 triples. The plot tool rendered the
+  current `db/semantic_web.ttl` to HTML with 202 semantic edges extracted, and
+  `/api/plot.html` returned HTML through the viewer after viewer-started Fuseki
+  reported 947 triples.
 - Latest local test result:
-  `uv run pytest` reported 90 passed and 2 skipped.
+  `uv run pytest` reported 91 passed and 4 skipped after the graph viewer
+  integration and Vibe Semanting rename.
 - Recent documentation commits:
   `3dff973 Improve project setup documentation`,
   `a4ef360 Document uv commands and framework packages`,
   `fd9ec0f Clean progress handoff notes`.
 
-## Milestone 1: Long-Document Coverage Completion
+## Milestone 1: Viewer Graph Plot Integration
+
+Goal: integrate the standalone semantic-web plot tool into the viewer while
+keeping the tool reusable from `./tools/semantic-web-plot`.
+
+- [x] Refactor `tools/semantic-web-plot` so the existing renderer is available
+  through an importable `SemanticWebPlotter` class while preserving the
+  standalone CLI.
+- [x] Add `pyvis` to the main project dependencies so the viewer can render
+  graph HTML at runtime.
+- [x] Add a Fuseki-backed viewer plot endpoint, `GET /api/plot.html`, and a
+  browser UI control that opens the graph.
+- [x] Start Fuseki automatically on viewer startup when it is not already
+  reachable, and stop it on shutdown only when the viewer started it.
+- [x] Add focused tests for the viewer plot service and FastAPI endpoint.
+- [x] Run `uv run pytest`.
+- [x] Update `AGENTS.md`, `README.md`, `PROGRESS.md`, and the plot tool README.
+- [x] Commit the viewer graph plot integration.
+
+## Milestone 2: Long-Document Coverage Completion
 
 Goal: move beyond proof-of-concept semantic webs for long unstructured source
 documents by improving coverage tracking, source structure extraction, and
@@ -176,11 +200,15 @@ Behavior to preserve:
   directly.
 - Viewer may read `design.md` as reference context for mapping ordinary user
   wording to ontology labels, but must still ground answers in Fuseki facts.
+- Viewer starts Fuseki when needed and possible, but stops it only when the
+  viewer started that Fuseki process.
+- Viewer graph rendering uses Fuseki-exported Turtle and the reusable renderer
+  under `tools/semantic-web-plot`.
 - `SEMANTIC_WEB_MODE=production` is the default workflow and uses `gpt-5.4`.
   Test mode is the compact workflow and uses `gpt-5.4-mini`.
 
 Open item:
 
 - Long unstructured markdown/PDF coverage is still proof-of-concept level.
-  Milestone 1 should improve coverage tracking, PDF chunking, schema
+  Milestone 2 should improve coverage tracking, PDF chunking, schema
   refinement, importer continuation, and coverage reporting.

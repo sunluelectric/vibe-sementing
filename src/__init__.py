@@ -1,1 +1,1 @@
-"""Semantic Web Processor package."""
+"""Vibe Semanting package."""

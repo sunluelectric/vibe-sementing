@@ -1,5 +1,5 @@
 def main():
-    print("Hello from semantic-web-processor!")
+    print("Hello from vibe-semanting!")
 
 
 if __name__ == "__main__":

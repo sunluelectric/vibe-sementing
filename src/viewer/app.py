@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
@@ -21,7 +23,20 @@ class QuestionResponse(BaseModel):
 
 def create_app(workflow: ViewerWorkflow | None = None) -> FastAPI:
     viewer = workflow or ViewerWorkflow()
-    app = FastAPI(title="Semantic Web Viewer")
+
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        start_method = getattr(viewer, "start_fuseki_if_needed", None)
+        if callable(start_method):
+            start_method()
+        try:
+            yield
+        finally:
+            stop_method = getattr(viewer, "stop_fuseki_if_started", None)
+            if callable(stop_method):
+                stop_method()
+
+    app = FastAPI(title="Vibe Semanting Viewer", lifespan=lifespan)
 
     @app.get("/", response_class=HTMLResponse)
     def index() -> str:
@@ -68,6 +83,13 @@ def create_app(workflow: ViewerWorkflow | None = None) -> FastAPI:
             headers={"Content-Disposition": 'attachment; filename="semantic_web.ttl"'},
         )
 
+    @app.get("/api/plot.html", response_class=HTMLResponse)
+    def plot_html() -> str:
+        try:
+            return viewer.plot_html()
+        except (FusekiUnavailable, RuntimeError) as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+
     return app
 
 
@@ -76,7 +98,7 @@ HTML_PAGE = """<!doctype html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Semantic Web Viewer</title>
+  <title>Vibe Semanting Viewer</title>
   <style>
     :root {
       color-scheme: light;
@@ -229,10 +251,11 @@ HTML_PAGE = """<!doctype html>
 <body>
   <div class="shell">
     <header>
-      <h1>Semantic Web Viewer</h1>
+      <h1>Vibe Semanting Viewer</h1>
       <div class="toolbar">
         <div class="status" id="status">Checking Fuseki</div>
         <button class="secondary" id="exportBtn" type="button">Export Turtle</button>
+        <button class="secondary" id="plotBtn" type="button">Graph</button>
       </div>
     </header>
     <main>
@@ -321,6 +344,10 @@ HTML_PAGE = """<!doctype html>
 
     exportBtn.addEventListener("click", () => {
       window.location.href = "/api/export.ttl";
+    });
+
+    plotBtn.addEventListener("click", () => {
+      window.open("/api/plot.html", "_blank", "noopener,noreferrer");
     });
 
     Promise.all([startChatSession(), refreshStatus()]).catch((error) => {

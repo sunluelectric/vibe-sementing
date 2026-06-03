@@ -1,0 +1,15 @@
+[project]
+name = "semantic-web-plot"
+version = "0.1.0"
+description = "Interactive semantic graph renderer for OWL/RDF Turtle ontologies"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pyvis>=0.3.2",
+    "rdflib>=7.6.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]

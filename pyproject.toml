@@ -1,7 +1,7 @@
 [project]
-name = "semantic-web-processor"
+name = "vibe-semanting"
 version = "0.1.0"
-description = "Agentic RDF/RDFS semantic web designer, importer, and viewer."
+description = "Vibe Semanting designs, imports, queries, exports, and plots RDF/RDFS semantic webs."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -9,6 +9,7 @@ dependencies = [
     "openai>=1.99.9",
     "openai-agents>=0.2.8",
     "pandas>=2.3.0",
+    "pyvis>=0.3.2",
     "pymupdf>=1.26.3",
     "pydantic>=2.11.0",
     "python-dotenv>=1.1.0",

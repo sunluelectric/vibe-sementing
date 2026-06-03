@@ -17,6 +17,16 @@ class StubResult:
 class StubWorkflow:
     def __init__(self) -> None:
         self.questions: list[tuple[str, str | None]] = []
+        self.started = False
+        self.stopped = False
+
+    def start_fuseki_if_needed(self) -> dict[str, object]:
+        self.started = True
+        return {"status": "already_running", "message": "Fuseki is already reachable.", "pid": None}
+
+    def stop_fuseki_if_started(self) -> dict[str, object]:
+        self.stopped = True
+        return {"status": "not_started", "message": "Fuseki was not started by this workflow.", "pid": None}
 
     def graph_status(self) -> dict[str, object]:
         return {
@@ -43,6 +53,9 @@ class StubWorkflow:
     def export_turtle(self) -> str:
         return "@prefix ex: <http://example.org/> .\nex:s ex:p ex:o .\n"
 
+    def plot_html(self) -> str:
+        return "<!doctype html><html><body>Semantic graph</body></html>"
+
 
 def test_viewer_index_loads_chatbot_page() -> None:
     client = TestClient(create_app(StubWorkflow()))
@@ -50,9 +63,10 @@ def test_viewer_index_loads_chatbot_page() -> None:
     response = client.get("/")
 
     assert response.status_code == 200
-    assert "Semantic Web Viewer" in response.text
+    assert "Vibe Semanting Viewer" in response.text
     assert "/api/question" in response.text
     assert "/api/chat/session" in response.text
+    assert "/api/plot.html" in response.text
 
 
 def test_viewer_status_endpoint_reports_fuseki_status() -> None:
@@ -63,6 +77,17 @@ def test_viewer_status_endpoint_reports_fuseki_status() -> None:
     assert response.status_code == 200
     assert response.json()["available"] is True
     assert response.json()["triple_count"] == 3
+
+
+def test_viewer_app_lifespan_starts_and_stops_fuseki() -> None:
+    workflow = StubWorkflow()
+
+    with TestClient(create_app(workflow)) as client:
+        assert workflow.started is True
+        assert workflow.stopped is False
+        assert client.get("/api/status").status_code == 200
+
+    assert workflow.stopped is True
 
 
 def test_viewer_question_endpoint_returns_answer_and_facts() -> None:
@@ -99,3 +124,13 @@ def test_viewer_export_endpoint_returns_turtle() -> None:
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("text/turtle")
     assert response.text.startswith("@prefix")
+
+
+def test_viewer_plot_endpoint_returns_html() -> None:
+    client = TestClient(create_app(StubWorkflow()))
+
+    response = client.get("/api/plot.html")
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/html")
+    assert "Semantic graph" in response.text

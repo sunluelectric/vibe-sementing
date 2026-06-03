@@ -47,13 +47,14 @@ class Settings:
     instances_path: Path = ROOT_DIR / "db" / "instances.ttl"
     combined_path: Path = ROOT_DIR / "db" / "semantic_web.ttl"
     export_path: Path = ROOT_DIR / "db" / "export.ttl"
+    plot_html_path: Path = ROOT_DIR / "db" / "semantic_web_plot.html"
     viewer_chat_dir: Path = ROOT_DIR / "chat" / "viewer"
     semantic_web_mode: str = field(default_factory=_mode)
     llm_model: str = field(default_factory=_llm_model)
     llm_timeout_seconds: int = field(default_factory=lambda: _env_int("LLM_TIMEOUT_SECONDS", 90, 240))
     openai_api_key: str | None = field(default_factory=lambda: os.getenv("OPENAI_API_KEY"))
     fuseki_base_url: str = field(default_factory=lambda: os.getenv("FUSEKI_BASE_URL", "http://localhost:3030"))
-    fuseki_dataset: str = field(default_factory=lambda: os.getenv("FUSEKI_DATASET", "semantic-web-processor"))
+    fuseki_dataset: str = field(default_factory=lambda: os.getenv("FUSEKI_DATASET", "vibe-semanting"))
     fuseki_home: Path = field(default_factory=lambda: Path(os.getenv("FUSEKI_HOME", "/opt/apache-jena-fuseki-6.1.0")))
     fuseki_run_dir: Path = ROOT_DIR / "db" / "fuseki-run"
     fuseki_data_dir: Path = field(default_factory=lambda: Path(os.getenv("FUSEKI_DATA_DIR", str(ROOT_DIR / "db" / "fuseki-data"))))

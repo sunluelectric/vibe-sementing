@@ -49,8 +49,8 @@
 ## Import Persistence Summary
 
 - Status: success
-- Instances path: `/home/sunlu/Projects/semantic-web-processor/db/instances.ttl`
-- Combined path: `/home/sunlu/Projects/semantic-web-processor/db/semantic_web.ttl`
+- Instances path: `<project-dir>/db/instances.ttl`
+- Combined path: `<project-dir>/db/semantic_web.ttl`
 - Instance triples: 520
 - Combined triples: 947
 - Load target: fuseki

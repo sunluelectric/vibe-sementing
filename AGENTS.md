@@ -1,4 +1,4 @@
-# Semantic Web Processor
+# Vibe Semanting
 
 This file is the high-level requirements and handoff document for a coding
 agent. It describes the system that should be built, the required features, the
@@ -116,13 +116,16 @@ is complete or the configured budget is reached.
 
 Location: `./src/viewer/*`
 
-The viewer provides a FastAPI browser UI with chatbot and export controls.
+The viewer provides a FastAPI browser UI with chatbot, export, and graph
+visualization controls.
 
 Required behavior:
 
 - Use Fuseki as the runtime data source.
 - Do not read `./db/semantic_web.ttl` directly at viewer runtime.
 - Query Fuseki to answer user questions.
+- Check whether Apache Jena Fuseki is available.
+- Start Fuseki when needed and possible.
 - Use exact entity lookup, class-instance counts, semantic class matching, and
   relevant fact retrieval before final answer generation.
 - Use `./design.md` as reference context for interpreting ontology labels when
@@ -135,6 +138,10 @@ Required behavior:
 - Provide an export endpoint or UI control for Turtle export.
 - Use Fuseki's graph/query capability for export rather than serializing a
   local file as the runtime source.
+- Provide an interactive graph endpoint or UI control that renders the semantic
+  web from Fuseki-exported Turtle.
+- Use the reusable plot renderer under `./tools/semantic-web-plot` for graph
+  HTML generation instead of duplicating graph rendering logic in the viewer.
 - Persist browser chat sessions under `./chat/viewer/` as runtime artifacts.
 
 Expected endpoints:
@@ -145,6 +152,7 @@ Expected endpoints:
 - `GET /api/chat/{session_id}`: read a persisted chat session.
 - `POST /api/question`: answer a question for a session.
 - `GET /api/export.ttl`: export the semantic web as Turtle.
+- `GET /api/plot.html`: render an interactive graph view from Fuseki data.
 
 ## Data And Handoff Model
 
@@ -162,7 +170,7 @@ Expected data flow:
 5. Importer creates `./db/instances.ttl` and `./db/semantic_web.ttl`.
 6. Importer loads instances into Fuseki named graph
    `http://example.org/semantic-web/graph/data`, unless overridden.
-7. Viewer queries and exports through Fuseki.
+7. Viewer queries, exports, and renders graph HTML through Fuseki.
 
 Artifact roles:
 
@@ -172,11 +180,12 @@ Artifact roles:
   Fuseki reload fallback.
 - `./db/instances.ttl`: portable instance artifact and validation artifact.
 - `./db/semantic_web.ttl`: combined review/export/fallback artifact.
+- `./db/semantic_web_plot.html`: generated viewer graph HTML cache.
 - Fuseki named graphs: intended runtime source of truth.
 
-Designer and importer workflows should stop Fuseki only when that workflow
-started Fuseki itself. If Fuseki was already running before the workflow, leave
-it running.
+Designer, importer, and viewer workflows should stop Fuseki only when that
+workflow started Fuseki itself. If Fuseki was already running before the
+workflow, leave it running.
 
 For large graphs, agents should consume relevant graph slices from Fuseki or
 local RDF/SPARQL fallback instead of prompt-stuffing whole Turtle files.
@@ -291,9 +300,9 @@ Run the viewer:
 uv run python -m src.viewer.main
 ```
 
-The viewer should start a browser-accessible FastAPI application, defaulting to
-`http://127.0.0.1:8000` unless configured otherwise. A user can open that URL
-in a browser.
+The viewer should start Fuseki when needed and possible, then start a
+browser-accessible FastAPI application, defaulting to `http://127.0.0.1:8000`
+unless configured otherwise. A user can open that URL in a browser.
 
 To use a new dataset:
 

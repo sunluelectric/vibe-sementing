@@ -1,7 +1,6 @@
-# Semantic Web Processor
+# Vibe Semanting
 
-Semantic Web Processor turns local documents and tables into a queryable
-semantic web.
+Vibe Semanting turns local documents and tables into a queryable semantic web.
 
 It is built for the painful part of semantic-web work: starting from long,
 messy, mixed input data and getting to a usable RDF/RDFS graph. You provide a
@@ -22,8 +21,8 @@ work, but complex OWL reasoning is not required for the current product.
 
 Apache Jena Fuseki is the triplestore used by this project. It stores the
 ontology and imported data, answers SPARQL queries, and provides Turtle export.
-The designer and importer can start Fuseki automatically when it is installed
-in the expected location.
+The designer, importer, and viewer can start Fuseki automatically when it is
+installed in the expected location.
 
 Official Fuseki documentation:
 
@@ -72,16 +71,16 @@ db/fuseki.log
 That matters because `/opt/apache-jena-fuseki-6.1.0/run` may not be writable by
 your user account.
 
-You do not normally need to start Fuseki yourself. The designer and importer
-check whether Fuseki is reachable and start it when needed. If you want to test
-Fuseki manually, run this from the project root after setup:
+You do not normally need to start Fuseki yourself. The designer, importer, and
+viewer check whether Fuseki is reachable and start it when needed. If you want
+to test Fuseki manually, run this from the project root after setup:
 
 ```bash
-FUSEKI_BASE=/home/sunlu/Projects/semantic-web-processor/db/fuseki-run \
+FUSEKI_BASE=<project-dir>/db/fuseki-run \
   /opt/apache-jena-fuseki-6.1.0/fuseki-server \
   --tdb2 \
-  --loc=/home/sunlu/Projects/semantic-web-processor/db/fuseki-data \
-  --update --localhost /semantic-web-processor
+  --loc=<project-dir>/db/fuseki-data \
+  --update --localhost /vibe-semanting
 ```
 
 Then open:
@@ -94,13 +93,13 @@ Stop the manual server with `Ctrl+C` in that terminal.
 
 ## 2. What This Project Does
 
-Semantic Web Processor has three independent applications.
+Vibe Semanting has three independent applications.
 
 | Application | Command | Job |
 | --- | --- | --- |
 | Designer | `uv run python -m src.designer.main` | Reads your requirements and data, designs an RDF/RDFS ontology, writes `design.md`, writes `db/ontology.ttl`, and loads the ontology into Fuseki. |
 | Importer | `uv run python -m src.importer.main` | Reads the design and data, imports instances without changing the ontology, writes `import.md`, `db/instances.ttl`, and `db/semantic_web.ttl`, then loads instances into Fuseki. |
-| Viewer | `uv run python -m src.viewer.main` | Starts a browser UI where you can ask questions and export the semantic web as Turtle. |
+| Viewer | `uv run python -m src.viewer.main` | Starts a browser UI where you can ask questions, export Turtle, and open an interactive graph. |
 
 The key feature is mixed-data semantic-web generation:
 
@@ -161,13 +160,13 @@ uv --version
 
 ```bash
 git clone <repository-url>
-cd semantic-web-processor
+cd vibe-semanting
 ```
 
 If you already have the project folder, open a terminal in:
 
 ```text
-/home/sunlu/Projects/semantic-web-processor
+<project-dir>
 ```
 
 ### Install Python Dependencies
@@ -200,7 +199,7 @@ OPENAI_API_KEY=your_api_key_here
 SEMANTIC_WEB_MODE=production
 FUSEKI_HOME=/opt/apache-jena-fuseki-6.1.0
 FUSEKI_BASE_URL=http://localhost:3030
-FUSEKI_DATASET=semantic-web-processor
+FUSEKI_DATASET=vibe-semanting
 FUSEKI_DATA_DIR=db/fuseki-data
 VIEWER_HOST=127.0.0.1
 VIEWER_PORT=8000
@@ -261,8 +260,9 @@ The viewer is a web app backed by Fuseki queries.
 | `openai-agents` | Provides the viewer workflow shell and query tools. |
 | `openai` | Generates final natural-language answers from queried facts. |
 | `rdflib` | Parses and validates RDF/Turtle in tests and fallback paths. |
+| `pyvis` | Renders an interactive semantic-web graph from Fuseki-exported Turtle. |
 | `requests` | Sends SPARQL and graph-store requests to Fuseki. |
-| Apache Jena Fuseki | Runtime data source for chatbot answers and Turtle export. |
+| Apache Jena Fuseki | Runtime data source for chatbot answers, graph rendering, and Turtle export. |
 
 ## 6. First Run
 
@@ -341,7 +341,8 @@ What APIs or protocols are mentioned for Apache Jena TDB?
 What is the difference between semantic web and ontology?
 ```
 
-The viewer can also export the semantic web as Turtle.
+The viewer can also export the semantic web as Turtle and open an interactive
+graph view generated from the Fuseki export.
 
 ## 7. Use Your Own Data
 
@@ -357,7 +358,7 @@ To use a new dataset:
 Clean generated artifacts:
 
 ```bash
-rm -f design.md import.md db/ontology.ttl db/instances.ttl db/semantic_web.ttl db/export.ttl
+rm -f design.md import.md db/ontology.ttl db/instances.ttl db/semantic_web.ttl db/export.ttl db/semantic_web_plot.html
 ```
 
 Do not delete `db/fuseki-run/` or `db/fuseki-data/` while Fuseki is running.
@@ -466,6 +467,7 @@ Viewer
         |
         +--> chatbot answers
         +--> Turtle export
+        +--> interactive graph HTML
 ```
 
 Artifact roles:
@@ -477,13 +479,14 @@ Artifact roles:
 | `db/ontology.ttl` | Validated ontology Turtle, review file, portable fallback, and reload artifact. |
 | `db/instances.ttl` | Validated instance Turtle. |
 | `db/semantic_web.ttl` | Combined ontology and instance graph for review and fallback. |
+| `db/semantic_web_plot.html` | Generated interactive graph HTML from Fuseki-exported Turtle. |
 | Fuseki ontology graph | Runtime ontology source of truth. |
 | Fuseki data graph | Runtime instance data source of truth. |
 | `chat/viewer/` | Runtime viewer chat transcripts. |
 
-The viewer queries and exports through Fuseki. It does not use
-`db/semantic_web.ttl` as its runtime data source. It may read `design.md` as
-reference context when mapping ordinary user wording to ontology labels, but
+The viewer queries, exports, and renders graph HTML through Fuseki. It does not
+use `db/semantic_web.ttl` as its runtime data source. It may read `design.md`
+as reference context when mapping ordinary user wording to ontology labels, but
 answers must still be grounded in facts queried from Fuseki.
 
 ## 10. CSV Handling
@@ -536,7 +539,7 @@ passes, and coverage reports.
 
 ## 12. Viewer API
 
-The viewer starts a FastAPI app.
+The viewer starts Fuseki when needed and possible, then starts a FastAPI app.
 
 When a user asks with ordinary wording that does not match ontology labels, the
 viewer first queries schema labels and comments from Fuseki, then uses the
@@ -555,6 +558,7 @@ Useful endpoints:
 | `GET /api/chat/{session_id}` | Read a chat session. |
 | `POST /api/question` | Ask a question. |
 | `GET /api/export.ttl` | Export Turtle from Fuseki. |
+| `GET /api/plot.html` | Render an interactive semantic-web graph from Fuseki-exported Turtle. |
 
 Example API request:
 
@@ -695,7 +699,8 @@ with `gpt-5.4`. It produced:
 - Viewer label translation from ordinary wording such as "database systems" to
   generated ontology labels such as `Triplestore`.
 - Turtle export that parsed successfully with 947 triples.
-- Test result: `90 passed, 2 skipped`.
+- Interactive graph rendering from Fuseki-exported Turtle.
+- Test result: `91 passed, 4 skipped`.
 
 This validates the architecture outside the original DnD example. It is still a
 proof of concept for comprehensive unstructured-document coverage; CSV rows are
