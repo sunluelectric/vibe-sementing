@@ -17,6 +17,8 @@ If you are new to the topic, these W3C pages are good starting points:
 This project focuses mainly on RDF and RDFS. OWL can appear in future schema
 work, but complex OWL reasoning is not required for the current product.
 
+Note: this project is jointly developed by OpenAI Codex.
+
 ## 1. Install Fuseki First
 
 Apache Jena Fuseki is the triplestore used by this project. It stores the
