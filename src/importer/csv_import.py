@@ -222,6 +222,48 @@ def generate_csv_instances(
     return graph
 
 
+def fallback_csv_import_plan(
+    ontology_graph: Graph,
+    data_dir: Path,
+    namespace: str = "http://example.org/semantic-web#",
+) -> CsvImportPlan:
+    terms = inspect_ontology_terms(ontology_graph)
+    string_properties = _string_compatible_properties(ontology_graph, terms.properties)
+    if not terms.classes or not string_properties:
+        return CsvImportPlan()
+
+    mappings: list[CsvFileMapping] = []
+    for path in sorted(data_dir.glob("*")):
+        if not path.is_file() or path.suffix.lower() != ".csv":
+            continue
+        profile = profile_csv(path)
+        if not profile.columns:
+            continue
+        column_names = [column.name for column in profile.columns]
+        row_class = _best_row_class(terms.classes, path.stem, column_names)
+        subject_column = _best_subject_column(column_names)
+        mappings.append(
+            CsvFileMapping(
+                csv_file=path.name,
+                row_class_uri=str(row_class),
+                subject_uri_template=(
+                    "http://example.org/semantic-web/instance/"
+                    f"{_slug(path.stem)}/{{{subject_column}|slug}}"
+                ),
+                label_template=f"{{{subject_column}}}",
+                column_mappings=tuple(
+                    CsvColumnMapping(
+                        column=column_name,
+                        property_uri=str(_best_string_property(string_properties, column_name, is_subject=column_name == subject_column)),
+                        datatype="string",
+                    )
+                    for column_name in column_names
+                ),
+            )
+        )
+    return CsvImportPlan(mappings=tuple(mappings))
+
+
 def csv_profiles_for_prompt(data_dir: Path) -> str:
     profiles = [
         profile_csv(path)
@@ -297,6 +339,65 @@ def _compatible_ranges(expected_range: URIRef) -> set[URIRef]:
     elif expected_range in {XSD.decimal, XSD.boolean, XSD.date, XSD.dateTime, XSD.anyURI}:
         allowed.add(XSD.string)
     return allowed
+
+
+def _string_compatible_properties(ontology_graph: Graph, properties: set[URIRef]) -> list[URIRef]:
+    compatible: list[URIRef] = []
+    for property_uri in sorted(properties, key=str):
+        ranges = set(ontology_graph.objects(property_uri, RDFS.range))
+        if not ranges or any(range_value in _compatible_ranges(XSD.string) for range_value in ranges):
+            compatible.append(property_uri)
+    return compatible
+
+
+def _best_row_class(classes: set[URIRef], file_stem: str, columns: list[str]) -> URIRef:
+    evidence = _tokens(file_stem)
+    for column in columns:
+        evidence.update(_tokens(column))
+    ranked = sorted(
+        classes,
+        key=lambda class_uri: (
+            -len(_tokens(_local_name(class_uri)) & evidence),
+            str(class_uri),
+        ),
+    )
+    return ranked[0]
+
+
+def _best_subject_column(columns: list[str]) -> str:
+    for column in columns:
+        if "name" in _tokens(column) or "title" in _tokens(column):
+            return column
+    return columns[0]
+
+
+def _best_string_property(properties: list[URIRef], column: str, is_subject: bool) -> URIRef:
+    column_tokens = _tokens(column)
+    preferred = ("name", "title", "officialname", "label") if is_subject else ("description", "name", "title", "officialname")
+    for preferred_name in preferred:
+        for property_uri in properties:
+            if _local_name(property_uri).lower() == preferred_name:
+                return property_uri
+    ranked = sorted(
+        properties,
+        key=lambda property_uri: (
+            -len(_tokens(_local_name(property_uri)) & column_tokens),
+            str(property_uri),
+        ),
+    )
+    return ranked[0]
+
+
+def _local_name(uri: URIRef) -> str:
+    text = str(uri)
+    if "#" in text:
+        return text.rsplit("#", 1)[1]
+    return text.rstrip("/").rsplit("/", 1)[-1]
+
+
+def _tokens(value: str) -> set[str]:
+    spaced = re.sub(r"([a-z])([A-Z])", r"\1 \2", value)
+    return {token.lower() for token in SLUG_RE.split(spaced) if token}
 
 
 def _render_template(template: str, row: dict[str, str]) -> str:

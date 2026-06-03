@@ -15,7 +15,12 @@ from rdflib import Graph
 
 from src.common.rdf import combine_turtle_files, load_graph, parse_turtle, serialize_graph
 from src.common.semantic_search import SemanticChunk, chunks_from_data_dir, chunks_from_graph, select_context
-from src.importer.csv_import import csv_profiles_for_prompt, generate_csv_instances, validate_csv_import_plan
+from src.importer.csv_import import (
+    csv_profiles_for_prompt,
+    fallback_csv_import_plan,
+    generate_csv_instances,
+    validate_csv_import_plan,
+)
 from src.importer.agent import ImporterAgent, ImportFocus, ImportResult
 from src.importer.validation import inspect_ontology_terms
 from src.importer.validation import validate_instance_graph
@@ -342,7 +347,24 @@ class ImporterWorkflow:
             )
         if plan is None:
             raise RuntimeError("CSV mapping planning did not produce a plan.")
-        validate_csv_import_plan(plan, ontology_graph, self.settings.data_dir).raise_for_errors()
+        validation = validate_csv_import_plan(plan, ontology_graph, self.settings.data_dir)
+        if not validation.ok:
+            fallback_plan = fallback_csv_import_plan(
+                ontology_graph,
+                self.settings.data_dir,
+                namespace=self.settings.ontology_namespace,
+            )
+            fallback_validation = validate_csv_import_plan(fallback_plan, ontology_graph, self.settings.data_dir)
+            if not fallback_validation.ok:
+                validation.raise_for_errors()
+            plan = fallback_plan
+            agent._record_progress(
+                self.settings.import_doc_path,
+                "## CSV Mapping Fallback\n\n"
+                f"- Status: used\n"
+                f"- Reason: model mapping failed validation after {self.settings.importer_iterations} attempts\n"
+                f"- Mapping count: {len(plan.mappings)}\n"
+            )
         graph = generate_csv_instances(plan, ontology_graph, self.settings.data_dir)
         self.last_retrieval_summary["csv"] = {
             "used": True,

@@ -509,6 +509,11 @@ the rows:
 6. Emit RDF triples.
 7. Merge CSV triples with unstructured-source triples.
 
+If repeated model-planned mappings fail validation, the importer uses a
+conservative deterministic fallback that maps each CSV row to the best matching
+existing class and maps scalar columns only to existing string-compatible
+properties. This keeps CSV import moving without changing the ontology.
+
 This makes CSV import repeatable and testable.
 
 ## 11. Large Documents And Semantic Search
@@ -688,19 +693,17 @@ data/commonly seen triplestores.csv
 The latest production validation used the default `SEMANTIC_WEB_MODE=production`
 with `gpt-5.4`. It produced:
 
-- 427 ontology triples.
-- 59 RDFS classes.
-- 36 RDF properties.
-- 520 instance triples.
-- 947 combined Fuseki/export triples.
-- 190 deterministic CSV triples from one validated CSV mapping.
+- 554 ontology triples.
+- 96 RDFS classes.
+- 11 RDF properties.
+- 349 instance triples.
+- 903 combined Fuseki/export triples.
+- 88 deterministic CSV triples from one conservative fallback CSV mapping.
 - Viewer answers grounded in Fuseki data.
-- Stateful viewer follow-up handling across a chat session.
-- Viewer label translation from ordinary wording such as "database systems" to
-  generated ontology labels such as `Triplestore`.
-- Turtle export that parsed successfully with 947 triples.
+- Viewer answered "How many triplestores are listed?" as 11.
+- Turtle export that parsed successfully with 903 triples.
 - Interactive graph rendering from Fuseki-exported Turtle.
-- Test result: `91 passed, 4 skipped`.
+- Test result: `94 passed, 2 skipped`.
 
 This validates the architecture outside the original DnD example. It is still a
 proof of concept for comprehensive unstructured-document coverage; CSV rows are

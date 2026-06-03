@@ -7,6 +7,7 @@ from src.importer.csv_import import (
     CsvFileMapping,
     CsvImportPlan,
     CsvRelationshipMapping,
+    fallback_csv_import_plan,
     generate_csv_instances,
     parse_csv_import_plan,
     validate_csv_import_plan,
@@ -149,6 +150,39 @@ def test_generate_csv_instances_deterministically_converts_rows(tmp_path) -> Non
     assert (apache, RDF.type, sw.Organization) in graph
     assert (jena, sw.isOpenSource, None) in graph
     assert any(str(obj) == "true" and obj.datatype == XSD.boolean for obj in graph.objects(jena, sw.isOpenSource))
+
+
+def test_fallback_csv_import_plan_uses_existing_string_properties(tmp_path) -> None:
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    (data_dir / "commonly seen triplestores.csv").write_text(
+        "Triplestore Name,Developer/Maintainer,License Type\n"
+        "GraphDB,Ontotext,Commercial / Free Edition\n",
+        encoding="utf-8",
+    )
+    ontology_graph = parse_turtle(
+        """
+        @prefix sw: <http://example.org/semantic-web#> .
+        @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+        @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+        @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+        sw:Entity a rdfs:Class .
+        sw:Triplestore a rdfs:Class ; rdfs:subClassOf sw:Entity .
+        sw:name a rdf:Property ; rdfs:domain sw:Entity ; rdfs:range xsd:string .
+        sw:description a rdf:Property ; rdfs:domain sw:Entity ; rdfs:range xsd:string .
+        """
+    )
+    sw = Namespace("http://example.org/semantic-web#")
+
+    plan = fallback_csv_import_plan(ontology_graph, data_dir)
+    validation = validate_csv_import_plan(plan, ontology_graph, data_dir)
+    graph = generate_csv_instances(plan, ontology_graph, data_dir)
+
+    assert validation.ok
+    assert plan.mappings[0].row_class_uri == str(sw.Triplestore)
+    assert {mapping.property_uri for mapping in plan.mappings[0].column_mappings} <= {str(sw.name), str(sw.description)}
+    assert len(graph) >= 5
 
 
 def test_csv_import_widens_integer_mapping_to_decimal_range(tmp_path) -> None:

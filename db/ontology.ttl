@@ -4,526 +4,665 @@
 @prefix sw: <http://example.org/semantic-web#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-sw:API a rdfs:Class ;
+sw:API a rdfs:Class,
+        owl:Class ;
     rdfs:label "API" ;
     rdfs:comment "An application programming interface." ;
-    rdfs:subClassOf sw:Interface .
+    rdfs:subClassOf sw:InterfaceTechnology .
 
-sw:ArchitectureLayer a rdfs:Class ;
-    rdfs:label "Architecture layer" ;
-    rdfs:comment "A conceptual layer in an architecture stack." ;
+sw:ApplicationArea a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Application area" ;
+    rdfs:comment "A practical area where semantic web technologies are applied." ;
     rdfs:subClassOf sw:Concept .
 
-sw:Axiom a rdfs:Class ;
-    rdfs:label "Axiom" ;
-    rdfs:comment "A logical assertion or rule in an ontology." ;
-    rdfs:subClassOf sw:OntologyPrimitive .
+sw:AttributeConcept a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Attribute concept" ;
+    rdfs:comment "A concept corresponding to datatype attributes." ;
+    rdfs:subClassOf sw:ModelingConstruct .
 
-sw:CardinalityConstraint a rdfs:Class ;
-    rdfs:label "Cardinality constraint" ;
-    rdfs:comment "A constraint on the number of values allowed for a property." ;
-    rdfs:subClassOf sw:Constraint .
+sw:AxiomComponent a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Axiom component" ;
+    rdfs:comment "An axiom or constraint component in an ontology." ;
+    rdfs:subClassOf sw:OntologyComponent .
 
-sw:CharacterSetStandard a rdfs:Class ;
-    rdfs:label "Character set standard" ;
-    rdfs:comment "A standard for character encoding, such as Unicode." ;
-    rdfs:subClassOf sw:Standard,
-        sw:Technology .
+sw:AxiomConcept a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Axiom concept" ;
+    rdfs:comment "A concept corresponding to logical axioms or constraints." ;
+    rdfs:subClassOf sw:ModelingConstruct .
 
-sw:ClassRestriction a rdfs:Class ;
-    rdfs:label "Class restriction" ;
-    rdfs:comment "A restriction imposed on a class using property-based logical conditions." ;
-    rdfs:subClassOf sw:Axiom .
+sw:CharacterEncoding a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Character encoding" ;
+    rdfs:comment "A character encoding technology such as Unicode." ;
+    rdfs:subClassOf sw:Technology .
 
-sw:ClassificationTask a rdfs:Class ;
-    rdfs:label "Classification task" ;
-    rdfs:comment "A reasoning task that computes class membership or taxonomy placement." ;
-    rdfs:subClassOf sw:ReasoningTask .
+sw:ClassConcept a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Class concept" ;
+    rdfs:comment "A concept corresponding to classes as ontology primitives." ;
+    rdfs:subClassOf sw:ModelingConstruct .
 
-sw:Concept a rdfs:Class ;
+sw:ClassificationReasoning a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Classification reasoning" ;
+    rdfs:comment "Reasoning process that computes inferred class hierarchies or memberships." ;
+    rdfs:subClassOf sw:ReasoningProcess .
+
+sw:ClosedWorldAssumption a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Closed World Assumption" ;
+    rdfs:comment "Assumption that absent information is treated as false." ;
+    rdfs:subClassOf sw:Principle .
+
+sw:Concept a rdfs:Class,
+        owl:Class ;
     rdfs:label "Concept" ;
-    rdfs:comment "A broad conceptual entity modeled in this schema." .
+    rdfs:comment "An abstract conceptual unit in the modeled domain." ;
+    rdfs:subClassOf sw:Entity .
 
-sw:ConsistencyCheckingTask a rdfs:Class ;
-    rdfs:label "Consistency checking task" ;
-    rdfs:comment "A reasoning task that detects logical contradictions." ;
-    rdfs:subClassOf sw:ReasoningTask .
+sw:ConsistencyChecking a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Consistency checking" ;
+    rdfs:comment "Reasoning process that detects logical contradictions." ;
+    rdfs:subClassOf sw:ReasoningProcess .
 
-sw:Constraint a rdfs:Class ;
-    rdfs:label "Constraint" ;
-    rdfs:comment "A logical constraint that limits valid interpretations or usage patterns." ;
-    rdfs:subClassOf sw:Axiom .
+sw:DataIntegrationUseCase a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Data integration use case" ;
+    rdfs:comment "Application area focused on integrating heterogeneous data sources." ;
+    rdfs:subClassOf sw:ApplicationArea .
 
-sw:DataModelLayer a rdfs:Class ;
+sw:DataModelLayer a rdfs:Class,
+        owl:Class ;
     rdfs:label "Data model layer" ;
-    rdfs:comment "The architecture layer concerned with RDF and RDF Schema data modeling." ;
-    rdfs:subClassOf sw:ArchitectureLayer .
+    rdfs:comment "Layer concerning RDF and RDFS data modeling." ;
+    rdfs:subClassOf sw:SemanticArchitectureLayer .
 
-sw:DataModelTechnology a rdfs:Class ;
-    rdfs:label "Data model technology" ;
-    rdfs:comment "A data model technology such as RDF or RDFS." ;
+sw:DataStoreTechnology a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Data store technology" ;
+    rdfs:comment "A technology used to persist, query, or manage structured data." ;
     rdfs:subClassOf sw:Technology .
 
-sw:DatabaseManagementSystem a rdfs:Class ;
-    rdfs:label "Database management system" ;
-    rdfs:comment "A software system for storing and managing data." ;
-    rdfs:subClassOf sw:Technology .
+sw:DataVirtualizationUseCase a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Data virtualization use case" ;
+    rdfs:comment "Application area focused on virtualized access across distributed or heterogeneous data stores." ;
+    rdfs:subClassOf sw:ApplicationArea .
 
-sw:DatatypePropertyConcept a rdfs:Class ;
-    rdfs:label "Datatype property concept" ;
-    rdfs:comment "The ontology primitive representing an attribute that links to literal values." ;
-    rdfs:subClassOf sw:OntologyPrimitive .
+sw:Dataset a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Dataset" ;
+    rdfs:comment "A structured collection of data." ;
+    rdfs:subClassOf sw:KnowledgeArtifact .
 
-sw:DeploymentModel a rdfs:Class ;
-    rdfs:label "Deployment model" ;
-    rdfs:comment "A deployment or operational model for a software system, such as managed service or native component." ;
-    rdfs:subClassOf sw:Concept .
+sw:DatatypePropertyComponent a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Datatype property component" ;
+    rdfs:comment "A datatype property component in an ontology." ;
+    rdfs:subClassOf sw:OntologyComponent .
 
-sw:DisjointnessAxiom a rdfs:Class ;
-    rdfs:label "Disjointness axiom" ;
-    rdfs:comment "An axiom stating that two classes do not share individuals." ;
-    rdfs:subClassOf sw:Constraint .
+sw:DeveloperOrganization a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Developer organization" ;
+    rdfs:comment "An organization responsible for development of a technology or artifact." ;
+    rdfs:subClassOf sw:Organization .
 
-sw:Feature a rdfs:Class ;
-    rdfs:label "Feature" ;
-    rdfs:comment "A notable capability or product feature." ;
-    rdfs:subClassOf sw:Concept .
-
-sw:FoundationalOntology a rdfs:Class ;
-    rdfs:label "Foundational ontology" ;
-    rdfs:comment "A broadly reusable upper-level or foundational ontology or vocabulary." ;
-    rdfs:subClassOf sw:Ontology,
-        sw:Vocabulary .
-
-sw:IdentifierLayer a rdfs:Class ;
-    rdfs:label "Identifier layer" ;
-    rdfs:comment "The architecture layer concerned with identifiers such as URI and IRI." ;
-    rdfs:subClassOf sw:ArchitectureLayer .
-
-sw:IdentifierScheme a rdfs:Class ;
-    rdfs:label "Identifier scheme" ;
-    rdfs:comment "A scheme for globally identifying resources, such as URI or IRI." ;
-    rdfs:subClassOf sw:Technology .
-
-sw:InformationResource a rdfs:Class ;
-    rdfs:label "Information resource" ;
-    rdfs:comment "A resource that conveys or structures information, such as a standard, ontology, or vocabulary." ;
-    rdfs:subClassOf sw:Concept .
-
-sw:Interface a rdfs:Class ;
-    rdfs:label "Interface" ;
-    rdfs:comment "A general interaction surface or access mechanism exposed by a software system." ;
-    rdfs:subClassOf sw:Technology .
-
-sw:KnowledgeGraph a rdfs:Class ;
-    rdfs:label "Knowledge graph" ;
-    rdfs:comment "A graph of entities linked by typed relationships." ;
-    rdfs:subClassOf sw:KnowledgeOrganizationArtifact .
-
-sw:KnowledgeOrganizationArtifact a rdfs:Class ;
-    rdfs:label "Knowledge organization artifact" ;
-    rdfs:comment "A structured artifact for organizing or expressing knowledge." ;
-    rdfs:subClassOf sw:InformationResource .
-
-sw:LicenseModel a rdfs:Class ;
-    rdfs:label "License model" ;
-    rdfs:comment "A structured or textual model of software licensing terms." ;
-    rdfs:subClassOf sw:Concept .
-
-sw:NonUniqueNameAssumption a rdfs:Class ;
-    rdfs:label "Non-Unique Name Assumption" ;
-    rdfs:comment "The principle that different identifiers may refer to the same real-world entity." ;
-    rdfs:subClassOf sw:SemanticPrinciple .
-
-sw:ObjectPropertyConcept a rdfs:Class ;
-    rdfs:label "Object property concept" ;
-    rdfs:comment "The ontology primitive representing a relationship between resources." ;
-    rdfs:subClassOf sw:OntologyPrimitive .
-
-sw:Ontology a rdfs:Class ;
-    rdfs:label "Ontology" ;
-    rdfs:comment "A formal, explicit specification of a shared conceptualization." ;
-    rdfs:subClassOf sw:KnowledgeOrganizationArtifact .
-
-sw:OntologyClass a rdfs:Class ;
-    rdfs:label "Ontology class" ;
-    rdfs:comment "The ontology primitive representing a class or concept category." ;
-    rdfs:subClassOf sw:OntologyPrimitive .
-
-sw:OntologyIndividual a rdfs:Class ;
-    rdfs:label "Ontology individual" ;
-    rdfs:comment "The ontology primitive representing a concrete instance or individual." ;
-    rdfs:subClassOf sw:OntologyPrimitive .
-
-sw:OntologyLanguage a rdfs:Class ;
-    rdfs:label "Ontology language" ;
-    rdfs:comment "A language used to define ontologies or semantic structures, such as OWL or SKOS." ;
-    rdfs:subClassOf sw:Technology .
-
-sw:OntologyLayer a rdfs:Class ;
-    rdfs:label "Ontology layer" ;
-    rdfs:comment "The architecture layer concerned with ontologies and schema languages such as OWL and SKOS." ;
-    rdfs:subClassOf sw:ArchitectureLayer .
-
-sw:OntologyPrimitive a rdfs:Class ;
-    rdfs:label "Ontology primitive" ;
-    rdfs:comment "A core building block of an ontology." ;
-    rdfs:subClassOf sw:Concept .
-
-sw:OntologyProfile a rdfs:Class ;
-    rdfs:label "Ontology profile" ;
-    rdfs:comment "A constrained profile of an ontology language, such as an OWL 2 profile." ;
-    rdfs:subClassOf sw:Concept .
-
-sw:OpenWorldAssumption a rdfs:Class ;
-    rdfs:label "Open World Assumption" ;
-    rdfs:comment "The principle that missing information is unknown rather than false." ;
-    rdfs:subClassOf sw:SemanticPrinciple .
-
-sw:Organization a rdfs:Class ;
-    rdfs:label "Organization" ;
-    rdfs:comment "An organization that develops, maintains, publishes, or standardizes a technology or resource." ;
-    rdfs:subClassOf sw:Concept .
-
-sw:ProgrammingInterface a rdfs:Class ;
-    rdfs:label "Programming interface" ;
-    rdfs:comment "A language-specific or native programming interface." ;
-    rdfs:subClassOf sw:Interface .
-
-sw:ProofLayer a rdfs:Class ;
-    rdfs:label "Proof layer" ;
-    rdfs:comment "The architecture layer concerned with proof and justification." ;
-    rdfs:subClassOf sw:ArchitectureLayer .
-
-sw:PropertyCharacteristic a rdfs:Class ;
-    rdfs:label "Property characteristic" ;
-    rdfs:comment "A logical characteristic of a property, such as symmetric, transitive, or functional." ;
-    rdfs:subClassOf sw:Axiom .
-
-sw:Protocol a rdfs:Class ;
-    rdfs:label "Protocol" ;
-    rdfs:comment "A protocol or standards-based interface used for communication or query." ;
-    rdfs:subClassOf sw:Interface .
-
-sw:QueryLanguage a rdfs:Class ;
-    rdfs:label "Query language" ;
-    rdfs:comment "A language used to query structured graph data." ;
-    rdfs:subClassOf sw:Technology .
-
-sw:QueryLayer a rdfs:Class ;
-    rdfs:label "Query layer" ;
-    rdfs:comment "The architecture layer concerned with query languages such as SPARQL." ;
-    rdfs:subClassOf sw:ArchitectureLayer .
-
-sw:Reasoner a rdfs:Class ;
-    rdfs:label "Reasoner" ;
-    rdfs:comment "A reasoning engine used to infer classifications or detect inconsistencies." ;
-    rdfs:subClassOf sw:Technology .
-
-sw:ReasoningTask a rdfs:Class ;
-    rdfs:label "Reasoning task" ;
-    rdfs:comment "A reasoning or inference task performed over semantic data." ;
-    rdfs:subClassOf sw:Concept .
-
-sw:RuleLanguage a rdfs:Class ;
-    rdfs:label "Rule language" ;
-    rdfs:comment "A language used to express logic rules over semantic data." ;
-    rdfs:subClassOf sw:Technology .
-
-sw:RulesLayer a rdfs:Class ;
-    rdfs:label "Rules layer" ;
-    rdfs:comment "The architecture layer concerned with rules and logic languages." ;
-    rdfs:subClassOf sw:ArchitectureLayer .
-
-sw:SemanticPrinciple a rdfs:Class ;
-    rdfs:label "Semantic principle" ;
-    rdfs:comment "A foundational semantic or logical principle used in semantic web modeling." ;
-    rdfs:subClassOf sw:Concept .
-
-sw:SemanticWeb a rdfs:Class ;
-    rdfs:label "Semantic Web" ;
-    rdfs:comment "The web of data paradigm in which machine-understandable semantics are embedded into web resources." ;
-    rdfs:subClassOf sw:Concept .
-
-sw:SerializationFormat a rdfs:Class ;
-    rdfs:label "Serialization format" ;
-    rdfs:comment "A concrete syntax for serializing RDF graphs." ;
-    rdfs:subClassOf sw:Technology .
-
-sw:Specialization a rdfs:Class ;
-    rdfs:label "Specialization" ;
-    rdfs:comment "A specialized focus area, optimization target, or domain emphasis." ;
+sw:DistributedAnalyticsFeature a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Distributed analytics feature" ;
+    rdfs:comment "A feature supporting distributed or massively parallel analytics." ;
     rdfs:subClassOf sw:Feature .
 
-sw:Standard a rdfs:Class ;
+sw:Document a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Document" ;
+    rdfs:comment "A textual or digital document." ;
+    rdfs:subClassOf sw:KnowledgeArtifact .
+
+sw:EnterpriseKnowledgeGraph a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Enterprise Knowledge Graph" ;
+    rdfs:comment "Application area for internal enterprise knowledge graph systems." ;
+    rdfs:subClassOf sw:ApplicationArea .
+
+sw:Entity a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Entity" ;
+    rdfs:comment "Top-level class for described things in this ontology." .
+
+sw:Feature a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Feature" ;
+    rdfs:comment "A capability, property, or specialization of a technology or platform." ;
+    rdfs:subClassOf sw:Concept .
+
+sw:FoundationalOntology a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Foundational ontology" ;
+    rdfs:comment "An upper-level or reusable ontology intended to support broad interoperability." ;
+    rdfs:subClassOf sw:Ontology .
+
+sw:GraphDataSystem a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Graph data system" ;
+    rdfs:comment "A data management system centered on graph structures." ;
+    rdfs:subClassOf sw:DataStoreTechnology .
+
+sw:GraphDatabase a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Graph database" ;
+    rdfs:comment "A graph-oriented database technology." ;
+    rdfs:subClassOf sw:GraphDataSystem .
+
+sw:HighPerformanceFeature a rdfs:Class,
+        owl:Class ;
+    rdfs:label "High-performance feature" ;
+    rdfs:comment "A feature focused on high-performance graph or query execution." ;
+    rdfs:subClassOf sw:Feature .
+
+sw:IRI a rdfs:Class,
+        owl:Class ;
+    rdfs:label "IRI" ;
+    rdfs:comment "Internationalized Resource Identifier." ;
+    rdfs:subClassOf sw:Identifier .
+
+sw:Identifier a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Identifier" ;
+    rdfs:comment "A construct or value used to identify a resource." ;
+    rdfs:subClassOf sw:Concept .
+
+sw:IdentifierLayer a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Identifier layer" ;
+    rdfs:comment "Layer concerning URI, IRI, and character-set foundations." ;
+    rdfs:subClassOf sw:SemanticArchitectureLayer .
+
+sw:IndividualConcept a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Individual concept" ;
+    rdfs:comment "A concept corresponding to individuals or instances as ontology primitives." ;
+    rdfs:subClassOf sw:ModelingConstruct .
+
+sw:InterfaceTechnology a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Interface technology" ;
+    rdfs:comment "An API, interface, protocol, endpoint, or access mechanism." ;
+    rdfs:subClassOf sw:Technology .
+
+sw:JSONLDFormat a rdfs:Class,
+        owl:Class ;
+    rdfs:label "JSON-LD format" ;
+    rdfs:comment "JSON for Linking Data serialization format." ;
+    rdfs:subClassOf sw:SerializationFormat .
+
+sw:KnowledgeArtifact a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Knowledge artifact" ;
+    rdfs:comment "A human- or machine-oriented artifact representing knowledge, such as a document, ontology, taxonomy, standard, or dataset." ;
+    rdfs:subClassOf sw:Entity .
+
+sw:KnowledgeGraph a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Knowledge graph" ;
+    rdfs:comment "A graph of entities and relationships representing structured knowledge." ;
+    rdfs:subClassOf sw:Dataset .
+
+sw:KnowledgeGraphPlatform a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Knowledge graph platform" ;
+    rdfs:comment "A platform supporting the creation, management, or use of knowledge graphs." ;
+    rdfs:subClassOf sw:Technology .
+
+sw:KnowledgeRepresentationLanguage a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Knowledge representation language" ;
+    rdfs:comment "A language for expressing structured semantics or knowledge models." ;
+    rdfs:subClassOf sw:LanguageTechnology .
+
+sw:LanguageTechnology a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Language technology" ;
+    rdfs:comment "A formal language used for representation, querying, or exchange." ;
+    rdfs:subClassOf sw:Technology .
+
+sw:LicenseOffering a rdfs:Class,
+        owl:Class ;
+    rdfs:label "License offering" ;
+    rdfs:comment "A license arrangement or licensing description associated with a product or technology." ;
+    rdfs:subClassOf sw:Entity .
+
+sw:LinkedOpenData a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Linked Open Data" ;
+    rdfs:comment "Application area concerning open, interlinked structured datasets." ;
+    rdfs:subClassOf sw:ApplicationArea .
+
+sw:LogicProfile a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Logic profile" ;
+    rdfs:comment "A computational profile of an ontology language." ;
+    rdfs:subClassOf sw:Concept .
+
+sw:MaintainerOrganization a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Maintainer organization" ;
+    rdfs:comment "An organization responsible for maintenance of a technology or artifact." ;
+    rdfs:subClassOf sw:Organization .
+
+sw:ManagedServiceFeature a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Managed service feature" ;
+    rdfs:comment "A feature indicating managed-service operation or delivery." ;
+    rdfs:subClassOf sw:Feature .
+
+sw:MicrodataTechnology a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Microdata technology" ;
+    rdfs:comment "Markup technology for embedding structured data in HTML." ;
+    rdfs:subClassOf sw:Technology .
+
+sw:ModelingConstruct a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Modeling construct" ;
+    rdfs:comment "A conceptual construct used in semantic modeling." ;
+    rdfs:subClassOf sw:Concept .
+
+sw:MultiModelFeature a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Multi-model feature" ;
+    rdfs:comment "A feature supporting multiple data models or paradigms." ;
+    rdfs:subClassOf sw:Feature .
+
+sw:NonUniqueNameAssumption a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Non-Unique Name Assumption" ;
+    rdfs:comment "Assumption that different identifiers may denote the same real-world entity." ;
+    rdfs:subClassOf sw:Principle .
+
+sw:OWL2ELProfile a rdfs:Class,
+        owl:Class ;
+    rdfs:label "OWL 2 EL profile" ;
+    rdfs:comment "OWL 2 EL profile for large class hierarchies with tractable reasoning." ;
+    rdfs:subClassOf sw:LogicProfile .
+
+sw:OWL2QLProfile a rdfs:Class,
+        owl:Class ;
+    rdfs:label "OWL 2 QL profile" ;
+    rdfs:comment "OWL 2 QL profile optimized for query answering over relational systems." ;
+    rdfs:subClassOf sw:LogicProfile .
+
+sw:OWL2RLProfile a rdfs:Class,
+        owl:Class ;
+    rdfs:label "OWL 2 RL profile" ;
+    rdfs:comment "OWL 2 RL profile optimized for rule-based reasoning." ;
+    rdfs:subClassOf sw:LogicProfile .
+
+sw:OWLTechnology a rdfs:Class,
+        owl:Class ;
+    rdfs:label "OWL technology" ;
+    rdfs:comment "Technology or standard based on the Web Ontology Language." ;
+    rdfs:subClassOf sw:KnowledgeRepresentationLanguage,
+        sw:Standard .
+
+sw:ObjectPropertyComponent a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Object property component" ;
+    rdfs:comment "An object property component in an ontology." ;
+    rdfs:subClassOf sw:OntologyComponent .
+
+sw:Ontology a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Ontology" ;
+    rdfs:comment "A formal, explicit specification of a shared conceptualization." ;
+    rdfs:subClassOf sw:KnowledgeArtifact .
+
+sw:OntologyClassComponent a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Ontology class component" ;
+    rdfs:comment "A class component in an ontology." ;
+    rdfs:subClassOf sw:OntologyComponent .
+
+sw:OntologyComponent a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Ontology component" ;
+    rdfs:comment "A component used in the structure of an ontology." ;
+    rdfs:subClassOf sw:Concept .
+
+sw:OntologyIndividualComponent a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Ontology individual component" ;
+    rdfs:comment "An individual or instance component in an ontology." ;
+    rdfs:subClassOf sw:OntologyComponent .
+
+sw:OntologyLayer a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Ontology layer" ;
+    rdfs:comment "Layer concerning ontologies such as OWL and SKOS." ;
+    rdfs:subClassOf sw:SemanticArchitectureLayer .
+
+sw:OpenWorldAssumption a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Open World Assumption" ;
+    rdfs:comment "Assumption that missing information is unknown rather than false." ;
+    rdfs:subClassOf sw:Principle .
+
+sw:Organization a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Organization" ;
+    rdfs:comment "An organization such as a vendor, standards body, maintainer, or developer." ;
+    rdfs:subClassOf sw:Entity .
+
+sw:Principle a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Principle" ;
+    rdfs:comment "A conceptual principle or assumption relevant to semantic systems." ;
+    rdfs:subClassOf sw:Concept .
+
+sw:ProgrammingInterface a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Programming interface" ;
+    rdfs:comment "A programming-oriented interface such as a language SDK or native API." ;
+    rdfs:subClassOf sw:InterfaceTechnology .
+
+sw:ProofLayer a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Proof layer" ;
+    rdfs:comment "Layer concerning proof and explainability of inferences." ;
+    rdfs:subClassOf sw:SemanticArchitectureLayer .
+
+sw:Protocol a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Protocol" ;
+    rdfs:comment "A communication or interoperability protocol." ;
+    rdfs:subClassOf sw:InterfaceTechnology .
+
+sw:QueryEndpoint a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Query endpoint" ;
+    rdfs:comment "An endpoint used for query execution over a semantic or graph store." ;
+    rdfs:subClassOf sw:InterfaceTechnology .
+
+sw:QueryLanguage a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Query language" ;
+    rdfs:comment "A language used to query structured data or RDF graphs." ;
+    rdfs:subClassOf sw:LanguageTechnology .
+
+sw:QueryLayer a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Query layer" ;
+    rdfs:comment "Layer concerning graph query languages such as SPARQL." ;
+    rdfs:subClassOf sw:SemanticArchitectureLayer .
+
+sw:RDFSchemaTechnology a rdfs:Class,
+        owl:Class ;
+    rdfs:label "RDFS technology" ;
+    rdfs:comment "Technology or standard based on RDF Schema." ;
+    rdfs:subClassOf sw:RDFTechnology .
+
+sw:RDFTechnology a rdfs:Class,
+        owl:Class ;
+    rdfs:label "RDF technology" ;
+    rdfs:comment "Technology or standard based on the Resource Description Framework." ;
+    rdfs:subClassOf sw:KnowledgeRepresentationLanguage,
+        sw:Standard .
+
+sw:RDFXMLFormat a rdfs:Class,
+        owl:Class ;
+    rdfs:label "RDF/XML format" ;
+    rdfs:comment "XML serialization format for RDF." ;
+    rdfs:subClassOf sw:SerializationFormat .
+
+sw:Reasoner a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Reasoner" ;
+    rdfs:comment "A software component that performs logical inference or consistency checking." ;
+    rdfs:subClassOf sw:Technology .
+
+sw:ReasoningFeature a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Reasoning feature" ;
+    rdfs:comment "A feature related to reasoning support." ;
+    rdfs:subClassOf sw:Feature .
+
+sw:ReasoningProcess a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Reasoning process" ;
+    rdfs:comment "A semantic reasoning activity performed over knowledge representations." ;
+    rdfs:subClassOf sw:Concept .
+
+sw:RelationshipConcept a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Relationship concept" ;
+    rdfs:comment "A concept corresponding to object relationships." ;
+    rdfs:subClassOf sw:ModelingConstruct .
+
+sw:RestrictionComponent a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Restriction component" ;
+    rdfs:comment "A restriction component used to constrain class membership or property use." ;
+    rdfs:subClassOf sw:OntologyComponent .
+
+sw:RulesLayer a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Rules layer" ;
+    rdfs:comment "Layer concerning semantic rules and rule languages." ;
+    rdfs:subClassOf sw:SemanticArchitectureLayer .
+
+sw:SKOSTechnology a rdfs:Class,
+        owl:Class ;
+    rdfs:label "SKOS technology" ;
+    rdfs:comment "Technology or standard based on SKOS." ;
+    rdfs:subClassOf sw:KnowledgeRepresentationLanguage,
+        sw:Standard .
+
+sw:SPARQLTechnology a rdfs:Class,
+        owl:Class ;
+    rdfs:label "SPARQL technology" ;
+    rdfs:comment "Technology or standard based on SPARQL." ;
+    rdfs:subClassOf sw:QueryLanguage,
+        sw:Standard .
+
+sw:SearchEngineKnowledgeGraph a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Search engine knowledge graph" ;
+    rdfs:comment "Application area concerning knowledge graphs used by search engines." ;
+    rdfs:subClassOf sw:ApplicationArea .
+
+sw:SemanticArchitectureLayer a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Semantic architecture layer" ;
+    rdfs:comment "A layer in the Semantic Web technology stack." ;
+    rdfs:subClassOf sw:Concept .
+
+sw:SemanticWeb a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Semantic Web" ;
+    rdfs:comment "The web of machine-understandable data and explicit semantics." ;
+    rdfs:subClassOf sw:Concept .
+
+sw:SerializationFormat a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Serialization format" ;
+    rdfs:comment "A syntax used to serialize RDF or semantic data." ;
+    rdfs:subClassOf sw:Technology .
+
+sw:SpecificationDocument a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Specification document" ;
+    rdfs:comment "A document that specifies a formal language, model, or standard." ;
+    rdfs:subClassOf sw:Document .
+
+sw:Standard a rdfs:Class,
+        owl:Class ;
     rdfs:label "Standard" ;
-    rdfs:comment "A formal technical standard or specification." ;
-    rdfs:subClassOf sw:InformationResource .
+    rdfs:comment "A formal or community standard." ;
+    rdfs:subClassOf sw:KnowledgeArtifact .
 
-sw:SyntaxLayer a rdfs:Class ;
+sw:SyntaxLayer a rdfs:Class,
+        owl:Class ;
     rdfs:label "Syntax layer" ;
-    rdfs:comment "The architecture layer concerned with concrete serialization syntaxes." ;
-    rdfs:subClassOf sw:ArchitectureLayer .
+    rdfs:comment "Layer concerning data syntax and serialization." ;
+    rdfs:subClassOf sw:SemanticArchitectureLayer .
 
-sw:Taxonomy a rdfs:Class ;
+sw:Taxonomy a rdfs:Class,
+        owl:Class ;
     rdfs:label "Taxonomy" ;
-    rdfs:comment "A hierarchical classification scheme focused on parent-child or subclass relationships." ;
-    rdfs:subClassOf sw:KnowledgeOrganizationArtifact .
+    rdfs:comment "A hierarchical classification scheme." ;
+    rdfs:subClassOf sw:KnowledgeArtifact .
 
-sw:Technology a rdfs:Class ;
+sw:Technology a rdfs:Class,
+        owl:Class ;
     rdfs:label "Technology" ;
-    rdfs:comment "A technology, language, framework element, or software system in the semantic web ecosystem." ;
-    rdfs:subClassOf sw:Concept .
+    rdfs:comment "A technical standard, language, system, or platform." ;
+    rdfs:subClassOf sw:Entity .
 
-sw:Triplestore a rdfs:Class ;
+sw:Triplestore a rdfs:Class,
+        owl:Class ;
     rdfs:label "Triplestore" ;
-    rdfs:comment "An RDF-oriented database or graph repository platform." ;
-    rdfs:subClassOf sw:DatabaseManagementSystem .
+    rdfs:comment "A database management system specialized for RDF triples." ;
+    rdfs:subClassOf sw:GraphDataSystem .
 
-sw:TrustLayer a rdfs:Class ;
+sw:TrustLayer a rdfs:Class,
+        owl:Class ;
     rdfs:label "Trust layer" ;
-    rdfs:comment "The architecture layer concerned with trust and provenance confidence." ;
-    rdfs:subClassOf sw:ArchitectureLayer .
+    rdfs:comment "Layer concerning trust, provenance, and reliability." ;
+    rdfs:subClassOf sw:SemanticArchitectureLayer .
 
-sw:Vocabulary a rdfs:Class ;
+sw:TurtleFormat a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Turtle format" ;
+    rdfs:comment "Terse RDF Triple Language serialization format." ;
+    rdfs:subClassOf sw:SerializationFormat .
+
+sw:URI a rdfs:Class,
+        owl:Class ;
+    rdfs:label "URI" ;
+    rdfs:comment "Uniform Resource Identifier." ;
+    rdfs:subClassOf sw:Identifier .
+
+sw:VirtualizationFeature a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Virtualization feature" ;
+    rdfs:comment "A feature related to data virtualization or virtual graphs." ;
+    rdfs:subClassOf sw:Feature .
+
+sw:Vocabulary a rdfs:Class,
+        owl:Class ;
     rdfs:label "Vocabulary" ;
-    rdfs:comment "A set of named terms used to describe resources and relationships." ;
-    rdfs:subClassOf sw:KnowledgeOrganizationArtifact .
+    rdfs:comment "A semantic vocabulary used to describe data or concepts." ;
+    rdfs:subClassOf sw:KnowledgeArtifact .
 
-sw:WebArchitecture a rdfs:Class ;
-    rdfs:label "Web architecture" ;
-    rdfs:comment "A layered technical architecture such as the Semantic Web layer cake." ;
+sw:WebOfData a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Web of Data" ;
+    rdfs:comment "The data-centric web based on typed relationships and explicit semantics." ;
     rdfs:subClassOf sw:Concept .
 
-sw:Workbench a rdfs:Class ;
+sw:WebOfDocuments a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Web of Documents" ;
+    rdfs:comment "The traditional document-centric web." ;
+    rdfs:subClassOf sw:Concept .
+
+sw:WebResource a rdfs:Class,
+        owl:Class ;
+    rdfs:label "Web resource" ;
+    rdfs:comment "A resource identifiable on the web." ;
+    rdfs:subClassOf sw:Entity .
+
+sw:Workbench a rdfs:Class,
+        owl:Class ;
     rdfs:label "Workbench" ;
-    rdfs:comment "A graphical or administrative workbench interface." ;
-    rdfs:subClassOf sw:Interface .
+    rdfs:comment "A user-facing workbench or administration interface." ;
+    rdfs:subClassOf sw:InterfaceTechnology .
 
 sw: a owl:Ontology ;
     rdfs:label "Semantic Web and Triplestore Ontology" ;
-    rdfs:comment "An RDF/RDFS-first ontology for semantic web concepts, ontology concepts, and a catalog of triplestore systems derived from the project documents and CSV structure." .
+    rdfs:comment "An RDF/RDFS-first ontology for Semantic Web concepts, ontology concepts, architecture layers, reasoning, standards, and triplestore catalog metadata derived from the supplied project documents and CSV." .
 
-sw:contrastsWith a rdf:Property ;
-    rdfs:label "contrasts with" ;
-    rdfs:comment "Links a concept or artifact to another that it is explicitly contrasted with." ;
+sw:broaderThan a rdf:Property,
+        owl:ObjectProperty,
+        owl:TransitiveProperty ;
+    rdfs:label "broader than" ;
+    rdfs:comment "Relates a concept to another concept that is conceptually narrower than it." ;
     rdfs:domain sw:Concept ;
-    rdfs:range sw:Concept .
+    rdfs:range sw:Concept ;
+    owl:inverseOf sw:narrowerThan .
 
-sw:definesConcept a rdf:Property ;
-    rdfs:label "defines concept" ;
-    rdfs:comment "Links an ontology or vocabulary to a concept that it defines." ;
-    rdfs:domain sw:KnowledgeOrganizationArtifact ;
-    rdfs:range sw:Concept .
-
-sw:definesProperty a rdf:Property ;
-    rdfs:label "defines property" ;
-    rdfs:comment "Links an ontology or vocabulary to a property that it defines." ;
-    rdfs:domain sw:KnowledgeOrganizationArtifact ;
-    rdfs:range rdf:Property .
-
-sw:description a rdf:Property ;
+sw:description a rdf:Property,
+        owl:DatatypeProperty ;
     rdfs:label "description" ;
-    rdfs:comment "A descriptive text value." ;
-    rdfs:domain sw:Concept ;
+    rdfs:comment "General textual description of an entity." ;
+    rdfs:domain sw:Entity ;
     rdfs:range xsd:string .
 
-sw:enablesTask a rdf:Property ;
-    rdfs:label "enables task" ;
-    rdfs:comment "Links a technology or concept to a task that it enables or performs." ;
-    rdfs:domain sw:Concept ;
-    rdfs:range sw:ReasoningTask .
+sw:hasComponent a rdf:Property,
+        owl:ObjectProperty ;
+    rdfs:label "has component" ;
+    rdfs:comment "Relates a composite knowledge artifact to a component entity." ;
+    rdfs:domain sw:KnowledgeArtifact ;
+    rdfs:range sw:Entity .
 
-sw:equivalentResource a rdf:Property ;
-    rdfs:label "equivalent resource" ;
-    rdfs:comment "Links two identifiers or resources that denote the same real-world entity." ;
-    rdfs:domain sw:Concept ;
-    rdfs:range sw:Concept ;
-    rdfs:subPropertyOf owl:sameAs .
-
-sw:extendsTechnology a rdf:Property ;
-    rdfs:label "extends technology" ;
-    rdfs:comment "Links a technology to another technology that it extends conceptually or functionally." ;
-    rdfs:domain sw:Technology ;
-    rdfs:range sw:Technology .
-
-sw:featureText a rdf:Property ;
-    rdfs:label "feature text" ;
-    rdfs:comment "The original textual feature or specialization description from source data." ;
-    rdfs:domain sw:Technology ;
-    rdfs:range xsd:string .
-
-sw:hasAxiom a rdf:Property ;
-    rdfs:label "has axiom" ;
-    rdfs:comment "Links an ontology to one of its axioms." ;
-    rdfs:domain sw:Ontology ;
-    rdfs:range sw:Axiom .
-
-sw:hasDeploymentModel a rdf:Property ;
-    rdfs:label "has deployment model" ;
-    rdfs:comment "Links a software system to a deployment model." ;
-    rdfs:domain sw:Technology ;
-    rdfs:range sw:DeploymentModel .
-
-sw:hasLayer a rdf:Property ;
+sw:hasLayer a rdf:Property,
+        owl:ObjectProperty ;
     rdfs:label "has layer" ;
-    rdfs:comment "Links an architecture to one of its conceptual layers." ;
-    rdfs:domain sw:WebArchitecture ;
-    rdfs:range sw:ArchitectureLayer .
+    rdfs:comment "Relates the Semantic Web architecture to one of its layers." ;
+    rdfs:domain sw:SemanticWeb ;
+    rdfs:range sw:SemanticArchitectureLayer .
 
-sw:hasLicenseModel a rdf:Property ;
-    rdfs:label "has license model" ;
-    rdfs:comment "Links a triplestore or software system to a structured license model resource." ;
-    rdfs:domain sw:Technology ;
-    rdfs:range sw:LicenseModel .
+sw:homepage a rdf:Property,
+        owl:DatatypeProperty ;
+    rdfs:label "homepage" ;
+    rdfs:comment "Homepage URI of an entity." ;
+    rdfs:domain sw:Entity ;
+    rdfs:range xsd:anyURI .
 
-sw:hasPrimitive a rdf:Property ;
-    rdfs:label "has primitive" ;
-    rdfs:comment "Links an ontology to one of its primitives." ;
-    rdfs:domain sw:Ontology ;
-    rdfs:range sw:OntologyPrimitive .
-
-sw:hasProfile a rdf:Property ;
-    rdfs:label "has profile" ;
-    rdfs:comment "Links an ontology language to a profile." ;
-    rdfs:domain sw:OntologyLanguage ;
-    rdfs:range sw:OntologyProfile .
-
-sw:hasSpecialization a rdf:Property ;
-    rdfs:label "has specialization" ;
-    rdfs:comment "Links a technology or system to a specialization." ;
-    rdfs:domain sw:Technology ;
-    rdfs:range sw:Specialization ;
-    rdfs:subPropertyOf sw:hasFeature .
-
-sw:identifier a rdf:Property ;
-    rdfs:label "identifier" ;
-    rdfs:comment "An identifier, code, or local key expressed as text." ;
-    rdfs:domain sw:Concept ;
+sw:identifierValue a rdf:Property,
+        owl:DatatypeProperty ;
+    rdfs:label "identifier value" ;
+    rdfs:comment "Literal content of an identifier." ;
+    rdfs:domain sw:Identifier ;
     rdfs:range xsd:string .
 
-sw:isCommercial a rdf:Property ;
-    rdfs:label "is commercial" ;
-    rdfs:comment "Boolean convenience flag indicating whether a system has a commercial licensing component." ;
-    rdfs:domain sw:Technology ;
-    rdfs:range xsd:boolean .
-
-sw:isDeveloperOf a rdf:Property ;
-    rdfs:label "is developer of" ;
-    rdfs:comment "Inverse of developed by." ;
-    rdfs:domain sw:Organization ;
-    rdfs:range sw:Concept ;
-    owl:inverseOf sw:developedBy .
-
-sw:isMaintainerOf a rdf:Property ;
-    rdfs:label "is maintainer of" ;
-    rdfs:comment "Inverse of maintained by." ;
-    rdfs:domain sw:Organization ;
-    rdfs:range sw:Concept ;
-    owl:inverseOf sw:maintainedBy .
-
-sw:isOpenSource a rdf:Property ;
-    rdfs:label "is open source" ;
-    rdfs:comment "Boolean convenience flag indicating whether a system has an open-source licensing component." ;
-    rdfs:domain sw:Technology ;
-    rdfs:range xsd:boolean .
-
-sw:layerUsesTechnology a rdf:Property ;
-    rdfs:label "layer uses technology" ;
-    rdfs:comment "Links an architecture layer to a technology associated with that layer." ;
-    rdfs:domain sw:ArchitectureLayer ;
-    rdfs:range sw:Technology .
-
-sw:licenseText a rdf:Property ;
-    rdfs:label "license text" ;
-    rdfs:comment "The original textual license description from source data." ;
-    rdfs:domain sw:Technology ;
-    rdfs:range xsd:string .
-
-sw:name a rdf:Property ;
+sw:name a rdf:Property,
+        owl:DatatypeProperty ;
     rdfs:label "name" ;
-    rdfs:comment "A human-readable name." ;
-    rdfs:domain sw:Concept ;
+    rdfs:comment "General name of an entity." ;
+    rdfs:domain sw:Entity ;
     rdfs:range xsd:string .
 
-sw:offersAPI a rdf:Property ;
-    rdfs:label "offers API" ;
-    rdfs:comment "Links a software system to an API it offers." ;
-    rdfs:domain sw:Technology ;
-    rdfs:range sw:API ;
-    rdfs:subPropertyOf sw:offersInterface .
-
-sw:offersProtocol a rdf:Property ;
-    rdfs:label "offers protocol" ;
-    rdfs:comment "Links a software system to a protocol interface it offers." ;
-    rdfs:domain sw:Technology ;
-    rdfs:range sw:Protocol ;
-    rdfs:subPropertyOf sw:offersInterface .
-
-sw:offersWorkbench a rdf:Property ;
-    rdfs:label "offers workbench" ;
-    rdfs:comment "Links a software system to a workbench-style interface it offers." ;
-    rdfs:domain sw:Technology ;
-    rdfs:range sw:Workbench ;
-    rdfs:subPropertyOf sw:offersInterface .
-
-sw:primaryInterfaceText a rdf:Property ;
-    rdfs:label "primary interface text" ;
-    rdfs:comment "The original textual API/interface description from source data." ;
-    rdfs:domain sw:Technology ;
+sw:officialName a rdf:Property,
+        owl:DatatypeProperty ;
+    rdfs:label "official name" ;
+    rdfs:comment "Official name of an entity or organization." ;
+    rdfs:domain sw:Entity ;
     rdfs:range xsd:string .
 
-sw:publishedBy a rdf:Property ;
-    rdfs:label "published by" ;
-    rdfs:comment "Links a standard, ontology, or vocabulary to its publisher or standards body." ;
-    rdfs:domain sw:InformationResource ;
-    rdfs:range sw:Organization .
+sw:partOf a rdf:Property,
+        owl:ObjectProperty ;
+    rdfs:label "part of" ;
+    rdfs:comment "Relates an entity to a larger entity of which it is part." ;
+    rdfs:domain sw:Entity ;
+    rdfs:range sw:Entity .
 
-sw:queriesWith a rdf:Property ;
-    rdfs:label "queries with" ;
-    rdfs:comment "Links a graph, repository, or technology to a query language." ;
-    rdfs:domain sw:Concept ;
-    rdfs:range sw:QueryLanguage .
+sw:supportsLayer a rdf:Property,
+        owl:ObjectProperty ;
+    rdfs:label "supports layer" ;
+    rdfs:comment "Relates a technology to a Semantic Web architecture layer it supports." ;
+    rdfs:domain sw:Technology ;
+    rdfs:range sw:SemanticArchitectureLayer .
 
-sw:serializedAs a rdf:Property ;
-    rdfs:label "serialized as" ;
-    rdfs:comment "Links a resource or data model to a serialization format used to express it." ;
-    rdfs:domain sw:Concept ;
-    rdfs:range sw:SerializationFormat .
-
-sw:supportsPrinciple a rdf:Property ;
-    rdfs:label "supports principle" ;
-    rdfs:comment "Links a semantic web resource or technology to a semantic principle it relies on or reflects." ;
-    rdfs:domain sw:Concept ;
-    rdfs:range sw:SemanticPrinciple .
-
-sw:usedFor a rdf:Property ;
-    rdfs:label "used for" ;
-    rdfs:comment "Links a resource to a textual statement of its purpose or use case." ;
-    rdfs:domain sw:Concept ;
+sw:title a rdf:Property,
+        owl:DatatypeProperty ;
+    rdfs:label "title" ;
+    rdfs:comment "Title of a knowledge artifact." ;
+    rdfs:domain sw:KnowledgeArtifact ;
     rdfs:range xsd:string .
-
-sw:developedBy a rdf:Property ;
-    rdfs:label "developed by" ;
-    rdfs:comment "Links a technology or resource to its developer." ;
-    rdfs:domain sw:Concept ;
-    rdfs:range sw:Organization .
-
-sw:hasFeature a rdf:Property ;
-    rdfs:label "has feature" ;
-    rdfs:comment "Links a technology or system to a feature." ;
-    rdfs:domain sw:Technology ;
-    rdfs:range sw:Feature .
-
-sw:maintainedBy a rdf:Property ;
-    rdfs:label "maintained by" ;
-    rdfs:comment "Links a technology or resource to its maintainer." ;
-    rdfs:domain sw:Concept ;
-    rdfs:range sw:Organization .
-
-sw:offersInterface a rdf:Property ;
-    rdfs:label "offers interface" ;
-    rdfs:comment "Links a software system to an interface it offers." ;
-    rdfs:domain sw:Technology ;
-    rdfs:range sw:Interface .
 

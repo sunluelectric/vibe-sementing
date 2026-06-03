@@ -105,6 +105,9 @@ CSV import should be deterministic after mapping:
 - Validate the mapping against CSV headers and existing ontology terms.
 - Apply safe datatype compatibility rules.
 - Use Python to iterate over all rows and emit RDF instances.
+- If repeated model-planned CSV mappings fail validation, use a conservative
+  deterministic fallback that maps rows and scalar columns only to existing
+  ontology classes and string-compatible properties.
 - Merge deterministic CSV triples with LLM-assisted imports from unstructured
   markdown, text, and PDF sources.
 

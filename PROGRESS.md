@@ -82,21 +82,17 @@ Latest completed validation:
   `data/semantic web.md`, `data/ontology.md`, and
   `data/commonly seen triplestores.csv`.
 - Latest production run:
-  `SEMANTIC_WEB_MODE=production`, `gpt-5.4`, 427 ontology triples, 59 RDFS
-  classes, 36 RDF properties, 520 instance triples, and 947 combined/export
-  triples. The run included 190 deterministic CSV triples from one validated
-  CSV mapping.
+  `SEMANTIC_WEB_MODE=production`, `gpt-5.4`, 554 ontology triples, 96 RDFS
+  classes, 11 RDF properties, 349 instance triples, and 903 combined/export
+  triples. The run included 88 deterministic CSV triples from one conservative
+  fallback CSV mapping.
 - Latest viewer validation:
-  `/api/status` reported 947 triples; the viewer answered the triplestore count
-  as 11, handled a stateful "list all of them" follow-up, translated ordinary
-  wording such as "database systems" to generated schema labels, and exported
-  Turtle that parsed successfully with 947 triples. The plot tool rendered the
-  current `db/semantic_web.ttl` to HTML with 202 semantic edges extracted, and
-  `/api/plot.html` returned HTML through the viewer after viewer-started Fuseki
-  reported 947 triples.
+  `/api/status` reported 903 triples; the viewer answered "How many
+  triplestores are listed?" as 11, exported Turtle that parsed successfully
+  with 903 triples, and `/api/plot.html` returned graph HTML.
 - Latest local test result:
-  `uv run pytest` reported 91 passed and 4 skipped after the graph viewer
-  integration and Vibe Semanting rename.
+  `uv run pytest` reported 94 passed and 2 skipped after the end-to-end
+  regeneration and CSV fallback fix.
 - Recent documentation commits:
   `3dff973 Improve project setup documentation`,
   `a4ef360 Document uv commands and framework packages`,
@@ -121,7 +117,26 @@ keeping the tool reusable from `./tools/semantic-web-plot`.
 - [x] Update `AGENTS.md`, `README.md`, `PROGRESS.md`, and the plot tool README.
 - [x] Commit the viewer graph plot integration.
 
-## Milestone 2: Long-Document Coverage Completion
+## Milestone 2: Clean End-To-End Regeneration
+
+Goal: delete generated design/import/RDF artifacts and Fuseki runtime data,
+then regenerate the semantic web from the current dataset using the renamed
+Vibe Semanting defaults.
+
+- [x] Stop the running viewer and viewer-started Fuseki process.
+- [x] Remove generated `design.md`, `import.md`, `db/*.ttl`,
+  `db/semantic_web_plot.html`, and Fuseki runtime/storage directories.
+- [x] Run the designer from scratch in production mode.
+- [x] Fix importer CSV behavior by adding a deterministic fallback when
+  repeated model-planned CSV mappings fail validation.
+- [x] Run the importer from scratch in production mode.
+- [x] Start the viewer and validate `/api/status`, `/api/export.ttl`,
+  `/api/plot.html`, and a live chatbot count question.
+- [x] Parse the exported Turtle successfully.
+- [x] Run `uv run pytest`.
+- [x] Commit the clean end-to-end regeneration milestone.
+
+## Milestone 3: Long-Document Coverage Completion
 
 Goal: move beyond proof-of-concept semantic webs for long unstructured source
 documents by improving coverage tracking, source structure extraction, and
@@ -210,5 +225,5 @@ Behavior to preserve:
 Open item:
 
 - Long unstructured markdown/PDF coverage is still proof-of-concept level.
-  Milestone 2 should improve coverage tracking, PDF chunking, schema
+  Milestone 3 should improve coverage tracking, PDF chunking, schema
   refinement, importer continuation, and coverage reporting.

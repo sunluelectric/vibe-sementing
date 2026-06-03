@@ -1,180 +1,147 @@
-# Semantic Web Schema Design
+# Semantic Web Ontology Design
 
 ## 1. Purpose and scope
 
-This schema models the knowledge explicitly present in the project sources:
+This ontology is designed from the supplied project materials:
+- two explanatory markdown documents about the Semantic Web and ontologies
+- one CSV listing commonly seen triplestores and their features
 
-1. the conceptual content of the two markdown documents about the Semantic Web and ontologies, and  
-2. the CSV structure describing commonly seen triplestores and their major characteristics.
+The ontology therefore covers two connected areas:
+1. **conceptual Semantic Web knowledge**: core technologies, layers, ontology components, logical assumptions, reasoning tasks, standards, syntaxes, and adoption patterns
+2. **triplestore catalog structure**: triplestore products, maintainers, licensing descriptions, APIs/interfaces, protocols, features, and specialization statements from the CSV
 
-The goal is to provide an RDF/RDFS-first ontology that:
-
-- captures the main concepts introduced in the documents,
-- supports ingest of the triplestore CSV without loss of meaning,
-- remains practical for Apache Jena Fuseki storage and SPARQL querying,
-- uses OWL only where it clearly helps interoperability or identity handling.
-
-This is a schema only. It does **not** include instance data.
+The goal is not only to model theory, but also to support practical data import and querying in Apache Jena Fuseki.
 
 ---
 
 ## 2. Design principles
 
-### 2.1 Source-driven modeling
-The ontology is derived from the supplied materials, not from a generic prebuilt domain model. The source material repeatedly discusses:
+### 2.1 RDF/RDFS-first
+The schema is primarily expressed in RDF Schema. A small amount of OWL is used only where it clearly improves practical semantics and remains fully compatible with Jena/Fuseki, such as:
+- `owl:Class`
+- `owl:ObjectProperty`
+- `owl:DatatypeProperty`
+- `owl:NamedIndividual`
+- `owl:sameAs`
+- `owl:inverseOf`
+- `owl:SymmetricProperty`
+- `owl:TransitiveProperty`
 
-- semantic web architecture layers,
-- RDF, RDFS, OWL, SPARQL, serialization syntaxes,
-- ontology primitives such as classes, individuals, datatype properties, object properties, and axioms,
-- reasoning, classification, consistency checking,
-- knowledge organization structures such as taxonomy, knowledge graph, and ontology,
-- foundational assumptions such as the Open World Assumption and Non-Unique Name Assumption,
-- examples of foundational ontologies and standards,
-- triplestore products, maintainers, licenses, APIs/interfaces, and feature descriptions.
+### 2.2 Source-driven modeling
+Classes and properties were created from the supplied documents and CSV, not from a generic built-in domain template. The ontology reflects terminology explicitly present in the sources, such as:
+- Semantic Web
+- Web of Data
+- Web of Documents
+- RDF, RDFS, OWL, SPARQL, Turtle, JSON-LD, RDF/XML
+- ontology components: class, individual, attribute, relationship, axiom
+- reasoning functions: classification and consistency checking
+- assumptions: Open World Assumption, Non-Unique Name Assumption
+- implementation patterns: Linked Open Data, Enterprise Knowledge Graph, Schema.org, DBpedia, Wikidata
+- triplestore metadata from the CSV
 
-The schema therefore includes classes for these concepts and explicit properties for their relationships.
+### 2.3 No instance data inserted
+The ontology defines schema only. It does not insert actual triplestore records or factual rows from the CSV as individuals. The importer can later create such instances using this ontology.
 
-### 2.2 RDF/RDFS first
-The model uses `rdfs:Class`, `rdf:Property`, `rdfs:subClassOf`, `rdfs:domain`, and `rdfs:range` as the main structural mechanisms. A small amount of OWL is used for:
-
-- declaring the ontology resource,
-- optional inverse property support,
-- `owl:sameAs` compatibility for identity alignment discussed in the source material.
-
-### 2.3 Import fidelity for CSV
-The CSV contains mixed textual values. Its columns are modeled conservatively as strings where appropriate:
-
-- names,
-- maintainers,
-- license descriptions,
-- API/interface text,
-- feature/specialization text.
-
-Because several columns contain compound values such as `Commercial / Free Edition` or `SPARQL / SQL / ODBC / JDBC`, the schema supports **both**:
-
-- literal preservation of the full original field, and
-- optional structured decomposition into linked entities such as interfaces, licenses, and capabilities.
-
-This preserves source fidelity while enabling richer graph queries.
-
-### 2.4 Practical query support
-The schema is designed to support queries such as:
-
-- Which triplestores support SPARQL?
-- Which triplestores are open source, commercial, or mixed-license?
-- Which products are maintained by a particular organization?
-- Which systems expose GraphQL, Gremlin, JDBC, or REST interfaces?
-- Which technologies belong to the Semantic Web layer cake?
-- Which concepts are part of ontology structure versus reasoning versus publishing?
-- Which foundational vocabularies are examples of ontologies or knowledge organization systems?
+### 2.4 Practical typing for CSV imports
+The CSV columns are all modeled as strings where they represent names, descriptions, mixed-format values, or semi-structured text. This follows the datatype guidance and avoids brittle assumptions.
 
 ---
 
-## 3. Namespace
+## 3. Main modeling areas
 
-Base namespace:
+## 3.1 Knowledge domain overview
+The ontology contains these major branches:
 
-- `http://example.org/semantic-web#`
-
-Preferred prefix:
-
-- `sw:`
-
----
-
-## 4. High-level model overview
-
-The ontology has four major modules.
-
-### 4.1 Knowledge and architecture module
-Models the concepts introduced in the markdown documents:
-
-- `sw:SemanticWeb`
-- `sw:WebArchitecture`
-- `sw:ArchitectureLayer`
+### A. Conceptual foundations
+- `sw:KnowledgeArtifact`
+- `sw:Document`
 - `sw:Technology`
-- `sw:DataModelTechnology`
-- `sw:OntologyLanguage`
-- `sw:QueryLanguage`
-- `sw:SerializationFormat`
-- `sw:IdentifierScheme`
-- `sw:CharacterSetStandard`
-- `sw:Reasoner`
-- `sw:SemanticPrinciple`
-- `sw:ReasoningTask`
-
-### 4.2 Knowledge organization and ontology module
-Models the conceptual distinctions discussed in the ontology and semantic web introductions:
-
-- `sw:KnowledgeOrganizationArtifact`
-- `sw:Taxonomy`
-- `sw:KnowledgeGraph`
-- `sw:Ontology`
-- `sw:OntologyPrimitive`
-- `sw:OntologyClass`
-- `sw:OntologyIndividual`
-- `sw:DatatypePropertyConcept`
-- `sw:ObjectPropertyConcept`
-- `sw:Axiom`
-- `sw:Constraint`
-
-### 4.3 Standards and profiles module
-Models standards, profiles, and named ontology families:
-
 - `sw:Standard`
-- `sw:OntologyProfile`
-- `sw:FoundationalOntology`
-- `sw:Vocabulary`
+- `sw:ModelingConstruct`
+- `sw:Principle`
+- `sw:ReasoningProcess`
+- `sw:ApplicationArea`
 
-### 4.4 Triplestore catalog module
-Models the CSV and practical repository metadata:
+### B. Semantic Web architecture
+- `sw:SemanticArchitectureLayer`
+- specialized layers such as identifier layer, syntax layer, data model layer, ontology layer, query layer, rules layer, proof layer, trust layer
+- technologies and formats linked to layers
 
+### C. Ontology structure
+- `sw:Ontology`
+- `sw:OntologyComponent`
+- subclasses for classes, individuals, datatype properties, object properties, axioms, restrictions, taxonomies
+
+### D. Semantic data systems
+- `sw:DataStoreTechnology`
 - `sw:Triplestore`
-- `sw:DatabaseManagementSystem`
+- `sw:GraphDatabase`
+- `sw:KnowledgeGraphPlatform`
 - `sw:Organization`
-- `sw:LicenseModel`
-- `sw:Interface`
-- `sw:API`
-- `sw:Protocol`
-- `sw:Workbench`
-- `sw:ProgrammingInterface`
+- `sw:LicenseOffering`
+- `sw:InterfaceTechnology`
 - `sw:Feature`
-- `sw:Specialization`
-- `sw:DeploymentModel`
+
+### E. Datasets and web resources
+- `sw:Dataset`
+- `sw:KnowledgeGraph`
+- `sw:WebResource`
+- `sw:IRI`
 
 ---
 
-## 5. Core classes
+## 4. Core classes
 
-### 5.1 General conceptual classes
+## 4.1 General descriptive classes
 
-#### `sw:Concept`
-Top-level domain concept in this ontology. Used as a broad superclass for major modeled ideas.
+### `sw:Entity`
+Top-level domain entity for things described in the ontology.
 
-#### `sw:InformationResource`
-A resource that conveys structured knowledge, such as a vocabulary, ontology, standard, or architecture description.
+### `sw:Concept`
+Abstract conceptual unit in the domain.
 
-#### `sw:Standard`
-A formalized technical standard or specification.
+### `sw:KnowledgeArtifact`
+A human- or machine-oriented artifact representing knowledge, such as a document, ontology, taxonomy, dataset, or standard.
 
-#### `sw:Technology`
-A technology, language, framework element, or implementation used within the semantic web ecosystem.
+### `sw:Document`
+A textual or digital document.
 
-#### `sw:Organization`
-An organization that develops, maintains, publishes, or standardizes a technology.
+### `sw:SpecificationDocument`
+A document that specifies a standard, language, or formal framework.
+
+### `sw:Dataset`
+A structured collection of data.
+
+### `sw:WebResource`
+A web-identifiable resource.
+
+### `sw:Identifier`
+A value or construct used to identify a resource.
+
+### `sw:IRI`
+An internationalized resource identifier.
+
+### `sw:URI`
+A URI identifier concept.
+
+### `sw:CharacterEncoding`
+Encoding systems such as Unicode.
 
 ---
 
-### 5.2 Semantic Web architecture classes
+## 4.2 Semantic Web architecture classes
 
-#### `sw:SemanticWeb`
-Represents the Semantic Web as a web-of-data paradigm.
+### `sw:SemanticWeb`
+The overall Web of Data paradigm.
 
-#### `sw:WebArchitecture`
-A technical architecture composed of layers and technologies.
+### `sw:WebOfData`
+The machine-understandable data-centric web.
 
-#### `sw:ArchitectureLayer`
-A conceptual layer in the semantic web stack.
+### `sw:WebOfDocuments`
+The traditional document-centric web.
+
+### `sw:SemanticArchitectureLayer`
+A layer in the Semantic Web stack.
 
 Subclasses:
 - `sw:IdentifierLayer`
@@ -186,492 +153,523 @@ Subclasses:
 - `sw:ProofLayer`
 - `sw:TrustLayer`
 
-#### `sw:IdentifierScheme`
-Identifier technology such as URI or IRI.
+These support queries like:
+- all technologies belonging to the query layer
+- all layers above the data model layer
+- all standards used in the ontology layer
 
-#### `sw:CharacterSetStandard`
-Character encoding standard such as Unicode.
+---
 
-#### `sw:SerializationFormat`
-RDF serialization syntax such as Turtle, JSON-LD, RDF/XML.
+## 4.3 Language, syntax, and standards classes
 
-#### `sw:DataModelTechnology`
-Data model technology such as RDF or RDFS.
+### `sw:Technology`
+General technical artifact or system.
 
-#### `sw:OntologyLanguage`
-Ontology or schema language such as OWL or SKOS.
+### `sw:LanguageTechnology`
+A formal language used in the Semantic Web stack.
 
-#### `sw:QueryLanguage`
-Query language such as SPARQL.
+### `sw:SerializationFormat`
+A syntax/format used to serialize RDF graphs.
 
-#### `sw:RuleLanguage`
-Rule language such as RIF or SWRL.
+### `sw:QueryLanguage`
+A language used to query data.
 
-#### `sw:Reasoner`
-A reasoning engine or reasoner type used for inference or consistency checking.
+### `sw:KnowledgeRepresentationLanguage`
+A language for expressing structured semantics.
 
-#### `sw:ReasoningTask`
-A task performed by reasoning systems.
+### `sw:Standard`
+A community or formal standard.
+
+Important subclasses and concepts:
+- `sw:RDFTechnology`
+- `sw:RDFSchemaTechnology`
+- `sw:OWLTechnology`
+- `sw:SPARQLTechnology`
+- `sw:JSONLDFormat`
+- `sw:TurtleFormat`
+- `sw:RDFXMLFormat`
+- `sw:SKOSTechnology`
+- `sw:MicrodataTechnology`
+
+---
+
+## 4.4 Ontology structure classes
+
+### `sw:Ontology`
+A formal, explicit specification of a shared conceptualization.
+
+### `sw:Taxonomy`
+A hierarchical classification structure.
+
+### `sw:KnowledgeGraph`
+A graph of entities and relationships.
+
+### `sw:OntologyComponent`
+A component used in ontology structure.
 
 Subclasses:
-- `sw:ClassificationTask`
-- `sw:ConsistencyCheckingTask`
+- `sw:OntologyClassComponent`
+- `sw:OntologyIndividualComponent`
+- `sw:DatatypePropertyComponent`
+- `sw:ObjectPropertyComponent`
+- `sw:AxiomComponent`
+- `sw:RestrictionComponent`
 
-#### `sw:SemanticPrinciple`
-A principle or assumption in semantic web logic.
+### `sw:ModelingConstruct`
+A broader class for conceptual constructs used in semantic modeling.
+
+Subclasses:
+- `sw:ClassConcept`
+- `sw:IndividualConcept`
+- `sw:AttributeConcept`
+- `sw:RelationshipConcept`
+- `sw:AxiomConcept`
+
+This gives coverage for the ontology.md explanation of the five core primitives.
+
+---
+
+## 4.5 Logic and reasoning classes
+
+### `sw:Principle`
+A conceptual principle or assumption.
 
 Subclasses:
 - `sw:OpenWorldAssumption`
+- `sw:ClosedWorldAssumption`
 - `sw:NonUniqueNameAssumption`
 
----
-
-### 5.3 Ontology and knowledge organization classes
-
-#### `sw:KnowledgeOrganizationArtifact`
-A formal artifact used to organize or structure knowledge.
+### `sw:ReasoningProcess`
+A reasoning activity.
 
 Subclasses:
-- `sw:Taxonomy`
-- `sw:KnowledgeGraph`
-- `sw:Ontology`
-- `sw:Vocabulary`
+- `sw:ClassificationReasoning`
+- `sw:ConsistencyChecking`
 
-#### `sw:Ontology`
-A formal, explicit specification of a shared conceptualization.
+### `sw:Reasoner`
+A software component that performs inference or checks consistency.
 
-#### `sw:Taxonomy`
-A hierarchical classification scheme focused on subclassing or parent-child structure.
+### `sw:LogicProfile`
+A formal profile of an ontology language.
 
-#### `sw:KnowledgeGraph`
-A graph of entities connected by typed relationships.
-
-#### `sw:Vocabulary`
-A named set of terms for describing resources.
-
-#### `sw:FoundationalOntology`
-A reusable upper-level or broadly applicable ontology/vocabulary family.
-
-#### `sw:OntologyProfile`
-An OWL profile or similar modeling profile.
-
-Examples expected at data level could include EL, QL, RL.
+Subclasses:
+- `sw:OWL2ELProfile`
+- `sw:OWL2QLProfile`
+- `sw:OWL2RLProfile`
 
 ---
 
-### 5.4 Ontology primitives and logical components
+## 4.6 Adoption and implementation classes
 
-#### `sw:OntologyPrimitive`
-A building block of an ontology.
-
-Subclasses:
-- `sw:OntologyClass`
-- `sw:OntologyIndividual`
-- `sw:DatatypePropertyConcept`
-- `sw:ObjectPropertyConcept`
-- `sw:Axiom`
-
-#### `sw:OntologyClass`
-The concept of a class within an ontology.
-
-#### `sw:OntologyIndividual`
-The concept of an individual/instance.
-
-#### `sw:DatatypePropertyConcept`
-The concept of a datatype property as an ontology primitive.
-
-#### `sw:ObjectPropertyConcept`
-The concept of an object property as an ontology primitive.
-
-#### `sw:Axiom`
-A logical assertion in an ontology.
+### `sw:ApplicationArea`
+An area of use or deployment.
 
 Subclasses:
-- `sw:Constraint`
-- `sw:PropertyCharacteristic`
-- `sw:ClassRestriction`
-- `sw:CardinalityConstraint`
-- `sw:DisjointnessAxiom`
+- `sw:LinkedOpenData`
+- `sw:EnterpriseKnowledgeGraph`
+- `sw:SearchEngineKnowledgeGraph`
+- `sw:DataIntegrationUseCase`
+- `sw:DataVirtualizationUseCase`
 
-#### `sw:PropertyCharacteristic`
-A property-level logical feature such as transitive, symmetric, functional, or inverse.
+### `sw:FoundationalOntology`
+An upper-level or reusable ontology framework.
 
-#### `sw:ClassRestriction`
-A class-level restriction expressed over properties.
+### `sw:Vocabulary`
+A semantic vocabulary.
 
-#### `sw:CardinalityConstraint`
-A restriction on the number of values for a property.
-
-#### `sw:DisjointnessAxiom`
-An axiom stating that classes do not overlap.
+This supports resources such as FOAF, Dublin Core, SKOS, BFO, and Gene Ontology when imported later as instances.
 
 ---
 
-### 5.5 Triplestore catalog classes
+## 4.7 Triplestore and platform classes
 
-#### `sw:DatabaseManagementSystem`
-A database management system.
+The CSV requires practical support for triplestore metadata.
 
-#### `sw:Triplestore`
-An RDF-oriented database or graph repository platform. Modeled as a subclass of `sw:DatabaseManagementSystem` and `sw:Technology`.
+### `sw:DataStoreTechnology`
+A technology used to persist, query, or manage structured data.
 
-#### `sw:Interface`
-A general access interface exposed by software.
+### `sw:GraphDataSystem`
+A graph-oriented data management system.
+
+### `sw:Triplestore`
+A database management system specialized for RDF triples.
+
+### `sw:GraphDatabase`
+A graph database technology.
+
+### `sw:KnowledgeGraphPlatform`
+A platform supporting knowledge graph management.
+
+### `sw:Organization`
+An organization such as a developer, maintainer, standards body, or vendor.
+
+### `sw:MaintainerOrganization`
+An organization responsible for maintenance.
+
+### `sw:DeveloperOrganization`
+An organization responsible for development.
+
+### `sw:LicenseOffering`
+A textual or categorized license arrangement for a product.
+
+### `sw:InterfaceTechnology`
+An API, interface, protocol, or access mechanism.
 
 Subclasses:
 - `sw:API`
 - `sw:Protocol`
 - `sw:Workbench`
 - `sw:ProgrammingInterface`
+- `sw:QueryEndpoint`
 
-This allows mixed CSV values like SPARQL, JDBC, REST, RDF4J, GraphQL, Workbench, native Java API, etc. to be represented either uniformly or more specifically.
+### `sw:Feature`
+A product capability or specialization.
 
-#### `sw:LicenseModel`
-A textual or structured description of software licensing.
+Subclasses inspired by source descriptions:
+- `sw:ReasoningFeature`
+- `sw:VirtualizationFeature`
+- `sw:ManagedServiceFeature`
+- `sw:DistributedAnalyticsFeature`
+- `sw:MultiModelFeature`
+- `sw:HighPerformanceFeature`
 
-#### `sw:Feature`
-A notable capability, property, or advertised feature.
-
-#### `sw:Specialization`
-A specialized focus area of a technology or product.
-
-#### `sw:DeploymentModel`
-A deployment style such as managed service, native component, distributed analytics platform, or enterprise platform.
-
----
-
-## 6. Property design
-
-### 6.1 Labeling and descriptive properties
-
-#### `sw:name`
-Datatype property for human-readable names.
-
-#### `sw:description`
-Datatype property for descriptive text.
-
-#### `sw:identifier`
-Datatype property for local identifiers or codes when needed.
-
-These supplement `rdfs:label` and `rdfs:comment` and are useful for importer output.
+The schema also retains general text fields so importer pipelines can preserve CSV values without over-normalizing.
 
 ---
 
-### 6.2 Architecture and conceptual relations
+## 5. Property design
 
-#### `sw:hasLayer`
-Links a web architecture to one of its layers.
+## 5.1 General annotation and identification properties
 
-#### `sw:layerUsesTechnology`
-Links an architecture layer to a technology used at that layer.
+### `sw:name`
+General string name.
+- Domain: `sw:Entity`
+- Range: `xsd:string`
 
-#### `sw:supportsPrinciple`
-Links a semantic web or technology to a semantic principle.
+### `sw:title`
+Title for knowledge artifacts or documents.
+- Domain: `sw:KnowledgeArtifact`
+- Range: `xsd:string`
 
-#### `sw:enablesTask`
-Links a technology or reasoner to a reasoning or operational task.
+### `sw:description`
+General textual description.
+- Domain: `sw:Entity`
+- Range: `xsd:string`
 
-#### `sw:extendsTechnology`
-Links one technology to another that it extends conceptually.
+### `sw:identifierValue`
+Literal identifier content.
+- Domain: `sw:Identifier`
+- Range: `xsd:string`
 
-Useful example at data level: OWL extends RDFS, RDFS extends RDF.
+### `sw:homepage`
+Homepage URL string.
+- Domain: `sw:Entity`
+- Range: `xsd:anyURI`
 
-#### `sw:serializedAs`
-Links a data model or resource to a serialization format.
-
-#### `sw:queriesWith`
-Links a graph or system to a query language.
-
----
-
-### 6.3 Ontology structure relations
-
-#### `sw:hasPrimitive`
-Links an ontology to one of its primitives.
-
-#### `sw:definesConcept`
-Links a vocabulary or ontology to a concept it defines.
-
-#### `sw:definesProperty`
-Links a vocabulary or ontology to a property it defines.
-
-#### `sw:hasAxiom`
-Links an ontology to one of its axioms.
-
-#### `sw:hasProfile`
-Links an ontology language to a profile.
-
-#### `sw:usedFor`
-Links a technology, ontology, profile, or feature to a purpose or application description.
-
-#### `sw:contrastsWith`
-Links related but distinct conceptual artifacts, such as taxonomy vs knowledge graph vs ontology.
+### `sw:officialName`
+Official name of an organization or formal artifact.
+- Domain: `sw:Entity`
+- Range: `xsd:string`
 
 ---
 
-### 6.4 Organization and publication relations
+## 5.2 Structure and hierarchy properties
 
-#### `sw:developedBy`
-Links a technology or triplestore to its developer.
+### `sw:hasComponent`
+Relates a composite artifact to a component.
+- Domain: `sw:KnowledgeArtifact`
+- Range: `sw:Entity`
 
-#### `sw:maintainedBy`
-Links a technology or triplestore to its maintainer.
+### `sw:partOf`
+Relates an entity to a larger entity.
+- Domain: `sw:Entity`
+- Range: `sw:Entity`
 
-#### `sw:publishedBy`
-Links a standard, ontology, or vocabulary to its publisher or standards body.
+### `sw:hasLayer`
+Relates a semantic architecture to a layer.
+- Domain: `sw:SemanticWeb`
+- Range: `sw:SemanticArchitectureLayer`
 
----
+### `sw:supportsLayer`
+Relates a technology or standard to the layer it supports.
+- Domain: `sw:Technology`
+- Range: `sw:SemanticArchitectureLayer`
 
-### 6.5 Triplestore-specific relations
+### `sw:broaderThan`
+Broader conceptual relation.
+- Domain: `sw:Concept`
+- Range: `sw:Concept`
 
-#### `sw:hasLicenseModel`
-Links a triplestore to a structured license model resource.
-
-#### `sw:licenseText`
-Stores the original CSV license field as a string.
-
-#### `sw:offersInterface`
-Links a triplestore to any interface it exposes.
-
-#### `sw:offersAPI`
-Specialized subproperty of `sw:offersInterface` for APIs.
-
-#### `sw:offersProtocol`
-Specialized subproperty of `sw:offersInterface` for protocols.
-
-#### `sw:offersWorkbench`
-Specialized subproperty of `sw:offersInterface` for workbench-style tools.
-
-#### `sw:primaryInterfaceText`
-Stores the original CSV interface field as a string.
-
-#### `sw:hasFeature`
-Links a triplestore to a feature resource.
-
-#### `sw:hasSpecialization`
-Links a triplestore to a specialization resource.
-
-#### `sw:featureText`
-Stores the original CSV feature/specialization field as a string.
-
-#### `sw:hasDeploymentModel`
-Links a system to a deployment model resource.
-
-#### `sw:isOpenSource`
-Boolean convenience property for downstream enrichment when licensing has been normalized. Not required during import if source text is ambiguous.
-
-#### `sw:isCommercial`
-Boolean convenience property for downstream enrichment when licensing has been normalized.
-
-These booleans are optional because the CSV often expresses mixed licensing.
+### `sw:narrowerThan`
+Narrower conceptual relation.
+- Domain: `sw:Concept`
+- Range: `sw:Concept`
+- Inverse of `sw:broaderThan`
 
 ---
 
-### 6.6 Identity and interoperability relations
+## 5.3 Ontology modeling properties
 
-#### `sw:equivalentResource`
-An interoperability-friendly subproperty aligned with `owl:sameAs` usage expectations from the source material.
+### `sw:definesClass`
+An ontology defines a class construct.
+- Domain: `sw:Ontology`
+- Range: `sw:ClassConcept`
 
-This is included because the documents explicitly discuss multiple URIs identifying the same entity.
+### `sw:definesPropertyConcept`
+An ontology defines a property construct.
+- Domain: `sw:Ontology`
+- Range: `sw:Concept`
 
----
+### `sw:definesAxiom`
+An ontology defines an axiom.
+- Domain: `sw:Ontology`
+- Range: `sw:AxiomConcept`
 
-## 7. Hierarchy summary
+### `sw:usesVocabulary`
+A knowledge artifact uses a vocabulary.
+- Domain: `sw:KnowledgeArtifact`
+- Range: `sw:Vocabulary`
 
-### 7.1 Class hierarchy highlights
+### `sw:extendsTechnology`
+A technology extends another technology.
+- Domain: `sw:Technology`
+- Range: `sw:Technology`
 
-- `sw:Technology`
-  - `sw:IdentifierScheme`
-  - `sw:CharacterSetStandard`
-  - `sw:SerializationFormat`
-  - `sw:DataModelTechnology`
-  - `sw:OntologyLanguage`
-  - `sw:QueryLanguage`
-  - `sw:RuleLanguage`
-  - `sw:Reasoner`
-  - `sw:DatabaseManagementSystem`
-    - `sw:Triplestore`
-  - `sw:Interface`
-    - `sw:API`
-    - `sw:Protocol`
-    - `sw:Workbench`
-    - `sw:ProgrammingInterface`
-
-- `sw:KnowledgeOrganizationArtifact`
-  - `sw:Taxonomy`
-  - `sw:KnowledgeGraph`
-  - `sw:Ontology`
-  - `sw:Vocabulary`
-    - `sw:FoundationalOntology`
-
-- `sw:OntologyPrimitive`
-  - `sw:OntologyClass`
-  - `sw:OntologyIndividual`
-  - `sw:DatatypePropertyConcept`
-  - `sw:ObjectPropertyConcept`
-  - `sw:Axiom`
-    - `sw:Constraint`
-    - `sw:PropertyCharacteristic`
-    - `sw:ClassRestriction`
-    - `sw:CardinalityConstraint`
-    - `sw:DisjointnessAxiom`
-
-- `sw:ArchitectureLayer`
-  - `sw:IdentifierLayer`
-  - `sw:SyntaxLayer`
-  - `sw:DataModelLayer`
-  - `sw:OntologyLayer`
-  - `sw:QueryLayer`
-  - `sw:RulesLayer`
-  - `sw:ProofLayer`
-  - `sw:TrustLayer`
-
-- `sw:SemanticPrinciple`
-  - `sw:OpenWorldAssumption`
-  - `sw:NonUniqueNameAssumption`
-
-- `sw:ReasoningTask`
-  - `sw:ClassificationTask`
-  - `sw:ConsistencyCheckingTask`
-
-### 7.2 Property hierarchy highlights
-
-- `sw:offersAPI` `rdfs:subPropertyOf` `sw:offersInterface`
-- `sw:offersProtocol` `rdfs:subPropertyOf` `sw:offersInterface`
-- `sw:offersWorkbench` `rdfs:subPropertyOf` `sw:offersInterface`
-- `sw:hasSpecialization` `rdfs:subPropertyOf` `sw:hasFeature`
-- `sw:equivalentResource` `rdfs:subPropertyOf` `owl:sameAs`
+This is useful for modeling OWL extending RDF/RDFS.
 
 ---
 
-## 8. Datatype choices
+## 5.4 Logic and reasoning properties
 
-The CSV profile strongly supports strings for all supplied columns. The ontology therefore uses:
+### `sw:assumesPrinciple`
+Connects a technology or artifact to a guiding principle.
+- Domain: `sw:Entity`
+- Range: `sw:Principle`
 
-- `xsd:string` for names, developer/maintainer names, license text, API/interface text, and feature text,
-- `xsd:boolean` only for optional normalized convenience properties `sw:isOpenSource` and `sw:isCommercial`.
+### `sw:supportsReasoningProcess`
+A technology or system supports a reasoning process.
+- Domain: `sw:Technology`
+- Range: `sw:ReasoningProcess`
 
-No numeric or date datatypes are introduced because the source data does not justify them.
+### `sw:performedByReasoner`
+Relates a reasoning process to a reasoner.
+- Domain: `sw:ReasoningProcess`
+- Range: `sw:Reasoner`
 
----
-
-## 9. Constraints and modeling choices
-
-### 9.1 Domain/range are guidance, not hard validation
-RDFS domains and ranges are included for practical inferencing and query clarity, but they should be understood under open-world semantics. They help consumers and importers without imposing rigid closed-world validation.
-
-### 9.2 Literal preservation plus normalization
-For CSV import, each compound text field should be preserved exactly in literal form:
-
-- `sw:licenseText`
-- `sw:primaryInterfaceText`
-- `sw:featureText`
-
-Optionally, importers may additionally create linked resources for:
-
-- organizations,
-- licenses,
-- interfaces,
-- features,
-- specializations,
-- deployment models.
-
-This dual strategy avoids loss of source fidelity and supports later normalization.
-
-### 9.3 Avoiding overcommitment on licenses
-The source has mixed values like `Open Source (GPLv2) / Commercial` and `Commercial / Free Edition`. Therefore the schema does not force a single controlled license taxonomy. Instead it supports:
-
-- raw textual preservation,
-- a structured `sw:LicenseModel` node if desired,
-- optional booleans when a downstream process confidently derives them.
-
-### 9.4 Avoiding overcommitment on interfaces
-The `Primary API/Interfaces` column mixes protocols, APIs, query languages, frameworks, workbenches, and language bindings. The schema therefore uses a broad superclass `sw:Interface` with specialized subclasses.
+### `sw:usesProfile`
+Associates an ontology or technology with an OWL profile.
+- Domain: `sw:Entity`
+- Range: `sw:LogicProfile`
 
 ---
 
-## 10. Expected importer mapping from CSV
+## 5.5 Standards and ecosystem properties
 
-For each CSV row, an importer would typically create one `sw:Triplestore` resource and attach:
+### `sw:developedBy`
+Relates a technology or artifact to its developer.
+- Domain: `sw:Entity`
+- Range: `sw:Organization`
 
-- `rdfs:label` and/or `sw:name` from **Triplestore Name**,
-- `sw:developedBy` or `sw:maintainedBy` to an `sw:Organization` resource derived from **Developer/Maintainer**,
-- `sw:licenseText` from **License Type**,
-- optionally `sw:hasLicenseModel` to one or more structured `sw:LicenseModel` resources,
-- `sw:primaryInterfaceText` from **Primary API/Interfaces**,
-- optionally multiple `sw:offersInterface` links to interface resources,
-- `sw:featureText` from **Key Features/Specializations**,
-- optionally `sw:hasFeature`, `sw:hasSpecialization`, or `sw:hasDeploymentModel` links.
+### `sw:maintainedBy`
+Relates a technology or artifact to its maintainer.
+- Domain: `sw:Entity`
+- Range: `sw:Organization`
 
-Because the CSV is only 11 rows and values are varied, a semi-structured import strategy is appropriate.
+### `sw:publishedBy`
+Relates a document or standard to a publisher.
+- Domain: `sw:KnowledgeArtifact`
+- Range: `sw:Organization`
 
----
+### `sw:usedInApplicationArea`
+Links a technology to practical usage areas.
+- Domain: `sw:Technology`
+- Range: `sw:ApplicationArea`
 
-## 11. Example query patterns supported
-
-### 11.1 Find triplestores and their maintainers
-```sparql
-SELECT ?store ?label ?orgLabel WHERE {
-  ?store a sw:Triplestore ;
-         rdfs:label ?label ;
-         sw:maintainedBy ?org .
-  ?org rdfs:label ?orgLabel .
-}
-```
-
-### 11.2 Find triplestores exposing SPARQL or GraphQL
-```sparql
-SELECT ?storeLabel ?ifaceLabel WHERE {
-  ?store a sw:Triplestore ;
-         rdfs:label ?storeLabel ;
-         sw:offersInterface ?iface .
-  ?iface rdfs:label ?ifaceLabel .
-  FILTER (?ifaceLabel IN ("SPARQL", "SPARQL 1.1", "GraphQL"))
-}
-```
-
-### 11.3 List semantic web layers and their technologies
-```sparql
-SELECT ?layerLabel ?techLabel WHERE {
-  ?layer a sw:ArchitectureLayer ;
-         rdfs:label ?layerLabel ;
-         sw:layerUsesTechnology ?tech .
-  ?tech rdfs:label ?techLabel .
-}
-ORDER BY ?layerLabel ?techLabel
-```
-
-### 11.4 Show ontology primitives
-```sparql
-SELECT ?primitiveClass ?label WHERE {
-  ?primitiveClass rdfs:subClassOf sw:OntologyPrimitive ;
-                  rdfs:label ?label .
-}
-```
-
-### 11.5 Find concepts related to reasoning
-```sparql
-SELECT ?thing ?label WHERE {
-  ?thing sw:enablesTask sw:ClassificationTask .
-  OPTIONAL { ?thing rdfs:label ?label }
-}
-```
+### `sw:integratesWith`
+Relates two technologies that are used together.
+- Domain: `sw:Technology`
+- Range: `sw:Technology`
 
 ---
 
-## 12. Why this schema fits the project
+## 5.6 Triplestore catalog properties
 
-This design reflects both source types:
+These are especially important for the CSV import.
 
-- The markdown files are conceptual and educational, so the ontology includes classes for semantic web architecture, ontology primitives, reasoning, assumptions, standards, and profiles.
-- The CSV is product-oriented, so the ontology includes concrete software catalog structures for triplestores, maintainers, licenses, interfaces, and features.
+### `sw:triplestoreName`
+String name from the CSV column.
+- Domain: `sw:Triplestore`
+- Range: `xsd:string`
 
-The combined result allows one graph to represent both:
+### `sw:developerMaintainerName`
+Literal developer/maintainer string exactly as provided by source data.
+- Domain: `sw:Triplestore`
+- Range: `xsd:string`
 
-- the **theory** of the Semantic Web and ontologies, and
-- the **software ecosystem** used to implement those ideas.
+### `sw:licenseTypeText`
+Literal license description from CSV.
+- Domain: `sw:LicenseOffering`
+- Range: `xsd:string`
 
-That makes the schema suitable for documentation, linked-data publication, teaching examples, and practical triplestore comparison queries in Fuseki.
+### `sw:primaryAPIInterfacesText`
+Literal API/interface description from CSV.
+- Domain: `sw:Triplestore`
+- Range: `xsd:string`
+
+### `sw:keyFeaturesText`
+Literal features/specializations description from CSV.
+- Domain: `sw:Triplestore`
+- Range: `xsd:string`
+
+### `sw:hasLicenseOffering`
+Relates a triplestore to a license offering object.
+- Domain: `sw:Triplestore`
+- Range: `sw:LicenseOffering`
+
+### `sw:hasInterfaceTechnology`
+Relates a triplestore to an interface or API concept.
+- Domain: `sw:Triplestore`
+- Range: `sw:InterfaceTechnology`
+
+### `sw:hasFeature`
+Relates a system to a feature.
+- Domain: `sw:Technology`
+- Range: `sw:Feature`
+
+### `sw:specializesIn`
+Relates a triplestore or platform to specialization areas.
+- Domain: `sw:Technology`
+- Range: `sw:Feature`
+
+### `sw:isOpenSource`
+Boolean if known through curated import logic.
+- Domain: `sw:LicenseOffering`
+- Range: `xsd:boolean`
+
+### `sw:offersCommercialOption`
+Boolean if known through curated import logic.
+- Domain: `sw:LicenseOffering`
+- Range: `xsd:boolean`
+
+### `sw:isManagedService`
+Boolean if known through curated import logic.
+- Domain: `sw:Triplestore`
+- Range: `xsd:boolean`
+
+The ontology keeps both literal text properties and normalized object properties. This is important because the CSV columns are slash-separated mixed text and should not be over-interpreted during import.
+
+---
+
+## 6. Expected importer strategy
+
+A practical importer can create:
+- one `sw:Triplestore` individual per CSV row
+- one `sw:Organization` individual for a developer/maintainer when normalization is desired
+- one `sw:LicenseOffering` individual per row or per normalized license description
+- optional `sw:InterfaceTechnology` individuals for SPARQL, SQL, JDBC, RDF4J, GraphQL, REST, Gremlin, openCypher, etc.
+- optional `sw:Feature` individuals for advanced reasoning, managed service, virtualization, distributed analytics, and similar feature labels
+
+For fidelity, the importer should preserve raw CSV values in:
+- `sw:triplestoreName`
+- `sw:developerMaintainerName`
+- `sw:primaryAPIInterfacesText`
+- `sw:keyFeaturesText`
+- `sw:licenseTypeText`
+
+This ensures no source information is lost even if normalization is partial.
+
+---
+
+## 7. Query needs supported by the schema
+
+The design supports common SPARQL patterns such as:
+
+### 7.1 Semantic Web concept queries
+- find all technologies in the query layer
+- list all serialization formats
+- list all ontology components
+- find all reasoning processes and the reasoners that perform them
+- retrieve all principles assumed by Semantic Web artifacts
+
+### 7.2 Ecosystem and standards queries
+- list foundational ontologies and vocabularies
+- find technologies that extend RDF or RDFS
+- find technologies used in Linked Open Data or Enterprise Knowledge Graph contexts
+
+### 7.3 Triplestore catalog queries
+- list all triplestores and their maintainers
+- find all triplestores whose raw API string mentions SPARQL
+- find triplestores with managed-service licensing text
+- find triplestores supporting reasoning features
+- compare commercial/open-source offerings where boolean fields are curated
+- list all interfaces used by triplestores once normalized
+
+Example query patterns the schema enables:
+- triplestores and their license text
+- all technologies supporting the ontology layer
+- all features attached to a given triplestore
+- all organizations that develop or maintain triplestores
+
+---
+
+## 8. Constraints and modeling choices
+
+### 8.1 Domain and range usage
+The ontology provides `rdfs:domain` and `rdfs:range` for practical data quality and discoverability. These are not closed-world constraints, but they make the schema easier to query and understand.
+
+### 8.2 Conservative datatypes
+Only clearly safe datatypes are used:
+- names and textual columns: `xsd:string`
+- URLs: `xsd:anyURI`
+- boolean indicators only where import logic may derive them reliably: `xsd:boolean`
+
+### 8.3 Limited OWL use
+OWL is used sparingly for:
+- inverse properties between `sw:broaderThan` and `sw:narrowerThan`
+- transitivity of broader/narrower conceptual hierarchy
+- optional symmetry of `sw:integratesWith`
+
+These choices improve semantic usefulness without making the ontology too complex for Fuseki.
+
+---
+
+## 9. Coverage mapping to source material
+
+## 9.1 Covered from `ontology.md`
+- ontology definition and machine-readable formalization
+- classes, individuals, attributes, relationships, axioms
+- taxonomy vs knowledge graph vs ontology
+- OWL and profiles EL, QL, RL
+- semantic reasoning: classification and consistency checking
+- foundational ontologies and vocabularies
+
+## 9.2 Covered from `semantic web.md`
+- Web of Documents vs Web of Data
+- Semantic Web architecture layers
+- IRI/URI and Unicode
+- RDF, RDFS, OWL, SPARQL
+- Turtle, JSON-LD, RDF/XML
+- Rules, proof, trust
+- Open World Assumption and Non-Unique Name Assumption
+- Schema.org, Linked Open Data, DBpedia, Wikidata, enterprise knowledge graphs
+
+## 9.3 Covered from CSV
+- triplestore product identity
+- developer/maintainer
+- license type
+- API/interface descriptions
+- key features/specializations
+
+---
+
+## 10. Recommended usage
+
+Use this ontology as:
+1. the schema graph loaded into Fuseki
+2. the target vocabulary for a CSV-to-RDF importer
+3. a base for later extension if more semantic web tools, datasets, standards, or products are added
+
+The ontology intentionally includes both abstract conceptual modeling and practical triplestore catalog structure so the resulting knowledge graph can answer both educational and technical inventory questions.
 
 ## Designer Generation Log
 
@@ -680,204 +678,235 @@ That makes the schema suitable for documentation, linked-data publication, teach
 - Model: `gpt-5.4`
 - Mode: `production`
 - Max attempts: 3
-- Started: 2026-06-02T13:17:18+00:00
+- Started: 2026-06-03T00:16:41+00:00
 
 ## Attempt 1
 
 - Status: LLM request started
-- Timestamp: 2026-06-02T13:17:18+00:00
+- Timestamp: 2026-06-03T00:16:41+00:00
 - Retry feedback included: no
 
 ## Attempt 1 Response
 
 - Status: LLM response received
-- Timestamp: 2026-06-02T13:19:30+00:00
-- Response characters: 40384
+- Timestamp: 2026-06-03T00:18:59+00:00
+- Response characters: 43070
+
+## JSON Repair
+
+- Status: started
+- Reason: LlmError: The model did not return a JSON object.
+
+## JSON Repair Result
+
+- Status: received
+- Response characters: 43070
 
 ## Attempt 1 Validation
 
+- Status: failed
+- Feedback: Attempt 1 failed: LlmError: The model did not return a JSON object.
+
+## Attempt 2
+
+- Status: LLM request started
+- Timestamp: 2026-06-03T00:20:51+00:00
+- Retry feedback included: yes
+
+## Attempt 2 Response
+
+- Status: LLM response received
+- Timestamp: 2026-06-03T00:23:11+00:00
+- Response characters: 44416
+
+## JSON Repair
+
+- Status: started
+- Reason: LlmError: The model did not return a JSON object.
+
+## JSON Repair Result
+
+- Status: received
+- Response characters: 44201
+
+## Attempt 2 Validation
+
+- Status: failed
+- Feedback: Attempt 2 failed: ValueError: Property http://example.org/semantic-web#description is missing rdfs:domain.
+
+## Attempt 3
+
+- Status: LLM request started
+- Timestamp: 2026-06-03T00:25:04+00:00
+- Retry feedback included: yes
+
+## Attempt 3 Response
+
+- Status: LLM response received
+- Timestamp: 2026-06-03T00:27:20+00:00
+- Response characters: 41599
+
+## JSON Repair
+
+- Status: started
+- Reason: LlmError: The model did not return a JSON object.
+
+## JSON Repair Result
+
+- Status: received
+- Response characters: 41547
+
+## Attempt 3 Validation
+
 - Status: passed
-- Triple count: 427
+- Triple count: 554
 
 ### Candidate Design
 
-# Semantic Web Schema Design
+# Semantic Web Ontology Design
 
 ## 1. Purpose and scope
 
-This schema models the knowledge explicitly present in the project sources:
+This ontology is designed from the supplied project materials:
+- two explanatory markdown documents about the Semantic Web and ontologies
+- one CSV listing commonly seen triplestores and their features
 
-1. the conceptual content of the two markdown documents about the Semantic Web and ontologies, and  
-2. the CSV structure describing commonly seen triplestores and their major characteristics.
+The ontology therefore covers two connected areas:
+1. **conceptual Semantic Web knowledge**: core technologies, layers, ontology components, logical assumptions, reasoning tasks, standards, syntaxes, and adoption patterns
+2. **triplestore catalog structure**: triplestore products, maintainers, licensing descriptions, APIs/interfaces, protocols, features, and specialization statements from the CSV
 
-The goal is to provide an RDF/RDFS-first ontology that:
-
-- captures the main concepts introduced in the documents,
-- supports ingest of the triplestore CSV without loss of meaning,
-- remains practical for Apache Jena Fuseki storage and SPARQL querying,
-- uses OWL only where it clearly helps interoperability or identity handling.
-
-This is a schema only. It does **not** include instance data.
+The goal is not only to model theory, but also to support practical data import and querying in Apache Jena Fuseki.
 
 ---
 
 ## 2. Design principles
 
-### 2.1 Source-driven modeling
-The ontology is derived from the supplied materials, not from a generic prebuilt domain model. The source material repeatedly discusses:
+### 2.1 RDF/RDFS-first
+The schema is primarily expressed in RDF Schema. A small amount of OWL is used only where it clearly improves practical semantics and remains fully compatible with Jena/Fuseki, such as:
+- `owl:Class`
+- `owl:ObjectProperty`
+- `owl:DatatypeProperty`
+- `owl:NamedIndividual`
+- `owl:sameAs`
+- `owl:inverseOf`
+- `owl:SymmetricProperty`
+- `owl:TransitiveProperty`
 
-- semantic web architecture layers,
-- RDF, RDFS, OWL, SPARQL, serialization syntaxes,
-- ontology primitives such as classes, individuals, datatype properties, object properties, and axioms,
-- reasoning, classification, consistency checking,
-- knowledge organization structures such as taxonomy, knowledge graph, and ontology,
-- foundational assumptions such as the Open World Assumption and Non-Unique Name Assumption,
-- examples of foundational ontologies and standards,
-- triplestore products, maintainers, licenses, APIs/interfaces, and feature descriptions.
+### 2.2 Source-driven modeling
+Classes and properties were created from the supplied documents and CSV, not from a generic built-in domain template. The ontology reflects terminology explicitly present in the sources, such as:
+- Semantic Web
+- Web of Data
+- Web of Documents
+- RDF, RDFS, OWL, SPARQL, Turtle, JSON-LD, RDF/XML
+- ontology components: class, individual, attribute, relationship, axiom
+- reasoning functions: classification and consistency checking
+- assumptions: Open World Assumption, Non-Unique Name Assumption
+- implementation patterns: Linked Open Data, Enterprise Knowledge Graph, Schema.org, DBpedia, Wikidata
+- triplestore metadata from the CSV
 
-The schema therefore includes classes for these concepts and explicit properties for their relationships.
+### 2.3 No instance data inserted
+The ontology defines schema only. It does not insert actual triplestore records or factual rows from the CSV as individuals. The importer can later create such instances using this ontology.
 
-### 2.2 RDF/RDFS first
-The model uses `rdfs:Class`, `rdf:Property`, `rdfs:subClassOf`, `rdfs:domain`, and `rdfs:range` as the main structural mechanisms. A small amount of OWL is used for:
-
-- declaring the ontology resource,
-- optional inverse property support,
-- `owl:sameAs` compatibility for identity alignment discussed in the source material.
-
-### 2.3 Import fidelity for CSV
-The CSV contains mixed textual values. Its columns are modeled conservatively as strings where appropriate:
-
-- names,
-- maintainers,
-- license descriptions,
-- API/interface text,
-- feature/specialization text.
-
-Because several columns contain compound values such as `Commercial / Free Edition` or `SPARQL / SQL / ODBC / JDBC`, the schema supports **both**:
-
-- literal preservation of the full original field, and
-- optional structured decomposition into linked entities such as interfaces, licenses, and capabilities.
-
-This preserves source fidelity while enabling richer graph queries.
-
-### 2.4 Practical query support
-The schema is designed to support queries such as:
-
-- Which triplestores support SPARQL?
-- Which triplestores are open source, commercial, or mixed-license?
-- Which products are maintained by a particular organization?
-- Which systems expose GraphQL, Gremlin, JDBC, or REST interfaces?
-- Which technologies belong to the Semantic Web layer cake?
-- Which concepts are part of ontology structure versus reasoning versus publishing?
-- Which foundational vocabularies are examples of ontologies or knowledge organization systems?
+### 2.4 Practical typing for CSV imports
+The CSV columns are all modeled as strings where they represent names, descriptions, mixed-format values, or semi-structured text. This follows the datatype guidance and avoids brittle assumptions.
 
 ---
 
-## 3. Namespace
+## 3. Main modeling areas
 
-Base namespace:
+## 3.1 Knowledge domain overview
+The ontology contains these major branches:
 
-- `http://example.org/semantic-web#`
-
-Preferred prefix:
-
-- `sw:`
-
----
-
-## 4. High-level model overview
-
-The ontology has four major modules.
-
-### 4.1 Knowledge and architecture module
-Models the concepts introduced in the markdown documents:
-
-- `sw:SemanticWeb`
-- `sw:WebArchitecture`
-- `sw:ArchitectureLayer`
+### A. Conceptual foundations
+- `sw:KnowledgeArtifact`
+- `sw:Document`
 - `sw:Technology`
-- `sw:DataModelTechnology`
-- `sw:OntologyLanguage`
-- `sw:QueryLanguage`
-- `sw:SerializationFormat`
-- `sw:IdentifierScheme`
-- `sw:CharacterSetStandard`
-- `sw:Reasoner`
-- `sw:SemanticPrinciple`
-- `sw:ReasoningTask`
-
-### 4.2 Knowledge organization and ontology module
-Models the conceptual distinctions discussed in the ontology and semantic web introductions:
-
-- `sw:KnowledgeOrganizationArtifact`
-- `sw:Taxonomy`
-- `sw:KnowledgeGraph`
-- `sw:Ontology`
-- `sw:OntologyPrimitive`
-- `sw:OntologyClass`
-- `sw:OntologyIndividual`
-- `sw:DatatypePropertyConcept`
-- `sw:ObjectPropertyConcept`
-- `sw:Axiom`
-- `sw:Constraint`
-
-### 4.3 Standards and profiles module
-Models standards, profiles, and named ontology families:
-
 - `sw:Standard`
-- `sw:OntologyProfile`
-- `sw:FoundationalOntology`
-- `sw:Vocabulary`
+- `sw:ModelingConstruct`
+- `sw:Principle`
+- `sw:ReasoningProcess`
+- `sw:ApplicationArea`
 
-### 4.4 Triplestore catalog module
-Models the CSV and practical repository metadata:
+### B. Semantic Web architecture
+- `sw:SemanticArchitectureLayer`
+- specialized layers such as identifier layer, syntax layer, data model layer, ontology layer, query layer, rules layer, proof layer, trust layer
+- technologies and formats linked to layers
 
+### C. Ontology structure
+- `sw:Ontology`
+- `sw:OntologyComponent`
+- subclasses for classes, individuals, datatype properties, object properties, axioms, restrictions, taxonomies
+
+### D. Semantic data systems
+- `sw:DataStoreTechnology`
 - `sw:Triplestore`
-- `sw:DatabaseManagementSystem`
+- `sw:GraphDatabase`
+- `sw:KnowledgeGraphPlatform`
 - `sw:Organization`
-- `sw:LicenseModel`
-- `sw:Interface`
-- `sw:API`
-- `sw:Protocol`
-- `sw:Workbench`
-- `sw:ProgrammingInterface`
+- `sw:LicenseOffering`
+- `sw:InterfaceTechnology`
 - `sw:Feature`
-- `sw:Specialization`
-- `sw:DeploymentModel`
+
+### E. Datasets and web resources
+- `sw:Dataset`
+- `sw:KnowledgeGraph`
+- `sw:WebResource`
+- `sw:IRI`
 
 ---
 
-## 5. Core classes
+## 4. Core classes
 
-### 5.1 General conceptual classes
+## 4.1 General descriptive classes
 
-#### `sw:Concept`
-Top-level domain concept in this ontology. Used as a broad superclass for major modeled ideas.
+### `sw:Entity`
+Top-level domain entity for things described in the ontology.
 
-#### `sw:InformationResource`
-A resource that conveys structured knowledge, such as a vocabulary, ontology, standard, or architecture description.
+### `sw:Concept`
+Abstract conceptual unit in the domain.
 
-#### `sw:Standard`
-A formalized technical standard or specification.
+### `sw:KnowledgeArtifact`
+A human- or machine-oriented artifact representing knowledge, such as a document, ontology, taxonomy, dataset, or standard.
 
-#### `sw:Technology`
-A technology, language, framework element, or implementation used within the semantic web ecosystem.
+### `sw:Document`
+A textual or digital document.
 
-#### `sw:Organization`
-An organization that develops, maintains, publishes, or standardizes a technology.
+### `sw:SpecificationDocument`
+A document that specifies a standard, language, or formal framework.
+
+### `sw:Dataset`
+A structured collection of data.
+
+### `sw:WebResource`
+A web-identifiable resource.
+
+### `sw:Identifier`
+A value or construct used to identify a resource.
+
+### `sw:IRI`
+An internationalized resource identifier.
+
+### `sw:URI`
+A URI identifier concept.
+
+### `sw:CharacterEncoding`
+Encoding systems such as Unicode.
 
 ---
 
-### 5.2 Semantic Web architecture classes
+## 4.2 Semantic Web architecture classes
 
-#### `sw:SemanticWeb`
-Represents the Semantic Web as a web-of-data paradigm.
+### `sw:SemanticWeb`
+The overall Web of Data paradigm.
 
-#### `sw:WebArchitecture`
-A technical architecture composed of layers and technologies.
+### `sw:WebOfData`
+The machine-understandable data-centric web.
 
-#### `sw:ArchitectureLayer`
-A conceptual layer in the semantic web stack.
+### `sw:WebOfDocuments`
+The traditional document-centric web.
+
+### `sw:SemanticArchitectureLayer`
+A layer in the Semantic Web stack.
 
 Subclasses:
 - `sw:IdentifierLayer`
@@ -889,490 +918,521 @@ Subclasses:
 - `sw:ProofLayer`
 - `sw:TrustLayer`
 
-#### `sw:IdentifierScheme`
-Identifier technology such as URI or IRI.
+These support queries like:
+- all technologies belonging to the query layer
+- all layers above the data model layer
+- all standards used in the ontology layer
 
-#### `sw:CharacterSetStandard`
-Character encoding standard such as Unicode.
+---
 
-#### `sw:SerializationFormat`
-RDF serialization syntax such as Turtle, JSON-LD, RDF/XML.
+## 4.3 Language, syntax, and standards classes
 
-#### `sw:DataModelTechnology`
-Data model technology such as RDF or RDFS.
+### `sw:Technology`
+General technical artifact or system.
 
-#### `sw:OntologyLanguage`
-Ontology or schema language such as OWL or SKOS.
+### `sw:LanguageTechnology`
+A formal language used in the Semantic Web stack.
 
-#### `sw:QueryLanguage`
-Query language such as SPARQL.
+### `sw:SerializationFormat`
+A syntax/format used to serialize RDF graphs.
 
-#### `sw:RuleLanguage`
-Rule language such as RIF or SWRL.
+### `sw:QueryLanguage`
+A language used to query data.
 
-#### `sw:Reasoner`
-A reasoning engine or reasoner type used for inference or consistency checking.
+### `sw:KnowledgeRepresentationLanguage`
+A language for expressing structured semantics.
 
-#### `sw:ReasoningTask`
-A task performed by reasoning systems.
+### `sw:Standard`
+A community or formal standard.
+
+Important subclasses and concepts:
+- `sw:RDFTechnology`
+- `sw:RDFSchemaTechnology`
+- `sw:OWLTechnology`
+- `sw:SPARQLTechnology`
+- `sw:JSONLDFormat`
+- `sw:TurtleFormat`
+- `sw:RDFXMLFormat`
+- `sw:SKOSTechnology`
+- `sw:MicrodataTechnology`
+
+---
+
+## 4.4 Ontology structure classes
+
+### `sw:Ontology`
+A formal, explicit specification of a shared conceptualization.
+
+### `sw:Taxonomy`
+A hierarchical classification structure.
+
+### `sw:KnowledgeGraph`
+A graph of entities and relationships.
+
+### `sw:OntologyComponent`
+A component used in ontology structure.
 
 Subclasses:
-- `sw:ClassificationTask`
-- `sw:ConsistencyCheckingTask`
+- `sw:OntologyClassComponent`
+- `sw:OntologyIndividualComponent`
+- `sw:DatatypePropertyComponent`
+- `sw:ObjectPropertyComponent`
+- `sw:AxiomComponent`
+- `sw:RestrictionComponent`
 
-#### `sw:SemanticPrinciple`
-A principle or assumption in semantic web logic.
+### `sw:ModelingConstruct`
+A broader class for conceptual constructs used in semantic modeling.
+
+Subclasses:
+- `sw:ClassConcept`
+- `sw:IndividualConcept`
+- `sw:AttributeConcept`
+- `sw:RelationshipConcept`
+- `sw:AxiomConcept`
+
+This gives coverage for the ontology.md explanation of the five core primitives.
+
+---
+
+## 4.5 Logic and reasoning classes
+
+### `sw:Principle`
+A conceptual principle or assumption.
 
 Subclasses:
 - `sw:OpenWorldAssumption`
+- `sw:ClosedWorldAssumption`
 - `sw:NonUniqueNameAssumption`
 
----
-
-### 5.3 Ontology and knowledge organization classes
-
-#### `sw:KnowledgeOrganizationArtifact`
-A formal artifact used to organize or structure knowledge.
+### `sw:ReasoningProcess`
+A reasoning activity.
 
 Subclasses:
-- `sw:Taxonomy`
-- `sw:KnowledgeGraph`
-- `sw:Ontology`
-- `sw:Vocabulary`
+- `sw:ClassificationReasoning`
+- `sw:ConsistencyChecking`
 
-#### `sw:Ontology`
-A formal, explicit specification of a shared conceptualization.
+### `sw:Reasoner`
+A software component that performs inference or checks consistency.
 
-#### `sw:Taxonomy`
-A hierarchical classification scheme focused on subclassing or parent-child structure.
+### `sw:LogicProfile`
+A formal profile of an ontology language.
 
-#### `sw:KnowledgeGraph`
-A graph of entities connected by typed relationships.
-
-#### `sw:Vocabulary`
-A named set of terms for describing resources.
-
-#### `sw:FoundationalOntology`
-A reusable upper-level or broadly applicable ontology/vocabulary family.
-
-#### `sw:OntologyProfile`
-An OWL profile or similar modeling profile.
-
-Examples expected at data level could include EL, QL, RL.
+Subclasses:
+- `sw:OWL2ELProfile`
+- `sw:OWL2QLProfile`
+- `sw:OWL2RLProfile`
 
 ---
 
-### 5.4 Ontology primitives and logical components
+## 4.6 Adoption and implementation classes
 
-#### `sw:OntologyPrimitive`
-A building block of an ontology.
-
-Subclasses:
-- `sw:OntologyClass`
-- `sw:OntologyIndividual`
-- `sw:DatatypePropertyConcept`
-- `sw:ObjectPropertyConcept`
-- `sw:Axiom`
-
-#### `sw:OntologyClass`
-The concept of a class within an ontology.
-
-#### `sw:OntologyIndividual`
-The concept of an individual/instance.
-
-#### `sw:DatatypePropertyConcept`
-The concept of a datatype property as an ontology primitive.
-
-#### `sw:ObjectPropertyConcept`
-The concept of an object property as an ontology primitive.
-
-#### `sw:Axiom`
-A logical assertion in an ontology.
+### `sw:ApplicationArea`
+An area of use or deployment.
 
 Subclasses:
-- `sw:Constraint`
-- `sw:PropertyCharacteristic`
-- `sw:ClassRestriction`
-- `sw:CardinalityConstraint`
-- `sw:DisjointnessAxiom`
+- `sw:LinkedOpenData`
+- `sw:EnterpriseKnowledgeGraph`
+- `sw:SearchEngineKnowledgeGraph`
+- `sw:DataIntegrationUseCase`
+- `sw:DataVirtualizationUseCase`
 
-#### `sw:PropertyCharacteristic`
-A property-level logical feature such as transitive, symmetric, functional, or inverse.
+### `sw:FoundationalOntology`
+An upper-level or reusable ontology framework.
 
-#### `sw:ClassRestriction`
-A class-level restriction expressed over properties.
+### `sw:Vocabulary`
+A semantic vocabulary.
 
-#### `sw:CardinalityConstraint`
-A restriction on the number of values for a property.
-
-#### `sw:DisjointnessAxiom`
-An axiom stating that classes do not overlap.
+This supports resources such as FOAF, Dublin Core, SKOS, BFO, and Gene Ontology when imported later as instances.
 
 ---
 
-### 5.5 Triplestore catalog classes
+## 4.7 Triplestore and platform classes
 
-#### `sw:DatabaseManagementSystem`
-A database management system.
+The CSV requires practical support for triplestore metadata.
 
-#### `sw:Triplestore`
-An RDF-oriented database or graph repository platform. Modeled as a subclass of `sw:DatabaseManagementSystem` and `sw:Technology`.
+### `sw:DataStoreTechnology`
+A technology used to persist, query, or manage structured data.
 
-#### `sw:Interface`
-A general access interface exposed by software.
+### `sw:GraphDataSystem`
+A graph-oriented data management system.
+
+### `sw:Triplestore`
+A database management system specialized for RDF triples.
+
+### `sw:GraphDatabase`
+A graph database technology.
+
+### `sw:KnowledgeGraphPlatform`
+A platform supporting knowledge graph management.
+
+### `sw:Organization`
+An organization such as a developer, maintainer, standards body, or vendor.
+
+### `sw:MaintainerOrganization`
+An organization responsible for maintenance.
+
+### `sw:DeveloperOrganization`
+An organization responsible for development.
+
+### `sw:LicenseOffering`
+A textual or categorized license arrangement for a product.
+
+### `sw:InterfaceTechnology`
+An API, interface, protocol, or access mechanism.
 
 Subclasses:
 - `sw:API`
 - `sw:Protocol`
 - `sw:Workbench`
 - `sw:ProgrammingInterface`
+- `sw:QueryEndpoint`
 
-This allows mixed CSV values like SPARQL, JDBC, REST, RDF4J, GraphQL, Workbench, native Java API, etc. to be represented either uniformly or more specifically.
+### `sw:Feature`
+A product capability or specialization.
 
-#### `sw:LicenseModel`
-A textual or structured description of software licensing.
+Subclasses inspired by source descriptions:
+- `sw:ReasoningFeature`
+- `sw:VirtualizationFeature`
+- `sw:ManagedServiceFeature`
+- `sw:DistributedAnalyticsFeature`
+- `sw:MultiModelFeature`
+- `sw:HighPerformanceFeature`
 
-#### `sw:Feature`
-A notable capability, property, or advertised feature.
-
-#### `sw:Specialization`
-A specialized focus area of a technology or product.
-
-#### `sw:DeploymentModel`
-A deployment style such as managed service, native component, distributed analytics platform, or enterprise platform.
-
----
-
-## 6. Property design
-
-### 6.1 Labeling and descriptive properties
-
-#### `sw:name`
-Datatype property for human-readable names.
-
-#### `sw:description`
-Datatype property for descriptive text.
-
-#### `sw:identifier`
-Datatype property for local identifiers or codes when needed.
-
-These supplement `rdfs:label` and `rdfs:comment` and are useful for importer output.
+The schema also retains general text fields so importer pipelines can preserve CSV values without over-normalizing.
 
 ---
 
-### 6.2 Architecture and conceptual relations
+## 5. Property design
 
-#### `sw:hasLayer`
-Links a web architecture to one of its layers.
+## 5.1 General annotation and identification properties
 
-#### `sw:layerUsesTechnology`
-Links an architecture layer to a technology used at that layer.
+### `sw:name`
+General string name.
+- Domain: `sw:Entity`
+- Range: `xsd:string`
 
-#### `sw:supportsPrinciple`
-Links a semantic web or technology to a semantic principle.
+### `sw:title`
+Title for knowledge artifacts or documents.
+- Domain: `sw:KnowledgeArtifact`
+- Range: `xsd:string`
 
-#### `sw:enablesTask`
-Links a technology or reasoner to a reasoning or operational task.
+### `sw:description`
+General textual description.
+- Domain: `sw:Entity`
+- Range: `xsd:string`
 
-#### `sw:extendsTechnology`
-Links one technology to another that it extends conceptually.
+### `sw:identifierValue`
+Literal identifier content.
+- Domain: `sw:Identifier`
+- Range: `xsd:string`
 
-Useful example at data level: OWL extends RDFS, RDFS extends RDF.
+### `sw:homepage`
+Homepage URL string.
+- Domain: `sw:Entity`
+- Range: `xsd:anyURI`
 
-#### `sw:serializedAs`
-Links a data model or resource to a serialization format.
-
-#### `sw:queriesWith`
-Links a graph or system to a query language.
-
----
-
-### 6.3 Ontology structure relations
-
-#### `sw:hasPrimitive`
-Links an ontology to one of its primitives.
-
-#### `sw:definesConcept`
-Links a vocabulary or ontology to a concept it defines.
-
-#### `sw:definesProperty`
-Links a vocabulary or ontology to a property it defines.
-
-#### `sw:hasAxiom`
-Links an ontology to one of its axioms.
-
-#### `sw:hasProfile`
-Links an ontology language to a profile.
-
-#### `sw:usedFor`
-Links a technology, ontology, profile, or feature to a purpose or application description.
-
-#### `sw:contrastsWith`
-Links related but distinct conceptual artifacts, such as taxonomy vs knowledge graph vs ontology.
+### `sw:officialName`
+Official name of an organization or formal artifact.
+- Domain: `sw:Entity`
+- Range: `xsd:string`
 
 ---
 
-### 6.4 Organization and publication relations
+## 5.2 Structure and hierarchy properties
 
-#### `sw:developedBy`
-Links a technology or triplestore to its developer.
+### `sw:hasComponent`
+Relates a composite artifact to a component.
+- Domain: `sw:KnowledgeArtifact`
+- Range: `sw:Entity`
 
-#### `sw:maintainedBy`
-Links a technology or triplestore to its maintainer.
+### `sw:partOf`
+Relates an entity to a larger entity.
+- Domain: `sw:Entity`
+- Range: `sw:Entity`
 
-#### `sw:publishedBy`
-Links a standard, ontology, or vocabulary to its publisher or standards body.
+### `sw:hasLayer`
+Relates a semantic architecture to a layer.
+- Domain: `sw:SemanticWeb`
+- Range: `sw:SemanticArchitectureLayer`
 
----
+### `sw:supportsLayer`
+Relates a technology or standard to the layer it supports.
+- Domain: `sw:Technology`
+- Range: `sw:SemanticArchitectureLayer`
 
-### 6.5 Triplestore-specific relations
+### `sw:broaderThan`
+Broader conceptual relation.
+- Domain: `sw:Concept`
+- Range: `sw:Concept`
 
-#### `sw:hasLicenseModel`
-Links a triplestore to a structured license model resource.
-
-#### `sw:licenseText`
-Stores the original CSV license field as a string.
-
-#### `sw:offersInterface`
-Links a triplestore to any interface it exposes.
-
-#### `sw:offersAPI`
-Specialized subproperty of `sw:offersInterface` for APIs.
-
-#### `sw:offersProtocol`
-Specialized subproperty of `sw:offersInterface` for protocols.
-
-#### `sw:offersWorkbench`
-Specialized subproperty of `sw:offersInterface` for workbench-style tools.
-
-#### `sw:primaryInterfaceText`
-Stores the original CSV interface field as a string.
-
-#### `sw:hasFeature`
-Links a triplestore to a feature resource.
-
-#### `sw:hasSpecialization`
-Links a triplestore to a specialization resource.
-
-#### `sw:featureText`
-Stores the original CSV feature/specialization field as a string.
-
-#### `sw:hasDeploymentModel`
-Links a system to a deployment model resource.
-
-#### `sw:isOpenSource`
-Boolean convenience property for downstream enrichment when licensing has been normalized. Not required during import if source text is ambiguous.
-
-#### `sw:isCommercial`
-Boolean convenience property for downstream enrichment when licensing has been normalized.
-
-These booleans are optional because the CSV often expresses mixed licensing.
+### `sw:narrowerThan`
+Narrower conceptual relation.
+- Domain: `sw:Concept`
+- Range: `sw:Concept`
+- Inverse of `sw:broaderThan`
 
 ---
 
-### 6.6 Identity and interoperability relations
+## 5.3 Ontology modeling properties
 
-#### `sw:equivalentResource`
-An interoperability-friendly subproperty aligned with `owl:sameAs` usage expectations from the source material.
+### `sw:definesClass`
+An ontology defines a class construct.
+- Domain: `sw:Ontology`
+- Range: `sw:ClassConcept`
 
-This is included because the documents explicitly discuss multiple URIs identifying the same entity.
+### `sw:definesPropertyConcept`
+An ontology defines a property construct.
+- Domain: `sw:Ontology`
+- Range: `sw:Concept`
 
----
+### `sw:definesAxiom`
+An ontology defines an axiom.
+- Domain: `sw:Ontology`
+- Range: `sw:AxiomConcept`
 
-## 7. Hierarchy summary
+### `sw:usesVocabulary`
+A knowledge artifact uses a vocabulary.
+- Domain: `sw:KnowledgeArtifact`
+- Range: `sw:Vocabulary`
 
-### 7.1 Class hierarchy highlights
+### `sw:extendsTechnology`
+A technology extends another technology.
+- Domain: `sw:Technology`
+- Range: `sw:Technology`
 
-- `sw:Technology`
-  - `sw:IdentifierScheme`
-  - `sw:CharacterSetStandard`
-  - `sw:SerializationFormat`
-  - `sw:DataModelTechnology`
-  - `sw:OntologyLanguage`
-  - `sw:QueryLanguage`
-  - `sw:RuleLanguage`
-  - `sw:Reasoner`
-  - `sw:DatabaseManagementSystem`
-    - `sw:Triplestore`
-  - `sw:Interface`
-    - `sw:API`
-    - `sw:Protocol`
-    - `sw:Workbench`
-    - `sw:ProgrammingInterface`
-
-- `sw:KnowledgeOrganizationArtifact`
-  - `sw:Taxonomy`
-  - `sw:KnowledgeGraph`
-  - `sw:Ontology`
-  - `sw:Vocabulary`
-    - `sw:FoundationalOntology`
-
-- `sw:OntologyPrimitive`
-  - `sw:OntologyClass`
-  - `sw:OntologyIndividual`
-  - `sw:DatatypePropertyConcept`
-  - `sw:ObjectPropertyConcept`
-  - `sw:Axiom`
-    - `sw:Constraint`
-    - `sw:PropertyCharacteristic`
-    - `sw:ClassRestriction`
-    - `sw:CardinalityConstraint`
-    - `sw:DisjointnessAxiom`
-
-- `sw:ArchitectureLayer`
-  - `sw:IdentifierLayer`
-  - `sw:SyntaxLayer`
-  - `sw:DataModelLayer`
-  - `sw:OntologyLayer`
-  - `sw:QueryLayer`
-  - `sw:RulesLayer`
-  - `sw:ProofLayer`
-  - `sw:TrustLayer`
-
-- `sw:SemanticPrinciple`
-  - `sw:OpenWorldAssumption`
-  - `sw:NonUniqueNameAssumption`
-
-- `sw:ReasoningTask`
-  - `sw:ClassificationTask`
-  - `sw:ConsistencyCheckingTask`
-
-### 7.2 Property hierarchy highlights
-
-- `sw:offersAPI` `rdfs:subPropertyOf` `sw:offersInterface`
-- `sw:offersProtocol` `rdfs:subPropertyOf` `sw:offersInterface`
-- `sw:offersWorkbench` `rdfs:subPropertyOf` `sw:offersInterface`
-- `sw:hasSpecialization` `rdfs:subPropertyOf` `sw:hasFeature`
-- `sw:equivalentResource` `rdfs:subPropertyOf` `owl:sameAs`
+This is useful for modeling OWL extending RDF/RDFS.
 
 ---
 
-## 8. Datatype choices
+## 5.4 Logic and reasoning properties
 
-The CSV profile strongly supports strings for all supplied columns. The ontology therefore uses:
+### `sw:assumesPrinciple`
+Connects a technology or artifact to a guiding principle.
+- Domain: `sw:Entity`
+- Range: `sw:Principle`
 
-- `xsd:string` for names, developer/maintainer names, license text, API/interface text, and feature text,
-- `xsd:boolean` only for optional normalized convenience properties `sw:isOpenSource` and `sw:isCommercial`.
+### `sw:supportsReasoningProcess`
+A technology or system supports a reasoning process.
+- Domain: `sw:Technology`
+- Range: `sw:ReasoningProcess`
 
-No numeric or date datatypes are introduced because the source data does not justify them.
+### `sw:performedByReasoner`
+Relates a reasoning process to a reasoner.
+- Domain: `sw:ReasoningProcess`
+- Range: `sw:Reasoner`
 
----
-
-## 9. Constraints and modeling choices
-
-### 9.1 Domain/range are guidance, not hard validation
-RDFS domains and ranges are included for practical inferencing and query clarity, but they should be understood under open-world semantics. They help consumers and importers without imposing rigid closed-world validation.
-
-### 9.2 Literal preservation plus normalization
-For CSV import, each compound text field should be preserved exactly in literal form:
-
-- `sw:licenseText`
-- `sw:primaryInterfaceText`
-- `sw:featureText`
-
-Optionally, importers may additionally create linked resources for:
-
-- organizations,
-- licenses,
-- interfaces,
-- features,
-- specializations,
-- deployment models.
-
-This dual strategy avoids loss of source fidelity and supports later normalization.
-
-### 9.3 Avoiding overcommitment on licenses
-The source has mixed values like `Open Source (GPLv2) / Commercial` and `Commercial / Free Edition`. Therefore the schema does not force a single controlled license taxonomy. Instead it supports:
-
-- raw textual preservation,
-- a structured `sw:LicenseModel` node if desired,
-- optional booleans when a downstream process confidently derives them.
-
-### 9.4 Avoiding overcommitment on interfaces
-The `Primary API/Interfaces` column mixes protocols, APIs, query languages, frameworks, workbenches, and language bindings. The schema therefore uses a broad superclass `sw:Interface` with specialized subclasses.
+### `sw:usesProfile`
+Associates an ontology or technology with an OWL profile.
+- Domain: `sw:Entity`
+- Range: `sw:LogicProfile`
 
 ---
 
-## 10. Expected importer mapping from CSV
+## 5.5 Standards and ecosystem properties
 
-For each CSV row, an importer would typically create one `sw:Triplestore` resource and attach:
+### `sw:developedBy`
+Relates a technology or artifact to its developer.
+- Domain: `sw:Entity`
+- Range: `sw:Organization`
 
-- `rdfs:label` and/or `sw:name` from **Triplestore Name**,
-- `sw:developedBy` or `sw:maintainedBy` to an `sw:Organization` resource derived from **Developer/Maintainer**,
-- `sw:licenseText` from **License Type**,
-- optionally `sw:hasLicenseModel` to one or more structured `sw:LicenseModel` resources,
-- `sw:primaryInterfaceText` from **Primary API/Interfaces**,
-- optionally multiple `sw:offersInterface` links to interface resources,
-- `sw:featureText` from **Key Features/Specializations**,
-- optionally `sw:hasFeature`, `sw:hasSpecialization`, or `sw:hasDeploymentModel` links.
+### `sw:maintainedBy`
+Relates a technology or artifact to its maintainer.
+- Domain: `sw:Entity`
+- Range: `sw:Organization`
 
-Because the CSV is only 11 rows and values are varied, a semi-structured import strategy is appropriate.
+### `sw:publishedBy`
+Relates a document or standard to a publisher.
+- Domain: `sw:KnowledgeArtifact`
+- Range: `sw:Organization`
 
----
+### `sw:usedInApplicationArea`
+Links a technology to practical usage areas.
+- Domain: `sw:Technology`
+- Range: `sw:ApplicationArea`
 
-## 11. Example query patterns supported
-
-### 11.1 Find triplestores and their maintainers
-```sparql
-SELECT ?store ?label ?orgLabel WHERE {
-  ?store a sw:Triplestore ;
-         rdfs:label ?label ;
-         sw:maintainedBy ?org .
-  ?org rdfs:label ?orgLabel .
-}
-```
-
-### 11.2 Find triplestores exposing SPARQL or GraphQL
-```sparql
-SELECT ?storeLabel ?ifaceLabel WHERE {
-  ?store a sw:Triplestore ;
-         rdfs:label ?storeLabel ;
-         sw:offersInterface ?iface .
-  ?iface rdfs:label ?ifaceLabel .
-  FILTER (?ifaceLabel IN ("SPARQL", "SPARQL 1.1", "GraphQL"))
-}
-```
-
-### 11.3 List semantic web layers and their technologies
-```sparql
-SELECT ?layerLabel ?techLabel WHERE {
-  ?layer a sw:ArchitectureLayer ;
-         rdfs:label ?layerLabel ;
-         sw:layerUsesTechnology ?tech .
-  ?tech rdfs:label ?techLabel .
-}
-ORDER BY ?layerLabel ?techLabel
-```
-
-### 11.4 Show ontology primitives
-```sparql
-SELECT ?primitiveClass ?label WHERE {
-  ?primitiveClass rdfs:subClassOf sw:OntologyPrimitive ;
-                  rdfs:label ?label .
-}
-```
-
-### 11.5 Find concepts related to reasoning
-```sparql
-SELECT ?thing ?label WHERE {
-  ?thing sw:enablesTask sw:ClassificationTask .
-  OPTIONAL { ?thing rdfs:label ?label }
-}
-```
+### `sw:integratesWith`
+Relates two technologies that are used together.
+- Domain: `sw:Technology`
+- Range: `sw:Technology`
 
 ---
 
-## 12. Why this schema fits the project
+## 5.6 Triplestore catalog properties
 
-This design reflects both source types:
+These are especially important for the CSV import.
 
-- The markdown files are conceptual and educational, so the ontology includes classes for semantic web architecture, ontology primitives, reasoning, assumptions, standards, and profiles.
-- The CSV is product-oriented, so the ontology includes concrete software catalog structures for triplestores, maintainers, licenses, interfaces, and features.
+### `sw:triplestoreName`
+String name from the CSV column.
+- Domain: `sw:Triplestore`
+- Range: `xsd:string`
 
-The combined result allows one graph to represent both:
+### `sw:developerMaintainerName`
+Literal developer/maintainer string exactly as provided by source data.
+- Domain: `sw:Triplestore`
+- Range: `xsd:string`
 
-- the **theory** of the Semantic Web and ontologies, and
-- the **software ecosystem** used to implement those ideas.
+### `sw:licenseTypeText`
+Literal license description from CSV.
+- Domain: `sw:LicenseOffering`
+- Range: `xsd:string`
 
-That makes the schema suitable for documentation, linked-data publication, teaching examples, and practical triplestore comparison queries in Fuseki.
+### `sw:primaryAPIInterfacesText`
+Literal API/interface description from CSV.
+- Domain: `sw:Triplestore`
+- Range: `xsd:string`
+
+### `sw:keyFeaturesText`
+Literal features/specializations description from CSV.
+- Domain: `sw:Triplestore`
+- Range: `xsd:string`
+
+### `sw:hasLicenseOffering`
+Relates a triplestore to a license offering object.
+- Domain: `sw:Triplestore`
+- Range: `sw:LicenseOffering`
+
+### `sw:hasInterfaceTechnology`
+Relates a triplestore to an interface or API concept.
+- Domain: `sw:Triplestore`
+- Range: `sw:InterfaceTechnology`
+
+### `sw:hasFeature`
+Relates a system to a feature.
+- Domain: `sw:Technology`
+- Range: `sw:Feature`
+
+### `sw:specializesIn`
+Relates a triplestore or platform to specialization areas.
+- Domain: `sw:Technology`
+- Range: `sw:Feature`
+
+### `sw:isOpenSource`
+Boolean if known through curated import logic.
+- Domain: `sw:LicenseOffering`
+- Range: `xsd:boolean`
+
+### `sw:offersCommercialOption`
+Boolean if known through curated import logic.
+- Domain: `sw:LicenseOffering`
+- Range: `xsd:boolean`
+
+### `sw:isManagedService`
+Boolean if known through curated import logic.
+- Domain: `sw:Triplestore`
+- Range: `xsd:boolean`
+
+The ontology keeps both literal text properties and normalized object properties. This is important because the CSV columns are slash-separated mixed text and should not be over-interpreted during import.
+
+---
+
+## 6. Expected importer strategy
+
+A practical importer can create:
+- one `sw:Triplestore` individual per CSV row
+- one `sw:Organization` individual for a developer/maintainer when normalization is desired
+- one `sw:LicenseOffering` individual per row or per normalized license description
+- optional `sw:InterfaceTechnology` individuals for SPARQL, SQL, JDBC, RDF4J, GraphQL, REST, Gremlin, openCypher, etc.
+- optional `sw:Feature` individuals for advanced reasoning, managed service, virtualization, distributed analytics, and similar feature labels
+
+For fidelity, the importer should preserve raw CSV values in:
+- `sw:triplestoreName`
+- `sw:developerMaintainerName`
+- `sw:primaryAPIInterfacesText`
+- `sw:keyFeaturesText`
+- `sw:licenseTypeText`
+
+This ensures no source information is lost even if normalization is partial.
+
+---
+
+## 7. Query needs supported by the schema
+
+The design supports common SPARQL patterns such as:
+
+### 7.1 Semantic Web concept queries
+- find all technologies in the query layer
+- list all serialization formats
+- list all ontology components
+- find all reasoning processes and the reasoners that perform them
+- retrieve all principles assumed by Semantic Web artifacts
+
+### 7.2 Ecosystem and standards queries
+- list foundational ontologies and vocabularies
+- find technologies that extend RDF or RDFS
+- find technologies used in Linked Open Data or Enterprise Knowledge Graph contexts
+
+### 7.3 Triplestore catalog queries
+- list all triplestores and their maintainers
+- find all triplestores whose raw API string mentions SPARQL
+- find triplestores with managed-service licensing text
+- find triplestores supporting reasoning features
+- compare commercial/open-source offerings where boolean fields are curated
+- list all interfaces used by triplestores once normalized
+
+Example query patterns the schema enables:
+- triplestores and their license text
+- all technologies supporting the ontology layer
+- all features attached to a given triplestore
+- all organizations that develop or maintain triplestores
+
+---
+
+## 8. Constraints and modeling choices
+
+### 8.1 Domain and range usage
+The ontology provides `rdfs:domain` and `rdfs:range` for practical data quality and discoverability. These are not closed-world constraints, but they make the schema easier to query and understand.
+
+### 8.2 Conservative datatypes
+Only clearly safe datatypes are used:
+- names and textual columns: `xsd:string`
+- URLs: `xsd:anyURI`
+- boolean indicators only where import logic may derive them reliably: `xsd:boolean`
+
+### 8.3 Limited OWL use
+OWL is used sparingly for:
+- inverse properties between `sw:broaderThan` and `sw:narrowerThan`
+- transitivity of broader/narrower conceptual hierarchy
+- optional symmetry of `sw:integratesWith`
+
+These choices improve semantic usefulness without making the ontology too complex for Fuseki.
+
+---
+
+## 9. Coverage mapping to source material
+
+## 9.1 Covered from `ontology.md`
+- ontology definition and machine-readable formalization
+- classes, individuals, attributes, relationships, axioms
+- taxonomy vs knowledge graph vs ontology
+- OWL and profiles EL, QL, RL
+- semantic reasoning: classification and consistency checking
+- foundational ontologies and vocabularies
+
+## 9.2 Covered from `semantic web.md`
+- Web of Documents vs Web of Data
+- Semantic Web architecture layers
+- IRI/URI and Unicode
+- RDF, RDFS, OWL, SPARQL
+- Turtle, JSON-LD, RDF/XML
+- Rules, proof, trust
+- Open World Assumption and Non-Unique Name Assumption
+- Schema.org, Linked Open Data, DBpedia, Wikidata, enterprise knowledge graphs
+
+## 9.3 Covered from CSV
+- triplestore product identity
+- developer/maintainer
+- license type
+- API/interface descriptions
+- key features/specializations
+
+---
+
+## 10. Recommended usage
+
+Use this ontology as:
+1. the schema graph loaded into Fuseki
+2. the target vocabulary for a CSV-to-RDF importer
+3. a base for later extension if more semantic web tools, datasets, standards, or products are added
+
+The ontology intentionally includes both abstract conceptual modeling and practical triplestore catalog structure so the resulting knowledge graph can answer both educational and technical inventory questions.
 
