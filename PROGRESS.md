@@ -137,7 +137,32 @@ Vibe Semanting defaults.
 - [x] Run `uv run pytest`.
 - [x] Commit the clean end-to-end regeneration milestone.
 
-## Milestone 3: Long-Document Coverage Completion
+## Milestone 3: Ontology Labels And Comments
+
+Goal: improve importer and viewer schema interpretation by requiring generated
+ontology classes and properties to carry human-readable annotation metadata.
+RDFS supports `rdfs:label` and `rdfs:comment`, and OWL ontologies commonly use
+those annotation properties as well.
+
+- [ ] Update designer prompts and validation so every generated `rdfs:Class`
+  and `rdf:Property` has a useful `rdfs:label`.
+- [ ] Update designer prompts and validation so every generated `rdfs:Class`
+  and `rdf:Property` has a useful `rdfs:comment` describing intended meaning
+  and usage.
+- [ ] Add tests that reject generated ontology terms missing labels or
+  comments.
+- [ ] Ensure importer ontology inspection and CSV mapping prompts include
+  labels and comments for classes and properties, not only raw URIs.
+- [ ] Add importer tests showing mapping feedback and CSV planning can use
+  labels/comments to choose existing properties more accurately.
+- [ ] Ensure viewer schema matching continues to use Fuseki-backed labels and
+  comments before consulting `design.md` as supplemental reference.
+- [ ] Run `uv run pytest`.
+- [ ] Update `README.md` and `PROGRESS.md` with the annotation validation
+  result.
+- [ ] Commit the ontology labels/comments milestone.
+
+## Milestone 4: Long-Document Coverage Completion
 
 Goal: move beyond proof-of-concept semantic webs for long unstructured source
 documents by improving coverage tracking, source structure extraction, and
@@ -226,5 +251,5 @@ Behavior to preserve:
 Open item:
 
 - Long unstructured markdown/PDF coverage is still proof-of-concept level.
-  Milestone 3 should improve coverage tracking, PDF chunking, schema
+  Milestone 4 should improve coverage tracking, PDF chunking, schema
   refinement, importer continuation, and coverage reporting.
