@@ -16,9 +16,11 @@ from rdflib import Graph
 from src.common.rdf import combine_turtle_files, load_graph, parse_turtle, serialize_graph
 from src.common.semantic_search import SemanticChunk, chunks_from_data_dir, chunks_from_graph, select_context
 from src.importer.csv_import import (
+    csv_mapping_feedback_with_suggestions,
     csv_profiles_for_prompt,
     fallback_csv_import_plan,
     generate_csv_instances,
+    repair_csv_import_plan,
     validate_csv_import_plan,
 )
 from src.importer.agent import ImporterAgent, ImportFocus, ImportResult
@@ -337,7 +339,10 @@ class ImporterWorkflow:
             validation = validate_csv_import_plan(plan, ontology_graph, self.settings.data_dir)
             if validation.ok:
                 break
-            feedback = f"Attempt {attempt} failed validation: {'; '.join(validation.errors)}"
+            feedback = (
+                f"Attempt {attempt} failed validation: "
+                f"{csv_mapping_feedback_with_suggestions(plan, ontology_graph, self.settings.data_dir)}"
+            )
             agent._record_progress(
                 self.settings.import_doc_path,
                 "## CSV Mapping Validation\n\n"
@@ -349,22 +354,38 @@ class ImporterWorkflow:
             raise RuntimeError("CSV mapping planning did not produce a plan.")
         validation = validate_csv_import_plan(plan, ontology_graph, self.settings.data_dir)
         if not validation.ok:
-            fallback_plan = fallback_csv_import_plan(
-                ontology_graph,
-                self.settings.data_dir,
-                namespace=self.settings.ontology_namespace,
-            )
-            fallback_validation = validate_csv_import_plan(fallback_plan, ontology_graph, self.settings.data_dir)
-            if not fallback_validation.ok:
-                validation.raise_for_errors()
-            plan = fallback_plan
-            agent._record_progress(
-                self.settings.import_doc_path,
-                "## CSV Mapping Fallback\n\n"
-                f"- Status: used\n"
-                f"- Reason: model mapping failed validation after {self.settings.importer_iterations} attempts\n"
-                f"- Mapping count: {len(plan.mappings)}\n"
-            )
+            repaired_plan = repair_csv_import_plan(plan, ontology_graph, self.settings.data_dir)
+            repaired_validation = validate_csv_import_plan(repaired_plan, ontology_graph, self.settings.data_dir)
+            if repaired_validation.ok:
+                plan = repaired_plan
+                agent._record_progress(
+                    self.settings.import_doc_path,
+                    "## CSV Mapping Repair\n\n"
+                    f"- Status: used\n"
+                    f"- Reason: model mapping failed validation after {self.settings.importer_iterations} attempts\n"
+                    f"- Mapping count: {len(plan.mappings)}\n"
+                )
+            else:
+                fallback_plan = fallback_csv_import_plan(
+                    ontology_graph,
+                    self.settings.data_dir,
+                    namespace=self.settings.ontology_namespace,
+                )
+                fallback_validation = validate_csv_import_plan(fallback_plan, ontology_graph, self.settings.data_dir)
+                if not fallback_validation.ok:
+                    validation.raise_for_errors()
+                plan = fallback_plan
+                agent._record_progress(
+                    self.settings.import_doc_path,
+                    "## CSV Mapping Fallback\n\n"
+                    f"- Status: used\n"
+                    f"- Reason: partial model mapping repair failed validation after {self.settings.importer_iterations} attempts\n"
+                    f"- Mapping count: {len(plan.mappings)}\n"
+                )
+        if plan is None:
+            raise RuntimeError("CSV mapping planning did not produce a plan.")
+        if not validate_csv_import_plan(plan, ontology_graph, self.settings.data_dir).ok:
+            validation.raise_for_errors()
         graph = generate_csv_instances(plan, ontology_graph, self.settings.data_dir)
         self.last_retrieval_summary["csv"] = {
             "used": True,

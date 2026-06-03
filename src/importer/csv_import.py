@@ -264,6 +264,104 @@ def fallback_csv_import_plan(
     return CsvImportPlan(mappings=tuple(mappings))
 
 
+def csv_mapping_feedback_with_suggestions(
+    plan: CsvImportPlan,
+    ontology_graph: Graph,
+    data_dir: Path,
+) -> str:
+    validation = validate_csv_import_plan(plan, ontology_graph, data_dir)
+    if validation.ok:
+        return ""
+    suggestions = _csv_mapping_suggestions(plan, ontology_graph, data_dir)
+    if suggestions:
+        return "; ".join(validation.errors + suggestions)
+    return "; ".join(validation.errors)
+
+
+def repair_csv_import_plan(
+    plan: CsvImportPlan,
+    ontology_graph: Graph,
+    data_dir: Path,
+) -> CsvImportPlan:
+    terms = inspect_ontology_terms(ontology_graph)
+    string_properties = _string_compatible_properties(ontology_graph, terms.properties)
+    if not string_properties:
+        return plan
+
+    repaired_mappings: list[CsvFileMapping] = []
+    for mapping in plan.mappings:
+        path = data_dir / mapping.csv_file
+        if not mapping.csv_file or not path.is_file():
+            repaired_mappings.append(mapping)
+            continue
+        profile = profile_csv(path)
+        columns = {column.name for column in profile.columns}
+        column_names = [column.name for column in profile.columns]
+        row_class_uri = mapping.row_class_uri
+        if URIRef(row_class_uri) not in terms.classes and terms.classes:
+            row_class_uri = str(_best_row_class(terms.classes, path.stem, column_names))
+
+        repaired_columns: list[CsvColumnMapping] = []
+        mapped_columns: set[str] = set()
+        for column_mapping in mapping.column_mappings:
+            if column_mapping.column not in columns:
+                repaired_columns.append(column_mapping)
+                continue
+            property_uri = URIRef(column_mapping.property_uri)
+            datatype_uri = DATATYPE_URIS.get(column_mapping.datatype)
+            if (
+                property_uri in terms.properties
+                and datatype_uri is not None
+                and _property_accepts_range(ontology_graph, property_uri, datatype_uri)
+            ):
+                repaired_columns.append(column_mapping)
+            else:
+                repaired_columns.append(
+                    CsvColumnMapping(
+                        column=column_mapping.column,
+                        property_uri=str(_best_string_property(string_properties, column_mapping.column, is_subject=False)),
+                        datatype="string",
+                    )
+                )
+            mapped_columns.add(column_mapping.column)
+
+        repaired_relationships: list[CsvRelationshipMapping] = []
+        for relationship in mapping.relationship_mappings:
+            if relationship.column not in columns:
+                repaired_relationships.append(relationship)
+                continue
+            property_uri = URIRef(relationship.property_uri)
+            target_class = URIRef(relationship.target_class_uri)
+            if (
+                property_uri in terms.properties
+                and target_class in terms.classes
+                and _property_accepts_range(ontology_graph, property_uri, target_class)
+            ):
+                repaired_relationships.append(relationship)
+            elif relationship.column not in mapped_columns:
+                repaired_columns.append(
+                    CsvColumnMapping(
+                        column=relationship.column,
+                        property_uri=str(_best_string_property(string_properties, relationship.column, is_subject=False)),
+                        datatype="string",
+                    )
+                )
+                mapped_columns.add(relationship.column)
+
+        repaired_mappings.append(
+            CsvFileMapping(
+                csv_file=mapping.csv_file,
+                row_class_uri=row_class_uri,
+                subject_uri_template=mapping.subject_uri_template,
+                label_template=mapping.label_template,
+                column_mappings=tuple(repaired_columns),
+                relationship_mappings=tuple(repaired_relationships),
+                skip_nulls=mapping.skip_nulls,
+            )
+        )
+    return CsvImportPlan(mappings=tuple(repaired_mappings))
+
+
 def csv_profiles_for_prompt(data_dir: Path) -> str:
     profiles = [
         profile_csv(path)
@@ -320,16 +418,24 @@ def _validate_property_range(
     expected_range: URIRef | None,
     errors: list[str],
 ) -> None:
+    if not _property_accepts_range(ontology_graph, property_uri, expected_range):
+        errors.append(f"CSV property {property_uri} range does not match expected {expected_range}.")
+
+
+def _property_accepts_range(
+    ontology_graph: Graph,
+    property_uri: URIRef,
+    expected_range: URIRef | None,
+) -> bool:
     if expected_range is None:
-        return
+        return True
     ranges = set(ontology_graph.objects(property_uri, RDFS.range))
     if not ranges:
-        return
+        return True
     allowed = _compatible_ranges(expected_range)
     if expected_range in {XSD.string, XSD.integer, XSD.decimal, XSD.boolean, XSD.date, XSD.dateTime, XSD.anyURI}:
         allowed.add(RDFS.Literal)
-    if not any(range_value in allowed for range_value in ranges):
-        errors.append(f"CSV property {property_uri} range does not match expected {expected_range}.")
+    return any(range_value in allowed for range_value in ranges)
 
 
 def _compatible_ranges(expected_range: URIRef) -> set[URIRef]:
@@ -386,6 +492,49 @@ def _best_string_property(properties: list[URIRef], column: str, is_subject: boo
         ),
     )
     return ranked[0]
+
+
+def _csv_mapping_suggestions(plan: CsvImportPlan, ontology_graph: Graph, data_dir: Path) -> list[str]:
+    terms = inspect_ontology_terms(ontology_graph)
+    string_properties = _string_compatible_properties(ontology_graph, terms.properties)
+    suggestions: list[str] = []
+    if not string_properties:
+        return suggestions
+    for mapping in plan.mappings:
+        path = data_dir / mapping.csv_file
+        if not mapping.csv_file or not path.is_file():
+            continue
+        profile = profile_csv(path)
+        columns = {column.name for column in profile.columns}
+        for column_mapping in mapping.column_mappings:
+            if column_mapping.column not in columns:
+                continue
+            property_uri = URIRef(column_mapping.property_uri)
+            datatype_uri = DATATYPE_URIS.get(column_mapping.datatype)
+            replacement = _best_string_property(string_properties, column_mapping.column, is_subject=False)
+            if property_uri not in terms.properties:
+                suggestions.append(
+                    f"{column_mapping.property_uri} does not exist; consider using {replacement} for column {column_mapping.column} instead"
+                )
+            elif datatype_uri is None or not _property_accepts_range(ontology_graph, property_uri, datatype_uri):
+                suggestions.append(
+                    f"{column_mapping.property_uri} is incompatible for column {column_mapping.column}; consider using {replacement} as a string literal property instead"
+                )
+        for relationship in mapping.relationship_mappings:
+            if relationship.column not in columns:
+                continue
+            property_uri = URIRef(relationship.property_uri)
+            target_class = URIRef(relationship.target_class_uri)
+            replacement = _best_string_property(string_properties, relationship.column, is_subject=False)
+            if property_uri not in terms.properties:
+                suggestions.append(
+                    f"{relationship.property_uri} does not exist; consider using {replacement} for column {relationship.column} as a literal mapping instead"
+                )
+            elif target_class not in terms.classes or not _property_accepts_range(ontology_graph, property_uri, target_class):
+                suggestions.append(
+                    f"{relationship.property_uri} is incompatible for relationship column {relationship.column}; consider using {replacement} as a string literal property instead"
+                )
+    return suggestions
 
 
 def _local_name(uri: URIRef) -> str:

@@ -7,9 +7,11 @@ from src.importer.csv_import import (
     CsvFileMapping,
     CsvImportPlan,
     CsvRelationshipMapping,
+    csv_mapping_feedback_with_suggestions,
     fallback_csv_import_plan,
     generate_csv_instances,
     parse_csv_import_plan,
+    repair_csv_import_plan,
     validate_csv_import_plan,
 )
 from src.common.rdf import parse_turtle
@@ -183,6 +185,74 @@ def test_fallback_csv_import_plan_uses_existing_string_properties(tmp_path) -> N
     assert plan.mappings[0].row_class_uri == str(sw.Triplestore)
     assert {mapping.property_uri for mapping in plan.mappings[0].column_mappings} <= {str(sw.name), str(sw.description)}
     assert len(graph) >= 5
+
+
+def test_csv_mapping_feedback_suggests_existing_property_for_missing_term(tmp_path) -> None:
+    data_dir = _csv_fixture(tmp_path)
+    ontology_graph = parse_turtle(ONTOLOGY)
+    plan = CsvImportPlan(
+        mappings=(
+            CsvFileMapping(
+                csv_file="stores.csv",
+                row_class_uri="http://example.org/semantic-web#Triplestore",
+                subject_uri_template="http://example.org/semantic-web/instance/triplestore/{Triplestore Name|slug}",
+                column_mappings=(
+                    CsvColumnMapping(
+                        column="Triplestore Name",
+                        property_uri="http://example.org/semantic-web#triplestoreName",
+                    ),
+                ),
+            ),
+        )
+    )
+
+    feedback = csv_mapping_feedback_with_suggestions(plan, ontology_graph, data_dir)
+
+    assert "http://example.org/semantic-web#triplestoreName does not exist" in feedback
+    assert "consider using http://example.org/semantic-web#name" in feedback
+
+
+def test_repair_csv_import_plan_preserves_valid_columns_and_repairs_invalid_relationships(tmp_path) -> None:
+    data_dir = _csv_fixture(tmp_path)
+    ontology_graph = parse_turtle(ONTOLOGY)
+    sw = Namespace("http://example.org/semantic-web#")
+    plan = CsvImportPlan(
+        mappings=(
+            CsvFileMapping(
+                csv_file="stores.csv",
+                row_class_uri=str(sw.Triplestore),
+                subject_uri_template="http://example.org/semantic-web/instance/triplestore/{Triplestore Name|slug}",
+                column_mappings=(
+                    CsvColumnMapping(
+                        column="License Type",
+                        property_uri=str(sw.licenseType),
+                    ),
+                    CsvColumnMapping(
+                        column="Triplestore Name",
+                        property_uri="http://example.org/semantic-web#triplestoreName",
+                    ),
+                ),
+                relationship_mappings=(
+                    CsvRelationshipMapping(
+                        column="Developer/Maintainer",
+                        property_uri="http://example.org/semantic-web#developedBy",
+                        target_class_uri=str(sw.Organization),
+                        target_uri_template="http://example.org/semantic-web/instance/organization/{Developer/Maintainer|slug}",
+                    ),
+                ),
+            ),
+        )
+    )
+
+    repaired = repair_csv_import_plan(plan, ontology_graph, data_dir)
+    validation = validate_csv_import_plan(repaired, ontology_graph, data_dir)
+    mapping = repaired.mappings[0]
+
+    assert validation.ok
+    assert any(column.column == "License Type" and column.property_uri == str(sw.licenseType) for column in mapping.column_mappings)
+    assert any(column.column == "Triplestore Name" and column.property_uri == str(sw.name) for column in mapping.column_mappings)
+    assert any(column.column == "Developer/Maintainer" and column.property_uri == str(sw.name) for column in mapping.column_mappings)
+    assert mapping.relationship_mappings == ()
 
 
 def test_csv_import_widens_integer_mapping_to_decimal_range(tmp_path) -> None:

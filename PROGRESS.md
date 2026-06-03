@@ -83,16 +83,16 @@ Latest completed validation:
   `data/commonly seen triplestores.csv`.
 - Latest production run:
   `SEMANTIC_WEB_MODE=production`, `gpt-5.4`, 554 ontology triples, 96 RDFS
-  classes, 11 RDF properties, 349 instance triples, and 903 combined/export
-  triples. The run included 88 deterministic CSV triples from one conservative
-  fallback CSV mapping.
+  classes, 11 RDF properties, 405 instance triples, and 959 combined/export
+  triples. The run included 77 deterministic CSV triples from one validated CSV
+  mapping after suggestion-guided retries.
 - Latest viewer validation:
-  `/api/status` reported 903 triples; the viewer answered "How many
+  `/api/status` reported 959 triples; the viewer answered "How many
   triplestores are listed?" as 11, exported Turtle that parsed successfully
-  with 903 triples, and `/api/plot.html` returned graph HTML.
+  with 959 triples, and `/api/plot.html` returned graph HTML.
 - Latest local test result:
-  `uv run pytest` reported 94 passed and 2 skipped after the end-to-end
-  regeneration and CSV fallback fix.
+  `uv run pytest` reported 96 passed and 2 skipped after suggestion-guided CSV
+  mapping retries and partial mapping repair.
 - Recent documentation commits:
   `3dff973 Improve project setup documentation`,
   `a4ef360 Document uv commands and framework packages`,
@@ -127,8 +127,9 @@ Vibe Semanting defaults.
 - [x] Remove generated `design.md`, `import.md`, `db/*.ttl`,
   `db/semantic_web_plot.html`, and Fuseki runtime/storage directories.
 - [x] Run the designer from scratch in production mode.
-- [x] Fix importer CSV behavior by adding a deterministic fallback when
-  repeated model-planned CSV mappings fail validation.
+- [x] Fix importer CSV behavior by adding concrete replacement suggestions for
+  failed model-planned mappings and partial deterministic repair for any
+  mappings that remain invalid after retries.
 - [x] Run the importer from scratch in production mode.
 - [x] Start the viewer and validate `/api/status`, `/api/export.ttl`,
   `/api/plot.html`, and a live chatbot count question.
