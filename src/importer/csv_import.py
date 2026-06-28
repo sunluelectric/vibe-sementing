@@ -512,13 +512,16 @@ def _csv_mapping_suggestions(plan: CsvImportPlan, ontology_graph: Graph, data_di
             property_uri = URIRef(column_mapping.property_uri)
             datatype_uri = DATATYPE_URIS.get(column_mapping.datatype)
             replacement = _best_string_property(string_properties, column_mapping.column, is_subject=False)
+            replacement_description = _property_suggestion_description(terms, replacement)
             if property_uri not in terms.properties:
                 suggestions.append(
-                    f"{column_mapping.property_uri} does not exist; consider using {replacement} for column {column_mapping.column} instead"
+                    f"{column_mapping.property_uri} does not exist; consider using {replacement_description} "
+                    f"for column {column_mapping.column} instead"
                 )
             elif datatype_uri is None or not _property_accepts_range(ontology_graph, property_uri, datatype_uri):
                 suggestions.append(
-                    f"{column_mapping.property_uri} is incompatible for column {column_mapping.column}; consider using {replacement} as a string literal property instead"
+                    f"{column_mapping.property_uri} is incompatible for column {column_mapping.column}; "
+                    f"consider using {replacement_description} as a string literal property instead"
                 )
         for relationship in mapping.relationship_mappings:
             if relationship.column not in columns:
@@ -526,15 +529,31 @@ def _csv_mapping_suggestions(plan: CsvImportPlan, ontology_graph: Graph, data_di
             property_uri = URIRef(relationship.property_uri)
             target_class = URIRef(relationship.target_class_uri)
             replacement = _best_string_property(string_properties, relationship.column, is_subject=False)
+            replacement_description = _property_suggestion_description(terms, replacement)
             if property_uri not in terms.properties:
                 suggestions.append(
-                    f"{relationship.property_uri} does not exist; consider using {replacement} for column {relationship.column} as a literal mapping instead"
+                    f"{relationship.property_uri} does not exist; consider using {replacement_description} "
+                    f"for column {relationship.column} as a literal mapping instead"
                 )
             elif target_class not in terms.classes or not _property_accepts_range(ontology_graph, property_uri, target_class):
                 suggestions.append(
-                    f"{relationship.property_uri} is incompatible for relationship column {relationship.column}; consider using {replacement} as a string literal property instead"
+                    f"{relationship.property_uri} is incompatible for relationship column {relationship.column}; "
+                    f"consider using {replacement_description} as a string literal property instead"
                 )
     return suggestions
+
+
+def _property_suggestion_description(terms, property_uri: URIRef) -> str:
+    parts = [str(property_uri)]
+    label = terms.labels.get(property_uri, "")
+    comment = terms.comments.get(property_uri, "")
+    if label:
+        parts.append(f"label: {label}")
+    if comment:
+        parts.append(f"comment: {comment}")
+    if len(parts) == 1:
+        return parts[0]
+    return f"{parts[0]} ({'; '.join(parts[1:])})"
 
 
 def _local_name(uri: URIRef) -> str:

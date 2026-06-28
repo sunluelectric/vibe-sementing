@@ -30,8 +30,11 @@ def test_designer_validation_rejects_property_without_domain() -> None:
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-sw:Record a rdfs:Class .
-sw:relatedTo a rdf:Property ; rdfs:range sw:Record .
+sw:Record a rdfs:Class ; rdfs:label "Record" ; rdfs:comment "A source record." .
+sw:relatedTo a rdf:Property ;
+    rdfs:label "related to" ;
+    rdfs:comment "Links records to related records." ;
+    rdfs:range sw:Record .
 """
     graph = parse_turtle(turtle)
 
@@ -41,6 +44,100 @@ sw:relatedTo a rdf:Property ; rdfs:range sw:Record .
         assert "missing rdfs:domain" in str(exc)
     else:
         raise AssertionError("Expected schema validation to reject missing domain.")
+
+
+def test_designer_validation_rejects_class_without_label() -> None:
+    turtle = """
+@prefix sw: <http://example.org/semantic-web#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+sw:Record a rdfs:Class ; rdfs:comment "A source record." .
+sw:name a rdf:Property ;
+    rdfs:label "name" ;
+    rdfs:comment "A display name." ;
+    rdfs:domain sw:Record ;
+    rdfs:range xsd:string .
+"""
+    graph = parse_turtle(turtle)
+
+    try:
+        DesignerAgent("test-model")._validate_schema_graph(graph)
+    except ValueError as exc:
+        assert "Class http://example.org/semantic-web#Record is missing rdfs:label" in str(exc)
+    else:
+        raise AssertionError("Expected schema validation to reject missing class label.")
+
+
+def test_designer_validation_rejects_class_without_comment() -> None:
+    turtle = """
+@prefix sw: <http://example.org/semantic-web#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+sw:Record a rdfs:Class ; rdfs:label "Record" .
+sw:name a rdf:Property ;
+    rdfs:label "name" ;
+    rdfs:comment "A display name." ;
+    rdfs:domain sw:Record ;
+    rdfs:range xsd:string .
+"""
+    graph = parse_turtle(turtle)
+
+    try:
+        DesignerAgent("test-model")._validate_schema_graph(graph)
+    except ValueError as exc:
+        assert "Class http://example.org/semantic-web#Record is missing rdfs:comment" in str(exc)
+    else:
+        raise AssertionError("Expected schema validation to reject missing class comment.")
+
+
+def test_designer_validation_rejects_property_without_label() -> None:
+    turtle = """
+@prefix sw: <http://example.org/semantic-web#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+sw:Record a rdfs:Class ; rdfs:label "Record" ; rdfs:comment "A source record." .
+sw:name a rdf:Property ;
+    rdfs:comment "A display name." ;
+    rdfs:domain sw:Record ;
+    rdfs:range xsd:string .
+"""
+    graph = parse_turtle(turtle)
+
+    try:
+        DesignerAgent("test-model")._validate_schema_graph(graph)
+    except ValueError as exc:
+        assert "Property http://example.org/semantic-web#name is missing rdfs:label" in str(exc)
+    else:
+        raise AssertionError("Expected schema validation to reject missing property label.")
+
+
+def test_designer_validation_rejects_property_without_comment() -> None:
+    turtle = """
+@prefix sw: <http://example.org/semantic-web#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+sw:Record a rdfs:Class ; rdfs:label "Record" ; rdfs:comment "A source record." .
+sw:name a rdf:Property ;
+    rdfs:label "name" ;
+    rdfs:domain sw:Record ;
+    rdfs:range xsd:string .
+"""
+    graph = parse_turtle(turtle)
+
+    try:
+        DesignerAgent("test-model")._validate_schema_graph(graph)
+    except ValueError as exc:
+        assert "Property http://example.org/semantic-web#name is missing rdfs:comment" in str(exc)
+    else:
+        raise AssertionError("Expected schema validation to reject missing property comment.")
 
 
 def test_designer_agent_runs_with_stubbed_response() -> None:

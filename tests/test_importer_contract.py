@@ -4,7 +4,7 @@ from src.common.llm import parse_json_object
 from src.common.rdf import parse_turtle
 from src.importer.agent import ImportFocus, ImporterAgent
 from src.importer.csv_import import CsvImportPlan
-from src.importer.validation import validate_instance_graph
+from src.importer.validation import inspect_ontology_terms, validate_instance_graph
 
 
 VALID_ONTOLOGY_TURTLE = """
@@ -13,12 +13,20 @@ VALID_ONTOLOGY_TURTLE = """
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-sw:Record a rdfs:Class .
-sw:Source a rdfs:Class .
+sw:Record a rdfs:Class ;
+    rdfs:label "Record" ;
+    rdfs:comment "A source record imported from project data." .
+sw:Source a rdfs:Class ;
+    rdfs:label "Source" ;
+    rdfs:comment "An input source for an imported record." .
 sw:hasSource a rdf:Property ;
+    rdfs:label "has source" ;
+    rdfs:comment "Links an imported record to its source." ;
     rdfs:domain sw:Record ;
     rdfs:range sw:Source .
 sw:name a rdf:Property ;
+    rdfs:label "name" ;
+    rdfs:comment "A human-readable display name." ;
     rdfs:domain rdfs:Resource ;
     rdfs:range xsd:string .
 """
@@ -78,6 +86,21 @@ inst:record-1 a sw:Record ;
 
     assert not validation.ok
     assert "not defined in the ontology" in "; ".join(validation.errors)
+
+
+def test_importer_ontology_summary_includes_labels_comments_domain_and_range() -> None:
+    ontology_graph = parse_turtle(VALID_ONTOLOGY_TURTLE)
+
+    summary = inspect_ontology_terms(ontology_graph).summary()
+
+    assert "http://example.org/semantic-web#Record" in summary
+    assert "label: Record" in summary
+    assert "comment: A source record imported from project data." in summary
+    assert "http://example.org/semantic-web#hasSource" in summary
+    assert "label: has source" in summary
+    assert "comment: Links an imported record to its source." in summary
+    assert "domain: http://example.org/semantic-web#Record" in summary
+    assert "range: http://example.org/semantic-web#Source" in summary
 
 
 def test_importer_agent_runs_with_stubbed_response() -> None:

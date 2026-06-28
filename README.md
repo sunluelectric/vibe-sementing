@@ -491,6 +491,21 @@ use `db/semantic_web.ttl` as its runtime data source. It may read `design.md`
 as reference context when mapping ordinary user wording to ontology labels, but
 answers must still be grounded in facts queried from Fuseki.
 
+### Ontology Annotation Contract
+
+Generated ontology terms must be understandable without reading raw URI names.
+The designer validates every generated `rdfs:Class` and `rdf:Property` for a
+non-empty `rdfs:label` and `rdfs:comment`. If either annotation is missing, the
+designer treats the ontology as invalid and retries with concrete feedback that
+names the affected term.
+
+The importer and viewer use those annotations as operational context. Importer
+ontology summaries and CSV mapping feedback include labels and comments next to
+URI, domain, and range details, so model-planned mappings can choose existing
+terms more accurately. The viewer queries labels and comments from Fuseki for
+schema summaries and fact retrieval before consulting `design.md` as
+supplemental reference.
+
 ## 10. CSV Handling
 
 CSV files are treated as structured data.
@@ -696,18 +711,20 @@ data/commonly seen triplestores.csv
 The latest production validation used the default `SEMANTIC_WEB_MODE=production`
 with `gpt-5.4`. It produced:
 
-- 554 ontology triples.
-- 96 RDFS classes.
-- 11 RDF properties.
-- 405 instance triples.
-- 959 combined Fuseki/export triples.
-- 77 deterministic CSV triples from one validated CSV mapping after
-  suggestion-guided retries.
+- 444 ontology triples.
+- 62 RDFS classes.
+- 38 RDF properties.
+- 0 generated class/property terms missing required labels or comments.
+- 500 instance triples.
+- 944 combined Fuseki/export triples.
+- 201 deterministic CSV triples from one validated CSV mapping.
 - Viewer answers grounded in Fuseki data.
-- Viewer answered "How many triplestores are listed?" as 11.
-- Turtle export that parsed successfully with 959 triples.
+- Viewer answered schema-interpretation questions about reasoning-oriented
+  systems, API/query-interface interoperability, and open-source learning
+  tradeoffs.
+- Turtle export that parsed successfully with 944 triples.
 - Interactive graph rendering from Fuseki-exported Turtle.
-- Test result: `96 passed, 2 skipped`.
+- Test result: `101 passed, 4 skipped`.
 
 This validates the architecture outside the original DnD example. It is still a
 proof of concept for comprehensive unstructured-document coverage; CSV rows are

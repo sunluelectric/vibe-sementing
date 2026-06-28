@@ -212,6 +212,48 @@ def test_csv_mapping_feedback_suggests_existing_property_for_missing_term(tmp_pa
     assert "consider using http://example.org/semantic-web#name" in feedback
 
 
+def test_csv_mapping_feedback_suggestions_include_property_labels_and_comments(tmp_path) -> None:
+    data_dir = _csv_fixture(tmp_path)
+    ontology_graph = parse_turtle(
+        """
+        @prefix sw: <http://example.org/semantic-web#> .
+        @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+        @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+        @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+        sw:Triplestore a rdfs:Class ;
+            rdfs:label "Triplestore" ;
+            rdfs:comment "A database system optimized for RDF triples." .
+        sw:name a rdf:Property ;
+            rdfs:label "name" ;
+            rdfs:comment "The display name of a triplestore." ;
+            rdfs:domain sw:Triplestore ;
+            rdfs:range xsd:string .
+        """
+    )
+    plan = CsvImportPlan(
+        mappings=(
+            CsvFileMapping(
+                csv_file="stores.csv",
+                row_class_uri="http://example.org/semantic-web#Triplestore",
+                subject_uri_template="http://example.org/semantic-web/instance/triplestore/{Triplestore Name|slug}",
+                column_mappings=(
+                    CsvColumnMapping(
+                        column="Triplestore Name",
+                        property_uri="http://example.org/semantic-web#triplestoreName",
+                    ),
+                ),
+            ),
+        )
+    )
+
+    feedback = csv_mapping_feedback_with_suggestions(plan, ontology_graph, data_dir)
+
+    assert "consider using http://example.org/semantic-web#name" in feedback
+    assert "label: name" in feedback
+    assert "comment: The display name of a triplestore." in feedback
+
+
 def test_repair_csv_import_plan_preserves_valid_columns_and_repairs_invalid_relationships(tmp_path) -> None:
     data_dir = _csv_fixture(tmp_path)
     ontology_graph = parse_turtle(ONTOLOGY)

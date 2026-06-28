@@ -35,6 +35,16 @@ class FakeFusekiClient:
             ]
         if "rdfs:Class" in sparql and "?class" in sparql:
             return [{"class": "http://example.org/schema#Scene", "label": "Scene", "comment": "A scene."}]
+        if "rdf:Property" in sparql and "?property" in sparql:
+            return [
+                {
+                    "property": "http://example.org/schema#hasSource",
+                    "label": "has source",
+                    "comment": "Links a record to its source.",
+                    "domain": "http://example.org/schema#Record",
+                    "range": "http://example.org/schema#Source",
+                }
+            ]
         return [{"instance": "http://example.org/instances#scene1", "label": "Cave Entrance"}]
 
     def construct_turtle(self, sparql: str) -> str:
@@ -125,6 +135,18 @@ def test_viewer_graph_summary_uses_broad_schema_limits() -> None:
 
     assert any("LIMIT 200" in query and "?class" in query for query in client.selected)
     assert any("LIMIT 200" in query and "?property" in query for query in client.selected)
+
+
+def test_viewer_properties_include_comments_for_schema_context() -> None:
+    client = FakeFusekiClient()
+    service = ViewerQueryService(get_settings(), client)
+
+    properties = service.properties()
+    summary = service.graph_summary()
+
+    assert properties[0]["comment"] == "Links a record to its source."
+    assert summary["properties"][0]["comment"] == "Links a record to its source."
+    assert any("?property rdfs:comment ?comment" in query for query in client.selected)
 
 
 def test_viewer_query_select_fails_when_fuseki_unavailable() -> None:

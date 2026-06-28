@@ -95,10 +95,11 @@ class ViewerQueryService:
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-            SELECT DISTINCT ?property ?label ?domain ?range WHERE {{
+            SELECT DISTINCT ?property ?label ?comment ?domain ?range WHERE {{
               GRAPH ?graph {{
                 ?property a rdf:Property .
                 OPTIONAL {{ ?property rdfs:label ?label . }}
+                OPTIONAL {{ ?property rdfs:comment ?comment . }}
                 OPTIONAL {{ ?property rdfs:domain ?domain . }}
                 OPTIONAL {{ ?property rdfs:range ?range . }}
               }}
@@ -134,7 +135,7 @@ class ViewerQueryService:
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-            SELECT DISTINCT ?instance ?class ?label ?predicate ?predicateLabel ?object ?objectLabel WHERE {{
+            SELECT DISTINCT ?instance ?class ?label ?predicate ?predicateLabel ?predicateComment ?object ?objectLabel ?objectComment WHERE {{
               GRAPH ?schemaGraph {{
                 ?class a rdfs:Class .
                 OPTIONAL {{ ?class rdfs:label ?classLabel . }}
@@ -149,7 +150,9 @@ class ViewerQueryService:
                 OPTIONAL {{ ?instance rdfs:label ?label . }}
                 ?instance ?predicate ?object .
                 OPTIONAL {{ ?predicate rdfs:label ?predicateLabel . }}
+                OPTIONAL {{ ?predicate rdfs:comment ?predicateComment . }}
                 OPTIONAL {{ ?object rdfs:label ?objectLabel . }}
+                OPTIONAL {{ ?object rdfs:comment ?objectComment . }}
               }}
             }}
             ORDER BY LCASE(STR(COALESCE(?label, ?instance))) LCASE(STR(COALESCE(?predicateLabel, ?predicate)))
@@ -205,7 +208,7 @@ class ViewerQueryService:
             f"""
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-            SELECT DISTINCT ?subject ?subjectLabel ?predicate ?predicateLabel ?object ?objectLabel WHERE {{
+            SELECT DISTINCT ?subject ?subjectLabel ?predicate ?predicateLabel ?predicateComment ?object ?objectLabel ?objectComment WHERE {{
               GRAPH ?matchGraph {{
                 ?subject ?matchPredicate ?text .
                 FILTER(isLiteral(?text))
@@ -215,7 +218,9 @@ class ViewerQueryService:
                 ?subject ?predicate ?object .
                 OPTIONAL {{ ?subject rdfs:label ?subjectLabel . }}
                 OPTIONAL {{ ?predicate rdfs:label ?predicateLabel . }}
+                OPTIONAL {{ ?predicate rdfs:comment ?predicateComment . }}
                 OPTIONAL {{ ?object rdfs:label ?objectLabel . }}
+                OPTIONAL {{ ?object rdfs:comment ?objectComment . }}
               }}
             }}
             ORDER BY LCASE(STR(COALESCE(?subjectLabel, ?subject))) LCASE(STR(COALESCE(?predicateLabel, ?predicate)))
@@ -230,7 +235,7 @@ class ViewerQueryService:
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-            SELECT DISTINCT ?subject ?subjectLabel ?predicate ?predicateLabel ?object ?objectLabel WHERE {{
+            SELECT DISTINCT ?subject ?subjectLabel ?predicate ?predicateLabel ?predicateComment ?object ?objectLabel ?objectComment WHERE {{
               GRAPH ?labelGraph {{
                 ?subject rdfs:label ?subjectLabel .
                 FILTER(STRLEN(STR(?subjectLabel)) >= 4)
@@ -241,7 +246,9 @@ class ViewerQueryService:
               GRAPH ?factGraph {{
                 ?subject ?predicate ?object .
                 OPTIONAL {{ ?predicate rdfs:label ?predicateLabel . }}
+                OPTIONAL {{ ?predicate rdfs:comment ?predicateComment . }}
                 OPTIONAL {{ ?object rdfs:label ?objectLabel . }}
+                OPTIONAL {{ ?object rdfs:comment ?objectComment . }}
               }}
             }}
             ORDER BY LCASE(STR(?subjectLabel)) LCASE(STR(COALESCE(?predicateLabel, ?predicate)))
@@ -258,12 +265,14 @@ class ViewerQueryService:
             f"""
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-            SELECT DISTINCT ?subject ?subjectLabel ?predicate ?predicateLabel ?object ?objectLabel WHERE {{
+            SELECT DISTINCT ?subject ?subjectLabel ?predicate ?predicateLabel ?predicateComment ?object ?objectLabel ?objectComment WHERE {{
               GRAPH ?graph {{
                 ?subject ?predicate ?object .
                 OPTIONAL {{ ?subject rdfs:label ?subjectLabel . }}
                 OPTIONAL {{ ?predicate rdfs:label ?predicateLabel . }}
+                OPTIONAL {{ ?predicate rdfs:comment ?predicateComment . }}
                 OPTIONAL {{ ?object rdfs:label ?objectLabel . }}
+                OPTIONAL {{ ?object rdfs:comment ?objectComment . }}
               }}
             }}
             ORDER BY LCASE(STR(COALESCE(?subjectLabel, ?subject))) LCASE(STR(COALESCE(?predicateLabel, ?predicate)))

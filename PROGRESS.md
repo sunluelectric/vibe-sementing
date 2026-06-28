@@ -82,17 +82,20 @@ Latest completed validation:
   `data/semantic web.md`, `data/ontology.md`, and
   `data/commonly seen triplestores.csv`.
 - Latest production run:
-  `SEMANTIC_WEB_MODE=production`, `gpt-5.4`, 554 ontology triples, 96 RDFS
-  classes, 11 RDF properties, 405 instance triples, and 959 combined/export
-  triples. The run included 77 deterministic CSV triples from one validated CSV
-  mapping after suggestion-guided retries.
+  `SEMANTIC_WEB_MODE=production`, `gpt-5.4`, 444 ontology triples, 62 RDFS
+  classes, 38 RDF properties, 0 class/property terms missing required labels or
+  comments, 500 instance triples, and 944 combined/export triples. The run
+  included 201 deterministic CSV triples from one validated CSV mapping.
 - Latest viewer validation:
-  `/api/status` reported 959 triples; the viewer answered "How many
-  triplestores are listed?" as 11, exported Turtle that parsed successfully
-  with 959 triples, and `/api/plot.html` returned graph HTML.
+  `/api/status` reported 944 triples; the viewer answered three
+  schema-interpretation questions about reasoning-oriented systems,
+  API/query-interface interoperability, and open-source learning tradeoffs;
+  exported Turtle parsed successfully with 944 triples; and `/api/plot.html`
+  returned graph HTML.
 - Latest local test result:
-  `uv run pytest` reported 96 passed and 2 skipped after suggestion-guided CSV
-  mapping retries and partial mapping repair.
+  `uv run pytest` reported 101 passed and 4 skipped after ontology annotation
+  validation, importer annotation summaries, CSV suggestion annotations, and
+  viewer schema-context updates.
 - Recent documentation commits:
   `3dff973 Improve project setup documentation`,
   `a4ef360 Document uv commands and framework packages`,
@@ -142,25 +145,48 @@ Vibe Semanting defaults.
 Goal: improve importer and viewer schema interpretation by requiring generated
 ontology classes and properties to carry human-readable annotation metadata.
 RDFS supports `rdfs:label` and `rdfs:comment`, and OWL ontologies commonly use
-those annotation properties as well.
+those annotation properties as well. This milestone should make annotation
+metadata a validation contract, not only a prompt preference.
 
-- [ ] Update designer prompts and validation so every generated `rdfs:Class`
-  and `rdf:Property` has a useful `rdfs:label`.
-- [ ] Update designer prompts and validation so every generated `rdfs:Class`
-  and `rdf:Property` has a useful `rdfs:comment` describing intended meaning
-  and usage.
-- [ ] Add tests that reject generated ontology terms missing labels or
-  comments.
-- [ ] Ensure importer ontology inspection and CSV mapping prompts include
-  labels and comments for classes and properties, not only raw URIs.
-- [ ] Add importer tests showing mapping feedback and CSV planning can use
-  labels/comments to choose existing properties more accurately.
-- [ ] Ensure viewer schema matching continues to use Fuseki-backed labels and
-  comments before consulting `design.md` as supplemental reference.
-- [ ] Run `uv run pytest`.
-- [ ] Update `README.md` and `PROGRESS.md` with the annotation validation
-  result.
-- [ ] Commit the ontology labels/comments milestone.
+Implementation plan:
+
+- [x] Add focused designer validation tests for ontology annotations:
+  reject a generated `rdfs:Class` without `rdfs:label`, reject one without
+  `rdfs:comment`, reject an `rdf:Property` without `rdfs:label`, reject one
+  without `rdfs:comment`, and accept terms with non-empty useful annotations.
+- [x] Implement the ontology annotation validator in the designer validation
+  path so every generated `rdfs:Class` and `rdf:Property` must have at least
+  one non-empty `rdfs:label` and one non-empty `rdfs:comment`.
+- [x] Wire annotation validation into designer retry feedback so the model gets
+  concrete messages naming exactly which class or property is missing a label
+  or comment.
+- [x] Tighten both test and production designer prompts so labels and comments
+  are required for every class and property, not just important terms.
+- [x] Add importer tests for ontology term inspection that assert class and
+  property summaries expose URI, label, comment, domain, and range when present.
+- [x] Update importer ontology inspection and CSV mapping prompts so model
+  planning sees labels and comments alongside raw URIs, preserving domain-neutral
+  behavior and existing fallback behavior when comments are absent.
+- [x] Add importer CSV mapping feedback tests showing invalid model-planned
+  properties receive replacement suggestions that include existing labels and
+  comments, not only URI strings.
+- [x] Add viewer schema-context tests that confirm Fuseki-backed labels and
+  comments are included in schema summaries before `design.md` is used as
+  supplemental reference.
+- [x] Update viewer schema/query context generation if needed so labels and
+  comments are consistently available for exact lookup, semantic class matching,
+  ambiguity clarification, and relevant fact retrieval.
+- [x] Run targeted tests after each implementation slice, then run
+  `uv run pytest`.
+- [x] Regenerate the current dataset in production mode with the updated
+  designer and importer, then validate `db/ontology.ttl`,
+  `db/instances.ttl`, `db/semantic_web.ttl`, viewer `/api/status`,
+  `/api/export.ttl`, `/api/plot.html`, and at least three viewer questions that
+  depend on schema-label interpretation.
+- [x] Update `README.md` with the annotation contract and validation behavior.
+- [x] Update `README.md` with the latest post-change regeneration result.
+- [x] Update this `PROGRESS.md` milestone with completed validation numbers.
+- [x] Commit the ontology labels/comments milestone.
 
 ## Milestone 4: Long-Document Coverage Completion
 

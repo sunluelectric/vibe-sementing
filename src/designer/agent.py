@@ -44,7 +44,8 @@ Ontology requirements:
   xsd:date, or xsd:dateTime only when the profile and column semantics both
   clearly support that datatype. Prefer xsd:decimal over xsd:integer when a
   numeric column may contain fractional values.
-- Use rdfs:label and rdfs:comment on important classes and properties.
+- Every generated rdfs:Class and rdf:Property must have a non-empty
+  rdfs:label and rdfs:comment.
 - Prefer broad reusable properties over highly specific one-off properties.
 - Avoid enumerating source facts as schema terms.
 - Avoid blank nodes, RDF lists, restrictions, union classes, and complicated
@@ -93,7 +94,8 @@ Ontology requirements:
   xsd:date, or xsd:dateTime only when the profile and column semantics both
   clearly support that datatype. Prefer xsd:decimal over xsd:integer when a
   numeric column may contain fractional values.
-- Use rdfs:label and rdfs:comment on important classes and properties.
+- Every generated rdfs:Class and rdf:Property must have a non-empty
+  rdfs:label and rdfs:comment.
 - Prefer reusable modeling patterns, but do not collapse distinct source
   concepts merely to stay brief.
 - Avoid enumerating source facts as schema terms; instance facts belong in the
@@ -429,11 +431,23 @@ class DesignerAgent:
         if not property_terms:
             raise ValueError("Ontology must define at least one rdf:Property.")
 
+        for class_term in sorted(class_terms, key=str):
+            self._validate_annotation(graph, class_term, RDFS.label, "Class")
+            self._validate_annotation(graph, class_term, RDFS.comment, "Class")
+
         for prop in sorted(property_terms, key=str):
+            self._validate_annotation(graph, prop, RDFS.label, "Property")
+            self._validate_annotation(graph, prop, RDFS.comment, "Property")
             if (prop, RDFS.domain, None) not in graph:
                 raise ValueError(f"Property {prop} is missing rdfs:domain.")
             if (prop, RDFS.range, None) not in graph:
                 raise ValueError(f"Property {prop} is missing rdfs:range.")
+
+    @staticmethod
+    def _validate_annotation(graph: Graph, term, predicate, term_kind: str) -> None:
+        values = [str(value).strip() for value in graph.objects(term, predicate)]
+        if not any(values):
+            raise ValueError(f"{term_kind} {term} is missing {predicate.n3(graph.namespace_manager)}.")
 
     def _record_progress(self, progress_path: Path | None, entry: str) -> None:
         self.progress_entries.append(entry.strip())

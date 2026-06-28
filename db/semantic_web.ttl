@@ -4,1144 +4,1155 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-ns1:API a rdfs:Class,
-        owl:Class ;
-    rdfs:label "API" ;
-    rdfs:comment "An application programming interface." ;
-    rdfs:subClassOf ns1:InterfaceTechnology .
+ns1:APIInterface a rdfs:Class ;
+    rdfs:label "API or interface" ;
+    rdfs:comment "An application programming interface, endpoint style, workbench, driver, or native interface used to access a system." ;
+    rdfs:subClassOf ns1:TechnologyArtifact .
 
-ns1:ApplicationArea a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Application area" ;
-    rdfs:comment "A practical area where semantic web technologies are applied." ;
-    rdfs:subClassOf ns1:Concept .
-
-ns1:AttributeConcept a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Attribute concept" ;
-    rdfs:comment "A concept corresponding to datatype attributes." ;
-    rdfs:subClassOf ns1:ModelingConstruct .
-
-ns1:AxiomComponent a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Axiom component" ;
-    rdfs:comment "An axiom or constraint component in an ontology." ;
-    rdfs:subClassOf ns1:OntologyComponent .
-
-ns1:AxiomConcept a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Axiom concept" ;
-    rdfs:comment "A concept corresponding to logical axioms or constraints." ;
-    rdfs:subClassOf ns1:ModelingConstruct .
-
-ns1:CharacterEncoding a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Character encoding" ;
-    rdfs:comment "A character encoding technology such as Unicode." ;
-    rdfs:subClassOf ns1:Technology .
-
-ns1:ClassConcept a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Class concept" ;
-    rdfs:comment "A concept corresponding to classes as ontology primitives." ;
-    rdfs:subClassOf ns1:ModelingConstruct .
-
-ns1:ClassificationReasoning a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Classification reasoning" ;
-    rdfs:comment "Reasoning process that computes inferred class hierarchies or memberships." ;
-    rdfs:subClassOf ns1:ReasoningProcess .
-
-ns1:ClosedWorldAssumption a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Closed World Assumption" ;
-    rdfs:comment "Assumption that absent information is treated as false." ;
-    rdfs:subClassOf ns1:Principle .
-
-ns1:Concept a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Concept" ;
-    rdfs:comment "An abstract conceptual unit in the modeled domain." ;
+ns1:Agent a rdfs:Class ;
+    rdfs:label "Agent" ;
+    rdfs:comment "An actor such as a person, organization, or community that creates, maintains, publishes, or uses semantic technologies and artifacts." ;
     rdfs:subClassOf ns1:Entity .
 
-ns1:ConsistencyChecking a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Consistency checking" ;
-    rdfs:comment "Reasoning process that detects logical contradictions." ;
-    rdfs:subClassOf ns1:ReasoningProcess .
+ns1:ArchitectureLayer a rdfs:Class ;
+    rdfs:label "Architecture layer" ;
+    rdfs:comment "A layer in the Semantic Web architectural stack." ;
+    rdfs:subClassOf ns1:ConceptualTopic .
 
-ns1:DataIntegrationUseCase a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Data integration use case" ;
-    rdfs:comment "Application area focused on integrating heterogeneous data sources." ;
-    rdfs:subClassOf ns1:ApplicationArea .
+ns1:Assumption a rdfs:Class ;
+    rdfs:label "Assumption" ;
+    rdfs:comment "A logical or modeling assumption adopted within semantic technologies." ;
+    rdfs:subClassOf ns1:Principle .
 
-ns1:DataModelLayer a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Data model layer" ;
-    rdfs:comment "Layer concerning RDF and RDFS data modeling." ;
-    rdfs:subClassOf ns1:SemanticArchitectureLayer .
+ns1:AttributeProperty a rdfs:Class ;
+    rdfs:label "Attribute property" ;
+    rdfs:comment "A property that links a resource to a literal data value." ;
+    rdfs:subClassOf ns1:PropertyConcept ;
+    owl:disjointWith ns1:RelationshipProperty .
 
-ns1:DataStoreTechnology a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Data store technology" ;
-    rdfs:comment "A technology used to persist, query, or manage structured data." ;
-    rdfs:subClassOf ns1:Technology .
-
-ns1:DataVirtualizationUseCase a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Data virtualization use case" ;
-    rdfs:comment "Application area focused on virtualized access across distributed or heterogeneous data stores." ;
-    rdfs:subClassOf ns1:ApplicationArea .
-
-ns1:Dataset a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Dataset" ;
-    rdfs:comment "A structured collection of data." ;
-    rdfs:subClassOf ns1:KnowledgeArtifact .
-
-ns1:DatatypePropertyComponent a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Datatype property component" ;
-    rdfs:comment "A datatype property component in an ontology." ;
+ns1:Axiom a rdfs:Class ;
+    rdfs:label "Axiom" ;
+    rdfs:comment "An explicit logical assertion or rule that constrains or defines the ontology." ;
     rdfs:subClassOf ns1:OntologyComponent .
 
-ns1:DeveloperOrganization a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Developer organization" ;
-    rdfs:comment "An organization responsible for development of a technology or artifact." ;
+ns1:Capability a rdfs:Class ;
+    rdfs:label "Capability" ;
+    rdfs:comment "A functional ability that a software system or technology can provide." ;
+    rdfs:subClassOf ns1:ConceptualTopic .
+
+ns1:ClassConcept a rdfs:Class ;
+    rdfs:label "Class concept" ;
+    rdfs:comment "A concept representing a class or category in an ontology." ;
+    rdfs:subClassOf ns1:OntologyComponent .
+
+ns1:ClassificationTask a rdfs:Class ;
+    rdfs:label "Classification task" ;
+    rdfs:comment "An inference task that computes implied class membership or taxonomy structure." ;
+    rdfs:subClassOf ns1:InferenceTask .
+
+ns1:Community a rdfs:Class ;
+    rdfs:label "Community" ;
+    rdfs:comment "A group or community that shares and develops a common conceptualization, vocabulary, or technology practice." ;
     rdfs:subClassOf ns1:Organization .
 
-ns1:DistributedAnalyticsFeature a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Distributed analytics feature" ;
-    rdfs:comment "A feature supporting distributed or massively parallel analytics." ;
-    rdfs:subClassOf ns1:Feature .
+ns1:ConceptualTopic a rdfs:Class ;
+    rdfs:label "Conceptual topic" ;
+    rdfs:comment "A non-material conceptual subject, principle, feature, or topic relevant to the domain." ;
+    rdfs:subClassOf ns1:Entity .
 
-ns1:Document a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Document" ;
-    rdfs:comment "A textual or digital document." ;
+ns1:ConsistencyCheckingTask a rdfs:Class ;
+    rdfs:label "Consistency checking task" ;
+    rdfs:comment "An inference task that detects logical contradictions or incompatible assertions." ;
+    rdfs:subClassOf ns1:InferenceTask .
+
+ns1:Constraint a rdfs:Class ;
+    rdfs:label "Constraint" ;
+    rdfs:comment "A logical or structural restriction used to limit or validate modeling choices and data assertions." ;
+    rdfs:subClassOf ns1:Axiom .
+
+ns1:DataModel a rdfs:Class ;
+    rdfs:label "Data model" ;
+    rdfs:comment "A formal model for structuring and interpreting data, such as RDF or RDF Schema." ;
+    rdfs:subClassOf ns1:TechnologyArtifact .
+
+ns1:DataModelLayer a rdfs:Class ;
+    rdfs:label "Data model layer" ;
+    rdfs:comment "The layer covering RDF and RDF Schema as graph-oriented data models." ;
+    rdfs:subClassOf ns1:ArchitectureLayer .
+
+ns1:DatabaseManagementSystem a rdfs:Class ;
+    rdfs:label "Database management system" ;
+    rdfs:comment "A software system that manages persistent data storage and retrieval." ;
+    rdfs:subClassOf ns1:SoftwareSystem .
+
+ns1:Dataset a rdfs:Class ;
+    rdfs:label "Dataset" ;
+    rdfs:comment "A structured collection of data that may be expressed or published using semantic web technologies." ;
     rdfs:subClassOf ns1:KnowledgeArtifact .
 
-ns1:EnterpriseKnowledgeGraph a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Enterprise Knowledge Graph" ;
-    rdfs:comment "Application area for internal enterprise knowledge graph systems." ;
-    rdfs:subClassOf ns1:ApplicationArea .
-
-ns1:Entity a rdfs:Class,
-        owl:Class ;
+ns1:Entity a rdfs:Class ;
     rdfs:label "Entity" ;
-    rdfs:comment "Top-level class for described things in this ontology." .
+    rdfs:comment "A broad top-level class for any conceptual, organizational, technological, or informational thing in this schema." .
 
-ns1:Feature a rdfs:Class,
-        owl:Class ;
+ns1:Feature a rdfs:Class ;
     rdfs:label "Feature" ;
-    rdfs:comment "A capability, property, or specialization of a technology or platform." ;
-    rdfs:subClassOf ns1:Concept .
+    rdfs:comment "A characteristic, specialization, or notable functional aspect of a software system or semantic artifact." ;
+    rdfs:subClassOf ns1:ConceptualTopic .
 
-ns1:FoundationalOntology a rdfs:Class,
-        owl:Class ;
+ns1:FoundationalOntology a rdfs:Class ;
     rdfs:label "Foundational ontology" ;
-    rdfs:comment "An upper-level or reusable ontology intended to support broad interoperability." ;
+    rdfs:comment "A domain-neutral or upper-level ontology used as a structural foundation for other ontologies." ;
     rdfs:subClassOf ns1:Ontology .
 
-ns1:GraphDataSystem a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Graph data system" ;
-    rdfs:comment "A data management system centered on graph structures." ;
-    rdfs:subClassOf ns1:DataStoreTechnology .
-
-ns1:GraphDatabase a rdfs:Class,
-        owl:Class ;
+ns1:GraphDatabase a rdfs:Class ;
     rdfs:label "Graph database" ;
-    rdfs:comment "A graph-oriented database technology." ;
-    rdfs:subClassOf ns1:GraphDataSystem .
+    rdfs:comment "A database management system centered on graph-structured data and graph-oriented access patterns." ;
+    rdfs:subClassOf ns1:DatabaseManagementSystem .
 
-ns1:HighPerformanceFeature a rdfs:Class,
-        owl:Class ;
-    rdfs:label "High-performance feature" ;
-    rdfs:comment "A feature focused on high-performance graph or query execution." ;
-    rdfs:subClassOf ns1:Feature .
-
-ns1:IRI a rdfs:Class,
-        owl:Class ;
-    rdfs:label "IRI" ;
-    rdfs:comment "Internationalized Resource Identifier." ;
-    rdfs:subClassOf ns1:Identifier .
-
-ns1:Identifier a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Identifier" ;
-    rdfs:comment "A construct or value used to identify a resource." ;
-    rdfs:subClassOf ns1:Concept .
-
-ns1:IdentifierLayer a rdfs:Class,
-        owl:Class ;
+ns1:IdentifierLayer a rdfs:Class ;
     rdfs:label "Identifier layer" ;
-    rdfs:comment "Layer concerning URI, IRI, and character-set foundations." ;
-    rdfs:subClassOf ns1:SemanticArchitectureLayer .
+    rdfs:comment "The layer covering resource identification and character sets such as URI, IRI, and Unicode." ;
+    rdfs:subClassOf ns1:ArchitectureLayer .
 
-ns1:IndividualConcept a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Individual concept" ;
-    rdfs:comment "A concept corresponding to individuals or instances as ontology primitives." ;
-    rdfs:subClassOf ns1:ModelingConstruct .
+ns1:IdentifierScheme a rdfs:Class ;
+    rdfs:label "Identifier scheme" ;
+    rdfs:comment "A scheme for identifying resources, such as URI or IRI." ;
+    rdfs:subClassOf ns1:TechnologyArtifact .
 
-ns1:InterfaceTechnology a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Interface technology" ;
-    rdfs:comment "An API, interface, protocol, endpoint, or access mechanism." ;
-    rdfs:subClassOf ns1:Technology .
-
-ns1:JSONLDFormat a rdfs:Class,
-        owl:Class ;
-    rdfs:label "JSON-LD format" ;
-    rdfs:comment "JSON for Linking Data serialization format." ;
-    rdfs:subClassOf ns1:SerializationFormat .
-
-ns1:KnowledgeArtifact a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Knowledge artifact" ;
-    rdfs:comment "A human- or machine-oriented artifact representing knowledge, such as a document, ontology, taxonomy, standard, or dataset." ;
-    rdfs:subClassOf ns1:Entity .
-
-ns1:KnowledgeGraph a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Knowledge graph" ;
-    rdfs:comment "A graph of entities and relationships representing structured knowledge." ;
-    rdfs:subClassOf ns1:Dataset .
-
-ns1:KnowledgeGraphPlatform a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Knowledge graph platform" ;
-    rdfs:comment "A platform supporting the creation, management, or use of knowledge graphs." ;
-    rdfs:subClassOf ns1:Technology .
-
-ns1:KnowledgeRepresentationLanguage a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Knowledge representation language" ;
-    rdfs:comment "A language for expressing structured semantics or knowledge models." ;
-    rdfs:subClassOf ns1:LanguageTechnology .
-
-ns1:LanguageTechnology a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Language technology" ;
-    rdfs:comment "A formal language used for representation, querying, or exchange." ;
-    rdfs:subClassOf ns1:Technology .
-
-ns1:LicenseOffering a rdfs:Class,
-        owl:Class ;
-    rdfs:label "License offering" ;
-    rdfs:comment "A license arrangement or licensing description associated with a product or technology." ;
-    rdfs:subClassOf ns1:Entity .
-
-ns1:LinkedOpenData a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Linked Open Data" ;
-    rdfs:comment "Application area concerning open, interlinked structured datasets." ;
-    rdfs:subClassOf ns1:ApplicationArea .
-
-ns1:LogicProfile a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Logic profile" ;
-    rdfs:comment "A computational profile of an ontology language." ;
-    rdfs:subClassOf ns1:Concept .
-
-ns1:MaintainerOrganization a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Maintainer organization" ;
-    rdfs:comment "An organization responsible for maintenance of a technology or artifact." ;
-    rdfs:subClassOf ns1:Organization .
-
-ns1:ManagedServiceFeature a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Managed service feature" ;
-    rdfs:comment "A feature indicating managed-service operation or delivery." ;
-    rdfs:subClassOf ns1:Feature .
-
-ns1:MicrodataTechnology a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Microdata technology" ;
-    rdfs:comment "Markup technology for embedding structured data in HTML." ;
-    rdfs:subClassOf ns1:Technology .
-
-ns1:ModelingConstruct a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Modeling construct" ;
-    rdfs:comment "A conceptual construct used in semantic modeling." ;
-    rdfs:subClassOf ns1:Concept .
-
-ns1:MultiModelFeature a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Multi-model feature" ;
-    rdfs:comment "A feature supporting multiple data models or paradigms." ;
-    rdfs:subClassOf ns1:Feature .
-
-ns1:NonUniqueNameAssumption a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Non-Unique Name Assumption" ;
-    rdfs:comment "Assumption that different identifiers may denote the same real-world entity." ;
-    rdfs:subClassOf ns1:Principle .
-
-ns1:OWL2ELProfile a rdfs:Class,
-        owl:Class ;
-    rdfs:label "OWL 2 EL profile" ;
-    rdfs:comment "OWL 2 EL profile for large class hierarchies with tractable reasoning." ;
-    rdfs:subClassOf ns1:LogicProfile .
-
-ns1:OWL2QLProfile a rdfs:Class,
-        owl:Class ;
-    rdfs:label "OWL 2 QL profile" ;
-    rdfs:comment "OWL 2 QL profile optimized for query answering over relational systems." ;
-    rdfs:subClassOf ns1:LogicProfile .
-
-ns1:OWL2RLProfile a rdfs:Class,
-        owl:Class ;
-    rdfs:label "OWL 2 RL profile" ;
-    rdfs:comment "OWL 2 RL profile optimized for rule-based reasoning." ;
-    rdfs:subClassOf ns1:LogicProfile .
-
-ns1:OWLTechnology a rdfs:Class,
-        owl:Class ;
-    rdfs:label "OWL technology" ;
-    rdfs:comment "Technology or standard based on the Web Ontology Language." ;
-    rdfs:subClassOf ns1:KnowledgeRepresentationLanguage,
-        ns1:Standard .
-
-ns1:ObjectPropertyComponent a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Object property component" ;
-    rdfs:comment "An object property component in an ontology." ;
+ns1:Individual a rdfs:Class ;
+    rdfs:label "Individual" ;
+    rdfs:comment "A concrete instance belonging to one or more classes in an ontology or knowledge graph." ;
     rdfs:subClassOf ns1:OntologyComponent .
 
-ns1:Ontology a rdfs:Class,
-        owl:Class ;
+ns1:InferenceTask a rdfs:Class ;
+    rdfs:label "Inference task" ;
+    rdfs:comment "A specific reasoning task performed by a reasoner or inference engine." ;
+    rdfs:subClassOf ns1:ConceptualTopic .
+
+ns1:KnowledgeArtifact a rdfs:Class ;
+    rdfs:label "Knowledge artifact" ;
+    rdfs:comment "A formal or semi-formal artifact used to represent, organize, describe, or exchange knowledge." ;
+    rdfs:subClassOf ns1:Entity .
+
+ns1:KnowledgeGraph a rdfs:Class ;
+    rdfs:label "Knowledge graph" ;
+    rdfs:comment "A graph of entities connected by typed relationships, typically containing instance-level data." ;
+    rdfs:subClassOf ns1:KnowledgeArtifact .
+
+ns1:Language a rdfs:Class ;
+    rdfs:label "Language" ;
+    rdfs:comment "A formal language used for modeling, querying, reasoning, or serialization in the Semantic Web domain." ;
+    rdfs:subClassOf ns1:TechnologyArtifact .
+
+ns1:LicenseModel a rdfs:Class ;
+    rdfs:label "License model" ;
+    rdfs:comment "A licensing arrangement or distribution model associated with a software system." ;
+    rdfs:subClassOf ns1:ConceptualTopic .
+
+ns1:LogicalProfile a rdfs:Class ;
+    rdfs:label "Logical profile" ;
+    rdfs:comment "A constrained sublanguage or profile of an ontology language optimized for particular reasoning or query behavior." ;
+    rdfs:subClassOf ns1:ConceptualTopic .
+
+ns1:ManagedService a rdfs:Class ;
+    rdfs:label "Managed service" ;
+    rdfs:comment "A software offering operated as a managed service rather than solely as self-hosted software." ;
+    rdfs:subClassOf ns1:SoftwareSystem .
+
+ns1:NonUniqueNameAssumption a rdfs:Class ;
+    rdfs:label "Non-Unique Name Assumption" ;
+    rdfs:comment "An assumption that distinct identifiers may refer to the same real-world entity unless asserted otherwise." ;
+    rdfs:subClassOf ns1:Assumption .
+
+ns1:OWL2ELProfile a rdfs:Class ;
+    rdfs:label "OWL 2 EL profile" ;
+    rdfs:comment "A logical profile of OWL 2 oriented toward large vocabularies and polynomial-time reasoning." ;
+    rdfs:subClassOf ns1:LogicalProfile .
+
+ns1:OWL2QLProfile a rdfs:Class ;
+    rdfs:label "OWL 2 QL profile" ;
+    rdfs:comment "A logical profile of OWL 2 oriented toward query answering and relational database integration." ;
+    rdfs:subClassOf ns1:LogicalProfile .
+
+ns1:OWL2RLProfile a rdfs:Class ;
+    rdfs:label "OWL 2 RL profile" ;
+    rdfs:comment "A logical profile of OWL 2 oriented toward scalable rule-based reasoning." ;
+    rdfs:subClassOf ns1:LogicalProfile .
+
+ns1:Ontology a rdfs:Class ;
     rdfs:label "Ontology" ;
     rdfs:comment "A formal, explicit specification of a shared conceptualization." ;
     rdfs:subClassOf ns1:KnowledgeArtifact .
 
-ns1:OntologyClassComponent a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Ontology class component" ;
-    rdfs:comment "A class component in an ontology." ;
-    rdfs:subClassOf ns1:OntologyComponent .
-
-ns1:OntologyComponent a rdfs:Class,
-        owl:Class ;
+ns1:OntologyComponent a rdfs:Class ;
     rdfs:label "Ontology component" ;
-    rdfs:comment "A component used in the structure of an ontology." ;
-    rdfs:subClassOf ns1:Concept .
+    rdfs:comment "A structural primitive or component used within an ontology." ;
+    rdfs:subClassOf ns1:KnowledgeArtifact .
 
-ns1:OntologyIndividualComponent a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Ontology individual component" ;
-    rdfs:comment "An individual or instance component in an ontology." ;
-    rdfs:subClassOf ns1:OntologyComponent .
+ns1:OntologyLanguage a rdfs:Class ;
+    rdfs:label "Ontology language" ;
+    rdfs:comment "A formal language used to define ontologies and semantic constraints." ;
+    rdfs:subClassOf ns1:Language .
 
-ns1:OntologyLayer a rdfs:Class,
-        owl:Class ;
+ns1:OntologyLayer a rdfs:Class ;
     rdfs:label "Ontology layer" ;
-    rdfs:comment "Layer concerning ontologies such as OWL and SKOS." ;
-    rdfs:subClassOf ns1:SemanticArchitectureLayer .
+    rdfs:comment "The layer covering richer semantic vocabularies and ontology languages such as OWL and SKOS." ;
+    rdfs:subClassOf ns1:ArchitectureLayer .
 
-ns1:OpenWorldAssumption a rdfs:Class,
-        owl:Class ;
+ns1:OpenWorldAssumption a rdfs:Class ;
     rdfs:label "Open World Assumption" ;
-    rdfs:comment "Assumption that missing information is unknown rather than false." ;
-    rdfs:subClassOf ns1:Principle .
+    rdfs:comment "An assumption that missing information should be treated as unknown rather than false." ;
+    rdfs:subClassOf ns1:Assumption .
 
-ns1:Organization a rdfs:Class,
-        owl:Class ;
+ns1:Organization a rdfs:Class ;
     rdfs:label "Organization" ;
-    rdfs:comment "An organization such as a vendor, standards body, maintainer, or developer." ;
-    rdfs:subClassOf ns1:Entity .
+    rdfs:comment "An organization such as a company, foundation, standards body, or project maintainer." ;
+    rdfs:subClassOf ns1:Agent .
 
-ns1:Principle a rdfs:Class,
-        owl:Class ;
+ns1:Person a rdfs:Class ;
+    rdfs:label "Person" ;
+    rdfs:comment "A human individual relevant to semantic web or ontology work." ;
+    rdfs:subClassOf ns1:Agent .
+
+ns1:Principle a rdfs:Class ;
     rdfs:label "Principle" ;
-    rdfs:comment "A conceptual principle or assumption relevant to semantic systems." ;
-    rdfs:subClassOf ns1:Concept .
+    rdfs:comment "A general conceptual principle or guiding semantic assumption." ;
+    rdfs:subClassOf ns1:ConceptualTopic .
 
-ns1:ProgrammingInterface a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Programming interface" ;
-    rdfs:comment "A programming-oriented interface such as a language SDK or native API." ;
-    rdfs:subClassOf ns1:InterfaceTechnology .
+ns1:ProofTrustLayer a rdfs:Class ;
+    rdfs:label "Proof and trust layer" ;
+    rdfs:comment "The upper semantic web layer concerned with proof, provenance, trust, and reliability assessment." ;
+    rdfs:subClassOf ns1:ArchitectureLayer .
 
-ns1:ProofLayer a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Proof layer" ;
-    rdfs:comment "Layer concerning proof and explainability of inferences." ;
-    rdfs:subClassOf ns1:SemanticArchitectureLayer .
-
-ns1:Protocol a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Protocol" ;
-    rdfs:comment "A communication or interoperability protocol." ;
-    rdfs:subClassOf ns1:InterfaceTechnology .
-
-ns1:QueryEndpoint a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Query endpoint" ;
-    rdfs:comment "An endpoint used for query execution over a semantic or graph store." ;
-    rdfs:subClassOf ns1:InterfaceTechnology .
-
-ns1:QueryLanguage a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Query language" ;
-    rdfs:comment "A language used to query structured data or RDF graphs." ;
-    rdfs:subClassOf ns1:LanguageTechnology .
-
-ns1:QueryLayer a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Query layer" ;
-    rdfs:comment "Layer concerning graph query languages such as SPARQL." ;
-    rdfs:subClassOf ns1:SemanticArchitectureLayer .
-
-ns1:RDFSchemaTechnology a rdfs:Class,
-        owl:Class ;
-    rdfs:label "RDFS technology" ;
-    rdfs:comment "Technology or standard based on RDF Schema." ;
-    rdfs:subClassOf ns1:RDFTechnology .
-
-ns1:RDFTechnology a rdfs:Class,
-        owl:Class ;
-    rdfs:label "RDF technology" ;
-    rdfs:comment "Technology or standard based on the Resource Description Framework." ;
-    rdfs:subClassOf ns1:KnowledgeRepresentationLanguage,
-        ns1:Standard .
-
-ns1:RDFXMLFormat a rdfs:Class,
-        owl:Class ;
-    rdfs:label "RDF/XML format" ;
-    rdfs:comment "XML serialization format for RDF." ;
-    rdfs:subClassOf ns1:SerializationFormat .
-
-ns1:Reasoner a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Reasoner" ;
-    rdfs:comment "A software component that performs logical inference or consistency checking." ;
-    rdfs:subClassOf ns1:Technology .
-
-ns1:ReasoningFeature a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Reasoning feature" ;
-    rdfs:comment "A feature related to reasoning support." ;
-    rdfs:subClassOf ns1:Feature .
-
-ns1:ReasoningProcess a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Reasoning process" ;
-    rdfs:comment "A semantic reasoning activity performed over knowledge representations." ;
-    rdfs:subClassOf ns1:Concept .
-
-ns1:RelationshipConcept a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Relationship concept" ;
-    rdfs:comment "A concept corresponding to object relationships." ;
-    rdfs:subClassOf ns1:ModelingConstruct .
-
-ns1:RestrictionComponent a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Restriction component" ;
-    rdfs:comment "A restriction component used to constrain class membership or property use." ;
+ns1:PropertyConcept a rdfs:Class ;
+    rdfs:label "Property concept" ;
+    rdfs:comment "A conceptual representation of a property used in an ontology." ;
     rdfs:subClassOf ns1:OntologyComponent .
 
-ns1:RulesLayer a rdfs:Class,
-        owl:Class ;
+ns1:Protocol a rdfs:Class ;
+    rdfs:label "Protocol" ;
+    rdfs:comment "A communication protocol used to access, query, or integrate semantic systems." ;
+    rdfs:subClassOf ns1:TechnologyArtifact .
+
+ns1:QueryLanguage a rdfs:Class ;
+    rdfs:label "Query language" ;
+    rdfs:comment "A language used to query semantic graphs or related structured data." ;
+    rdfs:subClassOf ns1:Language .
+
+ns1:QueryLayer a rdfs:Class ;
+    rdfs:label "Query layer" ;
+    rdfs:comment "The layer covering graph query technologies such as SPARQL." ;
+    rdfs:subClassOf ns1:ArchitectureLayer .
+
+ns1:Reasoner a rdfs:Class ;
+    rdfs:label "Reasoner" ;
+    rdfs:comment "A software system that performs logical inference, classification, or consistency checking over an ontology or graph." ;
+    rdfs:subClassOf ns1:SoftwareSystem .
+
+ns1:ReasoningCapability a rdfs:Class ;
+    rdfs:label "Reasoning capability" ;
+    rdfs:comment "A kind of semantic reasoning or inferential support provided by a system or ontology environment." ;
+    rdfs:subClassOf ns1:ConceptualTopic .
+
+ns1:RelationshipProperty a rdfs:Class ;
+    rdfs:label "Relationship property" ;
+    rdfs:comment "A property that links one resource to another resource." ;
+    rdfs:subClassOf ns1:PropertyConcept .
+
+ns1:RuleLanguage a rdfs:Class ;
+    rdfs:label "Rule language" ;
+    rdfs:comment "A language used to express rules or inference logic over semantic data." ;
+    rdfs:subClassOf ns1:Language .
+
+ns1:RulesLayer a rdfs:Class ;
     rdfs:label "Rules layer" ;
-    rdfs:comment "Layer concerning semantic rules and rule languages." ;
-    rdfs:subClassOf ns1:SemanticArchitectureLayer .
+    rdfs:comment "The layer covering rules, logic, and related inferential mechanisms above the ontology and query layers." ;
+    rdfs:subClassOf ns1:ArchitectureLayer .
 
-ns1:SKOSTechnology a rdfs:Class,
-        owl:Class ;
-    rdfs:label "SKOS technology" ;
-    rdfs:comment "Technology or standard based on SKOS." ;
-    rdfs:subClassOf ns1:KnowledgeRepresentationLanguage,
-        ns1:Standard .
-
-ns1:SPARQLTechnology a rdfs:Class,
-        owl:Class ;
-    rdfs:label "SPARQL technology" ;
-    rdfs:comment "Technology or standard based on SPARQL." ;
-    rdfs:subClassOf ns1:QueryLanguage,
-        ns1:Standard .
-
-ns1:SearchEngineKnowledgeGraph a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Search engine knowledge graph" ;
-    rdfs:comment "Application area concerning knowledge graphs used by search engines." ;
-    rdfs:subClassOf ns1:ApplicationArea .
-
-ns1:SemanticArchitectureLayer a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Semantic architecture layer" ;
-    rdfs:comment "A layer in the Semantic Web technology stack." ;
-    rdfs:subClassOf ns1:Concept .
-
-ns1:SemanticWeb a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Semantic Web" ;
-    rdfs:comment "The web of machine-understandable data and explicit semantics." ;
-    rdfs:subClassOf ns1:Concept .
-
-ns1:SerializationFormat a rdfs:Class,
-        owl:Class ;
+ns1:SerializationFormat a rdfs:Class ;
     rdfs:label "Serialization format" ;
-    rdfs:comment "A syntax used to serialize RDF or semantic data." ;
-    rdfs:subClassOf ns1:Technology .
+    rdfs:comment "A concrete syntax for expressing and exchanging RDF or related semantic data." ;
+    rdfs:subClassOf ns1:TechnologyArtifact .
 
-ns1:SpecificationDocument a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Specification document" ;
-    rdfs:comment "A document that specifies a formal language, model, or standard." ;
-    rdfs:subClassOf ns1:Document .
+ns1:SoftwareSystem a rdfs:Class ;
+    rdfs:label "Software system" ;
+    rdfs:comment "A software product, platform, framework component, or service relevant to semantic technologies." ;
+    rdfs:subClassOf ns1:TechnologyArtifact .
 
-ns1:Standard a rdfs:Class,
-        owl:Class ;
+ns1:Standard a rdfs:Class ;
     rdfs:label "Standard" ;
-    rdfs:comment "A formal or community standard." ;
-    rdfs:subClassOf ns1:KnowledgeArtifact .
+    rdfs:comment "A formal specification or standard relevant to semantic technologies." ;
+    rdfs:subClassOf ns1:TechnologyArtifact .
 
-ns1:SyntaxLayer a rdfs:Class,
-        owl:Class ;
+ns1:StandardsBody a rdfs:Class ;
+    rdfs:label "Standards body" ;
+    rdfs:comment "An organization that publishes or governs technical standards relevant to the Semantic Web." ;
+    rdfs:subClassOf ns1:Organization .
+
+ns1:SyntaxLayer a rdfs:Class ;
     rdfs:label "Syntax layer" ;
-    rdfs:comment "Layer concerning data syntax and serialization." ;
-    rdfs:subClassOf ns1:SemanticArchitectureLayer .
+    rdfs:comment "The layer covering concrete serializations such as Turtle, JSON-LD, and RDF/XML." ;
+    rdfs:subClassOf ns1:ArchitectureLayer .
 
-ns1:Taxonomy a rdfs:Class,
-        owl:Class ;
+ns1:Taxonomy a rdfs:Class ;
     rdfs:label "Taxonomy" ;
-    rdfs:comment "A hierarchical classification scheme." ;
+    rdfs:comment "A hierarchical classification scheme based primarily on parent-child or subclass relationships." ;
     rdfs:subClassOf ns1:KnowledgeArtifact .
 
-ns1:Technology a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Technology" ;
-    rdfs:comment "A technical standard, language, system, or platform." ;
+ns1:TechnologyArtifact a rdfs:Class ;
+    rdfs:label "Technology artifact" ;
+    rdfs:comment "A technical standard, language, format, interface, software system, or related artifact in the Semantic Web stack." ;
     rdfs:subClassOf ns1:Entity .
 
-ns1:Triplestore a rdfs:Class,
-        owl:Class ;
+ns1:Triplestore a rdfs:Class ;
     rdfs:label "Triplestore" ;
-    rdfs:comment "A database management system specialized for RDF triples." ;
-    rdfs:subClassOf ns1:GraphDataSystem .
+    rdfs:comment "A graph database or database management system specialized for storing and querying RDF triples." ;
+    rdfs:subClassOf ns1:GraphDatabase .
 
-ns1:TrustLayer a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Trust layer" ;
-    rdfs:comment "Layer concerning trust, provenance, and reliability." ;
-    rdfs:subClassOf ns1:SemanticArchitectureLayer .
-
-ns1:TurtleFormat a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Turtle format" ;
-    rdfs:comment "Terse RDF Triple Language serialization format." ;
-    rdfs:subClassOf ns1:SerializationFormat .
-
-ns1:URI a rdfs:Class,
-        owl:Class ;
-    rdfs:label "URI" ;
-    rdfs:comment "Uniform Resource Identifier." ;
-    rdfs:subClassOf ns1:Identifier .
-
-ns1:VirtualizationFeature a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Virtualization feature" ;
-    rdfs:comment "A feature related to data virtualization or virtual graphs." ;
-    rdfs:subClassOf ns1:Feature .
-
-ns1:Vocabulary a rdfs:Class,
-        owl:Class ;
+ns1:Vocabulary a rdfs:Class ;
     rdfs:label "Vocabulary" ;
-    rdfs:comment "A semantic vocabulary used to describe data or concepts." ;
+    rdfs:comment "A controlled set of terms used to describe resources in a domain." ;
     rdfs:subClassOf ns1:KnowledgeArtifact .
 
-ns1:WebOfData a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Web of Data" ;
-    rdfs:comment "The data-centric web based on typed relationships and explicit semantics." ;
-    rdfs:subClassOf ns1:Concept .
-
-ns1:WebOfDocuments a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Web of Documents" ;
-    rdfs:comment "The traditional document-centric web." ;
-    rdfs:subClassOf ns1:Concept .
-
-ns1:WebResource a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Web resource" ;
-    rdfs:comment "A resource identifiable on the web." ;
-    rdfs:subClassOf ns1:Entity .
-
-ns1:Workbench a rdfs:Class,
-        owl:Class ;
-    rdfs:label "Workbench" ;
-    rdfs:comment "A user-facing workbench or administration interface." ;
-    rdfs:subClassOf ns1:InterfaceTechnology .
-
-ns1: a owl:Ontology ;
-    rdfs:label "Semantic Web and Triplestore Ontology" ;
-    rdfs:comment "An RDF/RDFS-first ontology for Semantic Web concepts, ontology concepts, architecture layers, reasoning, standards, and triplestore catalog metadata derived from the supplied project documents and CSV." .
-
-ns1:broaderThan a rdf:Property,
-        owl:ObjectProperty,
-        owl:TransitiveProperty ;
-    rdfs:label "broader than" ;
-    rdfs:comment "Relates a concept to another concept that is conceptually narrower than it." ;
-    rdfs:domain ns1:Concept ;
-    rdfs:range ns1:Concept ;
-    owl:inverseOf ns1:narrowerThan .
-
-ns1:description a rdf:Property,
-        owl:DatatypeProperty ;
-    rdfs:label "description" ;
-    rdfs:comment "General textual description of an entity." ;
-    rdfs:domain ns1:Entity ;
-    rdfs:range xsd:string .
-
-ns1:hasComponent a rdf:Property,
-        owl:ObjectProperty ;
-    rdfs:label "has component" ;
-    rdfs:comment "Relates a composite knowledge artifact to a component entity." ;
-    rdfs:domain ns1:KnowledgeArtifact ;
-    rdfs:range ns1:Entity .
-
-ns1:hasLayer a rdf:Property,
-        owl:ObjectProperty ;
-    rdfs:label "has layer" ;
-    rdfs:comment "Relates the Semantic Web architecture to one of its layers." ;
-    rdfs:domain ns1:SemanticWeb ;
-    rdfs:range ns1:SemanticArchitectureLayer .
-
-ns1:homepage a rdf:Property,
-        owl:DatatypeProperty ;
-    rdfs:label "homepage" ;
-    rdfs:comment "Homepage URI of an entity." ;
-    rdfs:domain ns1:Entity ;
-    rdfs:range xsd:anyURI .
-
-ns1:identifierValue a rdf:Property,
-        owl:DatatypeProperty ;
-    rdfs:label "identifier value" ;
-    rdfs:comment "Literal content of an identifier." ;
-    rdfs:domain ns1:Identifier ;
-    rdfs:range xsd:string .
-
-ns1:name a rdf:Property,
-        owl:DatatypeProperty ;
-    rdfs:label "name" ;
-    rdfs:comment "General name of an entity." ;
-    rdfs:domain ns1:Entity ;
-    rdfs:range xsd:string .
-
-ns1:officialName a rdf:Property,
-        owl:DatatypeProperty ;
-    rdfs:label "official name" ;
-    rdfs:comment "Official name of an entity or organization." ;
-    rdfs:domain ns1:Entity ;
-    rdfs:range xsd:string .
-
-ns1:partOf a rdf:Property,
-        owl:ObjectProperty ;
-    rdfs:label "part of" ;
-    rdfs:comment "Relates an entity to a larger entity of which it is part." ;
-    rdfs:domain ns1:Entity ;
-    rdfs:range ns1:Entity .
-
-ns1:supportsLayer a rdf:Property,
-        owl:ObjectProperty ;
-    rdfs:label "supports layer" ;
-    rdfs:comment "Relates a technology to a Semantic Web architecture layer it supports." ;
-    rdfs:domain ns1:Technology ;
-    rdfs:range ns1:SemanticArchitectureLayer .
-
-ns1:title a rdf:Property,
-        owl:DatatypeProperty ;
-    rdfs:label "title" ;
-    rdfs:comment "Title of a knowledge artifact." ;
-    rdfs:domain ns1:KnowledgeArtifact ;
-    rdfs:range xsd:string .
-
-<http://example.org/semantic-web/instance/bfo> a ns1:FoundationalOntology ;
+ns1:bfo a ns1:FoundationalOntology ;
     rdfs:label "BFO" ;
-    ns1:description "A domain-neutral upper-level ontology used as a structural foundation for interoperability across sub-ontologies." ;
-    ns1:name "Basic Formal Ontology" ;
-    ns1:partOf <http://example.org/semantic-web/instance/ontology-md> .
+    ns1:description "A domain-neutral upper-level ontology used as a structural foundation so different sub-ontologies can interoperate." ;
+    ns1:name "Basic Formal Ontology" .
 
-<http://example.org/semantic-web/instance/bing> a ns1:Organization ;
-    rdfs:label "Bing" ;
-    ns1:name "Bing" ;
-    ns1:officialName "Bing" .
+ns1:canStoreArtifact a rdf:Property ;
+    rdfs:label "can store artifact" ;
+    rdfs:comment "Links a triplestore or graph database to the kind of knowledge artifact that it can store or manage." ;
+    rdfs:domain ns1:SoftwareSystem ;
+    rdfs:range ns1:KnowledgeArtifact .
 
-<http://example.org/semantic-web/instance/classification-reasoning> a ns1:ClassificationReasoning ;
-    rdfs:label "Classification" ;
-    ns1:description "A reasoning process that computes logical implications of class definitions and derives correct hierarchy placement." ;
-    ns1:name "Classification" ;
-    ns1:partOf <http://example.org/semantic-web/instance/ontology-md> .
-
-<http://example.org/semantic-web/instance/closed-world-assumption> a ns1:ClosedWorldAssumption ;
-    rdfs:label "Closed World Assumption" ;
-    ns1:description "The principle that information not present is generally treated as false in traditional database settings." ;
-    ns1:name "Closed World Assumption" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-md> .
-
-<http://example.org/semantic-web/instance/consistency-checking> a ns1:ConsistencyChecking ;
-    rdfs:label "Consistency Checking" ;
-    ns1:description "A reasoning process that detects logical contradictions in an ontology or its data." ;
-    ns1:name "Consistency Checking" ;
-    ns1:partOf <http://example.org/semantic-web/instance/ontology-md> .
-
-<http://example.org/semantic-web/instance/data-integration-use-case> a ns1:DataIntegrationUseCase ;
-    rdfs:label "Data Integration" ;
-    ns1:description "A use case involving integration of heterogeneous data using semantic technologies." ;
-    ns1:name "Data Integration" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-md> .
-
-<http://example.org/semantic-web/instance/data-virtualization-use-case> a ns1:DataVirtualizationUseCase ;
-    rdfs:label "Data Virtualization" ;
-    ns1:description "A use case involving semantic access to distributed data without full physical consolidation." ;
-    ns1:name "Data Virtualization" ;
-    ns1:partOf <http://example.org/semantic-web/instance/ontology-md> .
-
-<http://example.org/semantic-web/instance/dbpedia> a ns1:Dataset ;
+ns1:dbpedia a ns1:Dataset,
+        ns1:KnowledgeGraph ;
     rdfs:label "DBpedia" ;
     ns1:description "The structured RDF counterpart of Wikipedia and a central hub in Linked Open Data." ;
+    ns1:implementsDataModel ns1:rdf ;
     ns1:name "DBpedia" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-md> .
+    ns1:usesIdentifierScheme ns1:iri .
 
-<http://example.org/semantic-web/instance/dublin-core> a ns1:Vocabulary ;
+ns1:definesConcept a rdf:Property ;
+    rdfs:label "defines concept" ;
+    rdfs:comment "Links an ontology or vocabulary to a concept, property, or component that it defines." ;
+    rdfs:domain ns1:KnowledgeArtifact ;
+    rdfs:range ns1:Entity .
+
+ns1:dependsOnLayer a rdf:Property ;
+    rdfs:label "depends on layer" ;
+    rdfs:comment "Relates an architecture layer to another layer on which it depends." ;
+    rdfs:domain ns1:ArchitectureLayer ;
+    rdfs:range ns1:ArchitectureLayer .
+
+ns1:describesDomain a rdf:Property ;
+    rdfs:label "describes domain" ;
+    rdfs:comment "Links a knowledge artifact to the domain, topic, or conceptual area that it describes." ;
+    rdfs:domain ns1:KnowledgeArtifact ;
+    rdfs:range ns1:ConceptualTopic .
+
+ns1:description a rdf:Property ;
+    rdfs:label "description" ;
+    rdfs:comment "A human-readable textual description of a resource." ;
+    rdfs:domain ns1:Entity ;
+    rdfs:range xsd:string .
+
+ns1:detectsConstraintViolationAgainst a rdf:Property ;
+    rdfs:label "detects constraint violation against" ;
+    rdfs:comment "Links a reasoner or validation process to a constraint that it can test or detect violations against." ;
+    rdfs:domain ns1:SoftwareSystem ;
+    rdfs:range ns1:Constraint .
+
+ns1:developedBy a rdf:Property ;
+    rdfs:label "developed by" ;
+    rdfs:comment "Links a software system or artifact to the person or organization that developed it." ;
+    rdfs:domain ns1:Entity ;
+    rdfs:range ns1:Agent .
+
+ns1:developerMaintainerName a rdf:Property ;
+    rdfs:label "developer or maintainer name" ;
+    rdfs:comment "The raw developer or maintainer text value preserved from the source CSV." ;
+    rdfs:domain ns1:Triplestore ;
+    rdfs:range xsd:string .
+
+ns1:dublin-core a ns1:Vocabulary ;
     rdfs:label "Dublin Core" ;
     ns1:description "A standard vocabulary for describing digital and physical resources." ;
-    ns1:name "Dublin Core" ;
-    ns1:partOf <http://example.org/semantic-web/instance/ontology-md> .
+    ns1:name "Dublin Core" .
 
-<http://example.org/semantic-web/instance/enterprise-knowledge-graph> a ns1:EnterpriseKnowledgeGraph ;
-    rdfs:label "Enterprise Knowledge Graph" ;
-    ns1:description "An enterprise application area that uses semantic web standards to integrate internal data sources into knowledge graphs." ;
-    ns1:name "Enterprise Knowledge Graph" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-md> .
+ns1:enterprise-knowledge-graphs a ns1:KnowledgeGraph ;
+    rdfs:label "Enterprise Knowledge Graphs" ;
+    ns1:description "Internal knowledge graphs built by enterprises using RDF and OWL to integrate data from legacy systems without disruptive database migrations." ;
+    ns1:implementsDataModel ns1:rdf ;
+    ns1:name "Enterprise Knowledge Graphs" ;
+    ns1:usesTechnology ns1:owl .
 
-<http://example.org/semantic-web/instance/foaf> a ns1:FoundationalOntology ;
+ns1:foaf a ns1:FoundationalOntology,
+        ns1:Vocabulary ;
     rdfs:label "FOAF" ;
-    ns1:description "A foundational ontology used for describing people, their attributes, and their social networks." ;
-    ns1:name "Friend of a Friend" ;
-    ns1:partOf <http://example.org/semantic-web/instance/ontology-md> .
+    ns1:description "A vocabulary used for describing people, their attributes, and their social networks." ;
+    ns1:name "Friend of a Friend" .
 
-<http://example.org/semantic-web/instance/gene-ontology> a ns1:Ontology ;
+ns1:followsPrinciple a rdf:Property ;
+    rdfs:label "follows principle" ;
+    rdfs:comment "Links a technology, artifact, or conceptual model to a guiding principle or assumption that it follows." ;
+    rdfs:domain ns1:Entity ;
+    rdfs:range ns1:Principle .
+
+ns1:gene-ontology a ns1:Ontology ;
     rdfs:label "Gene Ontology" ;
     ns1:description "A large domain ontology standardizing the representation of gene and protein functions across biology." ;
-    ns1:name "Gene Ontology" ;
-    ns1:partOf <http://example.org/semantic-web/instance/ontology-md> .
+    ns1:name "Gene Ontology" .
 
-<http://example.org/semantic-web/instance/google> a ns1:Organization ;
-    rdfs:label "Google" ;
-    ns1:name "Google" ;
-    ns1:officialName "Google" .
+ns1:hasCapability a rdf:Property ;
+    rdfs:label "has capability" ;
+    rdfs:comment "Links a software system or artifact to a functional capability." ;
+    rdfs:domain ns1:Entity ;
+    rdfs:range ns1:Capability .
 
-<http://example.org/semantic-web/instance/hermit> a ns1:Reasoner ;
+ns1:hasFeature a rdf:Property ;
+    rdfs:label "has feature" ;
+    rdfs:comment "Links a software system or artifact to a notable feature or specialization." ;
+    rdfs:domain ns1:Entity ;
+    rdfs:range ns1:Feature ;
+    owl:inverseOf ns1:isFeatureOf .
+
+ns1:hasLayer a rdf:Property ;
+    rdfs:label "has layer" ;
+    rdfs:comment "Links an architectural model or conceptual stack to one of its layers." ;
+    rdfs:domain ns1:KnowledgeArtifact ;
+    rdfs:range ns1:ArchitectureLayer ;
+    owl:inverseOf ns1:isLayerOfArchitecture .
+
+ns1:hasLicenseModel a rdf:Property ;
+    rdfs:label "has license model" ;
+    rdfs:comment "Links a software system to a normalized license model or licensing arrangement." ;
+    rdfs:domain ns1:SoftwareSystem ;
+    rdfs:range ns1:LicenseModel .
+
+ns1:hasLogicalProfile a rdf:Property ;
+    rdfs:label "has logical profile" ;
+    rdfs:comment "Links an ontology language, ontology, or system to a logical profile that it uses or supports." ;
+    rdfs:domain ns1:Entity ;
+    rdfs:range ns1:LogicalProfile .
+
+ns1:hasMaintainer a rdf:Property ;
+    rdfs:label "has maintainer" ;
+    rdfs:comment "Links a software system, especially a triplestore, to a maintaining organization." ;
+    rdfs:domain ns1:SoftwareSystem ;
+    rdfs:range ns1:Organization ;
+    owl:inverseOf ns1:maintains .
+
+ns1:hermit a ns1:Reasoner ;
     rdfs:label "HermiT" ;
-    ns1:description "A reasoner named in the source as an example of software used to perform semantic reasoning." ;
-    ns1:name "HermiT" .
+    ns1:name "HermiT" ;
+    ns1:performsInferenceTask ns1:classification-task,
+        ns1:consistency-checking-task ;
+    ns1:supportsReasoningCapability ns1:reasoner-capability .
 
-<http://example.org/semantic-web/instance/iri> a ns1:IRI ;
-    rdfs:label "IRI" ;
-    ns1:description "An extension of URI that allows non-ASCII characters and provides global identification for entities." ;
-    ns1:name "Internationalized Resource Identifier" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-md> ;
-    ns1:supportsLayer <http://example.org/semantic-web/instance/identifier-layer> .
+ns1:homepage a rdf:Property ;
+    rdfs:label "homepage" ;
+    rdfs:comment "A homepage or web address for a resource, preserved as text when strict IRI validation is not guaranteed." ;
+    rdfs:domain ns1:Entity ;
+    rdfs:range xsd:string .
 
-<http://example.org/semantic-web/instance/json-ld> a ns1:JSONLDFormat ;
-    rdfs:label "JSON-LD" ;
-    ns1:description "A JSON-based format for linked data widely used in web development." ;
-    ns1:name "JSON-LD" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-md> ;
-    ns1:supportsLayer <http://example.org/semantic-web/instance/syntax-layer> .
+ns1:identifierValue a rdf:Property ;
+    rdfs:label "identifier value" ;
+    rdfs:comment "An external or internal identifier expressed as text." ;
+    rdfs:domain ns1:Entity ;
+    rdfs:range xsd:string .
 
-<http://example.org/semantic-web/instance/knowledge-graph> a ns1:KnowledgeGraph ;
+ns1:implementsDataModel a rdf:Property ;
+    rdfs:label "implements data model" ;
+    rdfs:comment "Links a software system or technology artifact to a data model that it implements or supports." ;
+    rdfs:domain ns1:TechnologyArtifact ;
+    rdfs:range ns1:DataModel .
+
+ns1:implementsStandard a rdf:Property ;
+    rdfs:label "implements standard" ;
+    rdfs:comment "Links a technology artifact or software system to a formal standard that it implements." ;
+    rdfs:domain ns1:TechnologyArtifact ;
+    rdfs:range ns1:Standard .
+
+ns1:keyFeaturesText a rdf:Property ;
+    rdfs:label "key features text" ;
+    rdfs:comment "The raw key features or specializations text preserved from the source CSV." ;
+    rdfs:domain ns1:Triplestore ;
+    rdfs:range xsd:string .
+
+ns1:knowledge-graph-concept a ns1:KnowledgeGraph ;
     rdfs:label "Knowledge Graph" ;
+    ns1:describesDomain ns1:web-of-data ;
     ns1:description "A network of real-world entities connected by relationships that represents actual data instance networks." ;
-    ns1:name "Knowledge Graph" ;
-    ns1:partOf <http://example.org/semantic-web/instance/ontology-md> .
+    ns1:name "Knowledge Graph" .
 
-<http://example.org/semantic-web/instance/linked-open-data> a ns1:LinkedOpenData ;
+ns1:licenseTypeText a rdf:Property ;
+    rdfs:label "license type text" ;
+    rdfs:comment "The raw license type text preserved from the source CSV." ;
+    rdfs:domain ns1:Triplestore ;
+    rdfs:range xsd:string .
+
+ns1:linked-open-data a ns1:Community ;
     rdfs:label "Linked Open Data" ;
-    ns1:description "A movement to publish structured data so that it can be interlinked across the web." ;
-    ns1:name "Linked Open Data" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-md> .
+    ns1:description "A global movement to publish structured data so that it can be interlinked." ;
+    ns1:name "Linked Open Data" .
 
-<http://example.org/semantic-web/instance/microdata> a ns1:MicrodataTechnology ;
-    rdfs:label "Microdata" ;
-    ns1:description "A lightweight mechanism for embedding structured data into HTML pages." ;
-    ns1:name "Microdata" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-md> .
+ns1:maintainedBy a rdf:Property ;
+    rdfs:label "maintained by" ;
+    rdfs:comment "Links a software system or artifact to the organization that maintains it." ;
+    rdfs:domain ns1:Entity ;
+    rdfs:range ns1:Organization .
 
-<http://example.org/semantic-web/instance/non-unique-name-assumption> a ns1:NonUniqueNameAssumption ;
-    rdfs:label "Non-Unique Name Assumption" ;
-    ns1:description "The principle that two different URIs may refer to the same real-world entity." ;
-    ns1:name "Non-Unique Name Assumption" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-md> .
+ns1:name a rdf:Property ;
+    rdfs:label "name" ;
+    rdfs:comment "A human-readable primary name for a resource." ;
+    rdfs:domain ns1:Entity ;
+    rdfs:range xsd:string .
 
-<http://example.org/semantic-web/instance/ontology-conceptual-artifact> a ns1:Ontology ;
+ns1:ontology a owl:Ontology ;
+    rdfs:label "Semantic Web project ontology" ;
+    rdfs:comment "An RDF/RDFS-oriented ontology for Semantic Web concepts, ontology engineering concepts, and a catalog of commonly seen triplestores derived from the supplied project materials." .
+
+ns1:ontology-concept a ns1:Ontology ;
     rdfs:label "Ontology" ;
-    ns1:description "A formal, explicit specification of a shared conceptualization that provides the conceptual schema and rules behind a knowledge graph." ;
-    ns1:hasComponent <http://example.org/semantic-web/instance/attribute-concept>,
-        <http://example.org/semantic-web/instance/axiom-concept>,
-        <http://example.org/semantic-web/instance/class-concept>,
-        <http://example.org/semantic-web/instance/individual-concept>,
-        <http://example.org/semantic-web/instance/relationship-concept> ;
-    ns1:name "Ontology" ;
-    ns1:partOf <http://example.org/semantic-web/instance/ontology-md> .
+    ns1:definesConcept ns1:attributes-concept,
+        ns1:axioms-concept,
+        ns1:classes-concept,
+        ns1:constraints-topic,
+        ns1:individuals-concept,
+        ns1:relationships-concept ;
+    ns1:describesDomain ns1:ontology-components-topic ;
+    ns1:description "A formal, explicit specification of a shared conceptualization." ;
+    ns1:developedBy ns1:thomas-r-gruber ;
+    ns1:name "Ontology" .
 
-<http://example.org/semantic-web/instance/open-world-assumption> a ns1:OpenWorldAssumption ;
-    rdfs:label "Open World Assumption" ;
-    ns1:description "The principle that missing information should be treated as unknown rather than false." ;
-    ns1:name "Open World Assumption" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-md> .
-
-<http://example.org/semantic-web/instance/openllet> a ns1:Reasoner ;
+ns1:openllet a ns1:Reasoner ;
     rdfs:label "Openllet" ;
-    ns1:description "A reasoner named in the source as an example of software used to perform semantic reasoning." ;
-    ns1:name "Openllet" .
+    ns1:name "Openllet" ;
+    ns1:performsInferenceTask ns1:classification-task,
+        ns1:consistency-checking-task ;
+    ns1:supportsReasoningCapability ns1:reasoner-capability .
 
-<http://example.org/semantic-web/instance/owl> a ns1:OWLTechnology ;
-    rdfs:label "OWL" ;
-    ns1:description "An ontology language for advanced semantic modeling based on description logics." ;
-    ns1:name "Web Ontology Language" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-md> ;
-    ns1:supportsLayer <http://example.org/semantic-web/instance/ontology-layer> .
+ns1:organizesAsSubclassOf a rdf:Property ;
+    rdfs:label "organizes as subclass of" ;
+    rdfs:comment "Relates a class concept in a taxonomy or ontology to a broader class concept." ;
+    rdfs:domain ns1:ClassConcept ;
+    rdfs:range ns1:ClassConcept .
 
-<http://example.org/semantic-web/instance/owl-2-el> a ns1:OWL2ELProfile ;
-    rdfs:label "OWL 2 EL" ;
-    ns1:description "An OWL 2 profile tailored for massive numbers of classes and complex subclass hierarchies with relatively simple property relationships." ;
-    ns1:name "OWL 2 EL" ;
-    ns1:partOf <http://example.org/semantic-web/instance/ontology-md> .
-
-<http://example.org/semantic-web/instance/owl-2-ql> a ns1:OWL2QLProfile ;
-    rdfs:label "OWL 2 QL" ;
-    ns1:description "An OWL 2 profile designed to work smoothly with standard relational databases and support translation of semantic queries into SQL." ;
-    ns1:name "OWL 2 QL" ;
-    ns1:partOf <http://example.org/semantic-web/instance/ontology-md> .
-
-<http://example.org/semantic-web/instance/owl-2-rl> a ns1:OWL2RLProfile ;
-    rdfs:label "OWL 2 RL" ;
-    ns1:description "An OWL 2 profile optimized for scalable rule-oriented reasoning using rule engines." ;
-    ns1:name "OWL 2 RL" ;
-    ns1:partOf <http://example.org/semantic-web/instance/ontology-md> .
-
-<http://example.org/semantic-web/instance/pellet> a ns1:Reasoner ;
+ns1:pellet a ns1:Reasoner ;
     rdfs:label "Pellet" ;
-    ns1:description "A reasoner named in the source as an example of software used to perform semantic reasoning." ;
-    ns1:name "Pellet" .
+    ns1:name "Pellet" ;
+    ns1:performsInferenceTask ns1:classification-task,
+        ns1:consistency-checking-task ;
+    ns1:supportsReasoningCapability ns1:reasoner-capability .
 
-<http://example.org/semantic-web/instance/rdf> a ns1:RDFTechnology ;
-    rdfs:label "RDF" ;
-    ns1:description "The fundamental semantic web data model representing information as directed labeled graphs composed of triples." ;
-    ns1:name "Resource Description Framework" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-md> ;
-    ns1:supportsLayer <http://example.org/semantic-web/instance/data-model-layer> .
+ns1:performsInferenceTask a rdf:Property ;
+    rdfs:label "performs inference task" ;
+    rdfs:comment "Links a reasoner or inference-capable system to a reasoning task it performs." ;
+    rdfs:domain ns1:SoftwareSystem ;
+    rdfs:range ns1:InferenceTask .
 
-<http://example.org/semantic-web/instance/rdf-xml> a ns1:RDFXMLFormat ;
-    rdfs:label "RDF/XML" ;
-    ns1:description "A historical XML-based RDF serialization format." ;
-    ns1:name "RDF/XML" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-md> ;
-    ns1:supportsLayer <http://example.org/semantic-web/instance/syntax-layer> .
+ns1:precedesLayer a rdf:Property ;
+    rdfs:label "precedes layer" ;
+    rdfs:comment "Relates a lower or earlier layer to a higher or later layer in the architecture stack." ;
+    rdfs:domain ns1:ArchitectureLayer ;
+    rdfs:range ns1:ArchitectureLayer .
 
-<http://example.org/semantic-web/instance/rdfs> a ns1:RDFSchemaTechnology ;
-    rdfs:label "RDF Schema" ;
-    ns1:description "A foundational vocabulary for classes, subclass hierarchies, domains, and ranges." ;
-    ns1:name "RDF Schema" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-md> ;
-    ns1:supportsLayer <http://example.org/semantic-web/instance/data-model-layer> .
+ns1:primaryAPIInterfacesText a rdf:Property ;
+    rdfs:label "primary API interfaces text" ;
+    rdfs:comment "The raw primary API and interface text preserved from the source CSV." ;
+    rdfs:domain ns1:Triplestore ;
+    rdfs:range xsd:string .
 
-<http://example.org/semantic-web/instance/schema-org> a ns1:Vocabulary ;
+ns1:providesManagedService a rdf:Property ;
+    rdfs:label "provides managed service" ;
+    rdfs:comment "Links an organization to a managed semantic or graph data service that it provides." ;
+    rdfs:domain ns1:Organization ;
+    rdfs:range ns1:ManagedService .
+
+ns1:publishedBy a rdf:Property ;
+    rdfs:label "published by" ;
+    rdfs:comment "Links an artifact, specification, or dataset to the organization that published it." ;
+    rdfs:domain ns1:Entity ;
+    rdfs:range ns1:Organization .
+
+ns1:schema-org a ns1:Vocabulary ;
     rdfs:label "Schema.org" ;
-    ns1:description "A collaborative semantic vocabulary initiative used heavily on the web for structured data and search engine optimization." ;
-    ns1:name "Schema.org" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-md> .
+    ns1:description "A collaborative initiative whose vocabularies are embedded into HTML using JSON-LD or Microdata to structure data for search engine knowledge graphs." ;
+    ns1:name "Schema.org" .
 
-<http://example.org/semantic-web/instance/search-engine-knowledge-graph> a ns1:SearchEngineKnowledgeGraph ;
-    rdfs:label "Search Engine Knowledge Graph" ;
-    ns1:description "A knowledge-graph application area supporting search engine understanding and presentation of structured knowledge." ;
-    ns1:name "Search Engine Knowledge Graph" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-md> .
+ns1:semantic-web a ns1:KnowledgeGraph ;
+    rdfs:label "Semantic Web" ;
+    ns1:description "An evolutionary extension of the World Wide Web that seeks to transform the web into a universal medium for data, information, and knowledge exchange by embedding explicit, machine-understandable semantics into web resources." ;
+    ns1:developedBy ns1:tim-berners-lee ;
+    ns1:followsPrinciple ns1:non-unique-name-assumption,
+        ns1:open-world-assumption ;
+    ns1:name "Semantic Web" ;
+    ns1:publishedBy ns1:w3c .
 
-<http://example.org/semantic-web/instance/skos> a ns1:SKOSTechnology ;
-    rdfs:label "SKOS" ;
-    ns1:description "A vocabulary for representing thesauri, taxonomies, and classification schemes that do not require full description logics." ;
-    ns1:name "Simple Knowledge Organization System" ;
-    ns1:supportsLayer <http://example.org/semantic-web/instance/ontology-layer> .
+ns1:supportsInterface a rdf:Property ;
+    rdfs:label "supports interface" ;
+    rdfs:comment "Links a software system to an API, interface, protocol, or workbench that it supports or exposes." ;
+    rdfs:domain ns1:SoftwareSystem ;
+    rdfs:range ns1:APIInterface .
 
-<http://example.org/semantic-web/instance/sparql> a ns1:SPARQLTechnology ;
-    rdfs:label "SPARQL" ;
-    ns1:description "The query language used for graph-pattern matching against RDF graphs." ;
-    ns1:name "SPARQL Protocol and RDF Query Language" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-md> ;
-    ns1:supportsLayer <http://example.org/semantic-web/instance/query-layer> .
+ns1:supportsQueryLanguage a rdf:Property ;
+    rdfs:label "supports query language" ;
+    rdfs:comment "Links a software system or interface to a query language that it supports." ;
+    rdfs:domain ns1:TechnologyArtifact ;
+    rdfs:range ns1:QueryLanguage .
 
-<http://example.org/semantic-web/instance/taxonomy> a ns1:Taxonomy ;
+ns1:supportsReasoningCapability a rdf:Property ;
+    rdfs:label "supports reasoning capability" ;
+    rdfs:comment "Links a software system, ontology, or language to a reasoning capability that it supports." ;
+    rdfs:domain ns1:Entity ;
+    rdfs:range ns1:ReasoningCapability .
+
+ns1:taxonomy-concept a ns1:Taxonomy ;
     rdfs:label "Taxonomy" ;
-    ns1:description "A narrow hierarchical classification scheme focused on tree-like parental structures." ;
-    ns1:name "Taxonomy" ;
-    ns1:partOf <http://example.org/semantic-web/instance/ontology-md> .
+    ns1:describesDomain ns1:ontology-components-topic ;
+    ns1:description "A narrow hierarchical classification scheme that understands tree-like parental structures and contains no advanced properties or logic." ;
+    ns1:name "Taxonomy" .
 
-<http://example.org/semantic-web/instance/thomas-gruber> a ns1:Entity ;
-    rdfs:label "Thomas R. Gruber" ;
-    ns1:description "Computer scientist quoted in the source for the definition of an ontology as a formal, explicit specification of a shared conceptualization." ;
-    ns1:name "Thomas R. Gruber" .
+ns1:usesIdentifierScheme a rdf:Property ;
+    rdfs:label "uses identifier scheme" ;
+    rdfs:comment "Links a resource to an identifier scheme such as URI or IRI." ;
+    rdfs:domain ns1:Entity ;
+    rdfs:range ns1:IdentifierScheme .
 
-<http://example.org/semantic-web/instance/tim-berners-lee> a ns1:Entity ;
-    rdfs:label "Tim Berners-Lee" ;
-    ns1:description "Named in the source as a champion of the Semantic Web vision." ;
-    ns1:name "Tim Berners-Lee" .
+ns1:usesSerializationFormat a rdf:Property ;
+    rdfs:label "uses serialization format" ;
+    rdfs:comment "Links a dataset, software system, or artifact to a serialization format used to exchange or store data." ;
+    rdfs:domain ns1:Entity ;
+    rdfs:range ns1:SerializationFormat .
+
+ns1:usesTechnology a rdf:Property ;
+    rdfs:label "uses technology" ;
+    rdfs:comment "Links a layer, artifact, or system to a technology artifact that it uses." ;
+    rdfs:domain ns1:Entity ;
+    rdfs:range ns1:TechnologyArtifact .
+
+ns1:web-of-documents a ns1:ConceptualTopic ;
+    rdfs:label "Web of Documents" ;
+    ns1:description "The traditional World Wide Web architecture of unstructured and semi-structured documents designed for human consumption." ;
+    ns1:name "Web of Documents" .
+
+ns1:wikidata a ns1:Dataset,
+        ns1:KnowledgeGraph ;
+    rdfs:label "Wikidata" ;
+    ns1:description "A central hub connecting many open datasets in the Linked Open Data ecosystem." ;
+    ns1:name "Wikidata" ;
+    ns1:usesIdentifierScheme ns1:iri .
 
 <http://example.org/semantic-web/instance/triplestore/allegrograph> a ns1:Triplestore ;
     rdfs:label "AllegroGraph" ;
-    ns1:description "Commercial"^^xsd:string,
-        "Document-Graph database with advanced temporal"^^xsd:string,
-        "Franz Inc."^^xsd:string,
-        "SPARQL 1.1 / Python / Java / Lisp"^^xsd:string ;
-    ns1:name "AllegroGraph"^^xsd:string .
+    ns1:developerMaintainerName "Franz Inc."^^xsd:string ;
+    ns1:hasFeature <http://example.org/semantic-web/instance/feature/document-graph-database-with-advanced-temporal> ;
+    ns1:hasLicenseModel <http://example.org/semantic-web/instance/license-model/commercial> ;
+    ns1:hasMaintainer <http://example.org/semantic-web/instance/organization/franz-inc> ;
+    ns1:keyFeaturesText "Document-Graph database with advanced temporal"^^xsd:string ;
+    ns1:licenseTypeText "Commercial"^^xsd:string ;
+    ns1:name "AllegroGraph"^^xsd:string ;
+    ns1:primaryAPIInterfacesText "SPARQL 1.1 / Python / Java / Lisp"^^xsd:string ;
+    ns1:supportsInterface <http://example.org/semantic-web/instance/api-interface/sparql-1-1-python-java-lisp> .
 
 <http://example.org/semantic-web/instance/triplestore/amazon-neptune> a ns1:Triplestore ;
     rdfs:label "Amazon Neptune" ;
-    ns1:description "Amazon Web Services (AWS)"^^xsd:string,
-        "Commercial (Managed Service)"^^xsd:string,
-        "Fully managed cloud database"^^xsd:string,
-        "SPARQL / Apache TinkerPop Gremlin / openCypher"^^xsd:string ;
-    ns1:name "Amazon Neptune"^^xsd:string .
+    ns1:developerMaintainerName "Amazon Web Services (AWS)"^^xsd:string ;
+    ns1:hasFeature <http://example.org/semantic-web/instance/feature/fully-managed-cloud-database> ;
+    ns1:hasLicenseModel <http://example.org/semantic-web/instance/license-model/commercial-managed-service> ;
+    ns1:hasMaintainer <http://example.org/semantic-web/instance/organization/amazon-web-services-aws> ;
+    ns1:keyFeaturesText "Fully managed cloud database"^^xsd:string ;
+    ns1:licenseTypeText "Commercial (Managed Service)"^^xsd:string ;
+    ns1:name "Amazon Neptune"^^xsd:string ;
+    ns1:primaryAPIInterfacesText "SPARQL / Apache TinkerPop Gremlin / openCypher"^^xsd:string ;
+    ns1:supportsInterface <http://example.org/semantic-web/instance/api-interface/sparql-apache-tinkerpop-gremlin-opencypher> .
 
 <http://example.org/semantic-web/instance/triplestore/anzograph> a ns1:Triplestore ;
     rdfs:label "AnzoGraph" ;
-    ns1:description "Cambridge Semantics"^^xsd:string,
-        "Commercial"^^xsd:string,
-        "Massively Parallel Processing (MPP) native graph database designed for distributed analytics."^^xsd:string,
-        "SPARQL 1.1 / Cypher / C++ API"^^xsd:string ;
-    ns1:name "AnzoGraph"^^xsd:string .
+    ns1:developerMaintainerName "Cambridge Semantics"^^xsd:string ;
+    ns1:hasFeature <http://example.org/semantic-web/instance/feature/massively-parallel-processing-mpp-native-graph-database-designed-for-distributed-analytics> ;
+    ns1:hasLicenseModel <http://example.org/semantic-web/instance/license-model/commercial> ;
+    ns1:hasMaintainer <http://example.org/semantic-web/instance/organization/cambridge-semantics> ;
+    ns1:keyFeaturesText "Massively Parallel Processing (MPP) native graph database designed for distributed analytics."^^xsd:string ;
+    ns1:licenseTypeText "Commercial"^^xsd:string ;
+    ns1:name "AnzoGraph"^^xsd:string ;
+    ns1:primaryAPIInterfacesText "SPARQL 1.1 / Cypher / C++ API"^^xsd:string ;
+    ns1:supportsInterface <http://example.org/semantic-web/instance/api-interface/sparql-1-1-cypher-c-api> .
 
 <http://example.org/semantic-web/instance/triplestore/apache-jena-tdb> a ns1:Triplestore ;
     rdfs:label "Apache Jena TDB" ;
-    ns1:description "Apache Software Foundation"^^xsd:string,
-        "Component of the Apache Jena framework; a native"^^xsd:string,
-        "Open Source (Apache 2.0)"^^xsd:string,
-        "SPARQL 1.1 / Native Jena API"^^xsd:string ;
-    ns1:name "Apache Jena TDB"^^xsd:string .
+    ns1:developerMaintainerName "Apache Software Foundation"^^xsd:string ;
+    ns1:hasFeature <http://example.org/semantic-web/instance/feature/component-of-the-apache-jena-framework-a-native> ;
+    ns1:hasLicenseModel <http://example.org/semantic-web/instance/license-model/open-source-apache-2-0> ;
+    ns1:hasMaintainer <http://example.org/semantic-web/instance/organization/apache-software-foundation> ;
+    ns1:keyFeaturesText "Component of the Apache Jena framework; a native"^^xsd:string ;
+    ns1:licenseTypeText "Open Source (Apache 2.0)"^^xsd:string ;
+    ns1:name "Apache Jena TDB"^^xsd:string ;
+    ns1:primaryAPIInterfacesText "SPARQL 1.1 / Native Jena API"^^xsd:string ;
+    ns1:supportsInterface <http://example.org/semantic-web/instance/api-interface/sparql-1-1-native-jena-api> .
 
 <http://example.org/semantic-web/instance/triplestore/blazegraph> a ns1:Triplestore ;
     rdfs:label "Blazegraph" ;
-    ns1:description "High-performance graph database (historically powered Wikidata Query Service)."^^xsd:string,
-        "Open Source (GPLv3) / Commercial"^^xsd:string,
-        "SPARQL 1.1 / Blueprint / RDF4J"^^xsd:string,
-        "Systap (acquired by Amazon)"^^xsd:string ;
-    ns1:name "Blazegraph"^^xsd:string .
+    ns1:developerMaintainerName "Systap (acquired by Amazon)"^^xsd:string ;
+    ns1:hasFeature <http://example.org/semantic-web/instance/feature/high-performance-graph-database-historically-powered-wikidata-query-service> ;
+    ns1:hasLicenseModel <http://example.org/semantic-web/instance/license-model/open-source-gplv3-commercial> ;
+    ns1:hasMaintainer <http://example.org/semantic-web/instance/organization/systap-acquired-by-amazon> ;
+    ns1:keyFeaturesText "High-performance graph database (historically powered Wikidata Query Service)."^^xsd:string ;
+    ns1:licenseTypeText "Open Source (GPLv3) / Commercial"^^xsd:string ;
+    ns1:name "Blazegraph"^^xsd:string ;
+    ns1:primaryAPIInterfacesText "SPARQL 1.1 / Blueprint / RDF4J"^^xsd:string ;
+    ns1:supportsInterface <http://example.org/semantic-web/instance/api-interface/sparql-1-1-blueprint-rdf4j> .
 
 <http://example.org/semantic-web/instance/triplestore/graphdb> a ns1:Triplestore ;
     rdfs:label "GraphDB" ;
-    ns1:description "Advanced RDF/OWL reasoning"^^xsd:string,
-        "Commercial / Free Edition"^^xsd:string,
-        "Ontotext"^^xsd:string,
-        "SPARQL 1.1 / RDF4J / GraphDB Workbench"^^xsd:string ;
-    ns1:name "GraphDB"^^xsd:string .
+    ns1:developerMaintainerName "Ontotext"^^xsd:string ;
+    ns1:hasFeature <http://example.org/semantic-web/instance/feature/advanced-rdf-owl-reasoning> ;
+    ns1:hasLicenseModel <http://example.org/semantic-web/instance/license-model/commercial-free-edition> ;
+    ns1:hasMaintainer <http://example.org/semantic-web/instance/organization/ontotext> ;
+    ns1:keyFeaturesText "Advanced RDF/OWL reasoning"^^xsd:string ;
+    ns1:licenseTypeText "Commercial / Free Edition"^^xsd:string ;
+    ns1:name "GraphDB"^^xsd:string ;
+    ns1:primaryAPIInterfacesText "SPARQL 1.1 / RDF4J / GraphDB Workbench"^^xsd:string ;
+    ns1:supportsInterface <http://example.org/semantic-web/instance/api-interface/sparql-1-1-rdf4j-graphdb-workbench> .
 
 <http://example.org/semantic-web/instance/triplestore/marklogic> a ns1:Triplestore ;
     rdfs:label "MarkLogic" ;
-    ns1:description "Commercial"^^xsd:string,
-        "Multi-model NoSQL database integrating XML"^^xsd:string,
-        "Progress Software"^^xsd:string,
-        "SPARQL 1.1 / REST / Java / Node.js"^^xsd:string ;
-    ns1:name "MarkLogic"^^xsd:string .
+    ns1:developerMaintainerName "Progress Software"^^xsd:string ;
+    ns1:hasFeature <http://example.org/semantic-web/instance/feature/multi-model-nosql-database-integrating-xml> ;
+    ns1:hasLicenseModel <http://example.org/semantic-web/instance/license-model/commercial> ;
+    ns1:hasMaintainer <http://example.org/semantic-web/instance/organization/progress-software> ;
+    ns1:keyFeaturesText "Multi-model NoSQL database integrating XML"^^xsd:string ;
+    ns1:licenseTypeText "Commercial"^^xsd:string ;
+    ns1:name "MarkLogic"^^xsd:string ;
+    ns1:primaryAPIInterfacesText "SPARQL 1.1 / REST / Java / Node.js"^^xsd:string ;
+    ns1:supportsInterface <http://example.org/semantic-web/instance/api-interface/sparql-1-1-rest-java-node-js> .
 
 <http://example.org/semantic-web/instance/triplestore/oracle-spatial-and-graph> a ns1:Triplestore ;
     rdfs:label "Oracle Spatial and Graph" ;
-    ns1:description "Commercial"^^xsd:string,
-        "Enterprise RDF semantic graph support built natively into Oracle Database."^^xsd:string,
-        "Oracle"^^xsd:string,
-        "SPARQL 1.1 / SQL / Property Graph"^^xsd:string ;
-    ns1:name "Oracle Spatial and Graph"^^xsd:string .
+    ns1:developerMaintainerName "Oracle"^^xsd:string ;
+    ns1:hasFeature <http://example.org/semantic-web/instance/feature/enterprise-rdf-semantic-graph-support-built-natively-into-oracle-database> ;
+    ns1:hasLicenseModel <http://example.org/semantic-web/instance/license-model/commercial> ;
+    ns1:hasMaintainer <http://example.org/semantic-web/instance/organization/oracle> ;
+    ns1:keyFeaturesText "Enterprise RDF semantic graph support built natively into Oracle Database."^^xsd:string ;
+    ns1:licenseTypeText "Commercial"^^xsd:string ;
+    ns1:name "Oracle Spatial and Graph"^^xsd:string ;
+    ns1:primaryAPIInterfacesText "SPARQL 1.1 / SQL / Property Graph"^^xsd:string ;
+    ns1:supportsInterface <http://example.org/semantic-web/instance/api-interface/sparql-1-1-sql-property-graph> .
 
 <http://example.org/semantic-web/instance/triplestore/rdf4j-formerly-sesame> a ns1:Triplestore ;
     rdfs:label "RDF4J (formerly Sesame)" ;
-    ns1:description "Eclipse Foundation"^^xsd:string,
-        "Java framework for processing RDF data that includes an in-memory and disk-based triplestore."^^xsd:string,
-        "Open Source (EDL)"^^xsd:string,
-        "SPARQL 1.1 / RDF4J API"^^xsd:string ;
-    ns1:name "RDF4J (formerly Sesame)"^^xsd:string .
+    ns1:developerMaintainerName "Eclipse Foundation"^^xsd:string ;
+    ns1:hasFeature <http://example.org/semantic-web/instance/feature/java-framework-for-processing-rdf-data-that-includes-an-in-memory-and-disk-based-triplestore> ;
+    ns1:hasLicenseModel <http://example.org/semantic-web/instance/license-model/open-source-edl> ;
+    ns1:hasMaintainer <http://example.org/semantic-web/instance/organization/eclipse-foundation> ;
+    ns1:keyFeaturesText "Java framework for processing RDF data that includes an in-memory and disk-based triplestore."^^xsd:string ;
+    ns1:licenseTypeText "Open Source (EDL)"^^xsd:string ;
+    ns1:name "RDF4J (formerly Sesame)"^^xsd:string ;
+    ns1:primaryAPIInterfacesText "SPARQL 1.1 / RDF4J API"^^xsd:string ;
+    ns1:supportsInterface <http://example.org/semantic-web/instance/api-interface/sparql-1-1-rdf4j-api> .
 
 <http://example.org/semantic-web/instance/triplestore/stardog> a ns1:Triplestore ;
     rdfs:label "Stardog" ;
-    ns1:description "Commercial"^^xsd:string,
-        "Enterprise knowledge graph platform with virtual graphs (data virtualization) and logic reasoning."^^xsd:string,
-        "SPARQL 1.1 / GraphQL / Java API"^^xsd:string,
-        "Stardog Union"^^xsd:string ;
-    ns1:name "Stardog"^^xsd:string .
+    ns1:developerMaintainerName "Stardog Union"^^xsd:string ;
+    ns1:hasFeature <http://example.org/semantic-web/instance/feature/enterprise-knowledge-graph-platform-with-virtual-graphs-data-virtualization-and-logic-reasoning> ;
+    ns1:hasLicenseModel <http://example.org/semantic-web/instance/license-model/commercial> ;
+    ns1:hasMaintainer <http://example.org/semantic-web/instance/organization/stardog-union> ;
+    ns1:keyFeaturesText "Enterprise knowledge graph platform with virtual graphs (data virtualization) and logic reasoning."^^xsd:string ;
+    ns1:licenseTypeText "Commercial"^^xsd:string ;
+    ns1:name "Stardog"^^xsd:string ;
+    ns1:primaryAPIInterfacesText "SPARQL 1.1 / GraphQL / Java API"^^xsd:string ;
+    ns1:supportsInterface <http://example.org/semantic-web/instance/api-interface/sparql-1-1-graphql-java-api> .
 
 <http://example.org/semantic-web/instance/triplestore/virtuoso> a ns1:Triplestore ;
     rdfs:label "Virtuoso" ;
-    ns1:description "Hybrid relational/RDF engine"^^xsd:string,
-        "Open Source (GPLv2) / Commercial"^^xsd:string,
-        "OpenLink Software"^^xsd:string,
-        "SPARQL / SQL / ODBC / JDBC"^^xsd:string ;
-    ns1:name "Virtuoso"^^xsd:string .
+    ns1:developerMaintainerName "OpenLink Software"^^xsd:string ;
+    ns1:hasFeature <http://example.org/semantic-web/instance/feature/hybrid-relational-rdf-engine> ;
+    ns1:hasLicenseModel <http://example.org/semantic-web/instance/license-model/open-source-gplv2-commercial> ;
+    ns1:hasMaintainer <http://example.org/semantic-web/instance/organization/openlink-software> ;
+    ns1:keyFeaturesText "Hybrid relational/RDF engine"^^xsd:string ;
+    ns1:licenseTypeText "Open Source (GPLv2) / Commercial"^^xsd:string ;
+    ns1:name "Virtuoso"^^xsd:string ;
+    ns1:primaryAPIInterfacesText "SPARQL / SQL / ODBC / JDBC"^^xsd:string ;
+    ns1:supportsInterface <http://example.org/semantic-web/instance/api-interface/sparql-sql-odbc-jdbc> .
 
-<http://example.org/semantic-web/instance/turtle> a ns1:TurtleFormat ;
+ns1:attributes-concept a ns1:AttributeProperty ;
+    rdfs:label "Attributes" ;
+    ns1:description "Datatype properties that describe characteristics, features, or data values associated with a class or individual." ;
+    ns1:name "Attributes" .
+
+ns1:axioms-concept a ns1:Axiom ;
+    rdfs:label "Axioms" ;
+    ns1:description "Explicit logical assertions that are always true within an ontology and that constrain the model and support reasoning." ;
+    ns1:name "Axioms" .
+
+ns1:classes-concept a ns1:ClassConcept ;
+    rdfs:label "Classes" ;
+    ns1:description "Abstract concepts or categories that exist within a domain and are typically organized into hierarchies." ;
+    ns1:name "Classes" .
+
+ns1:constraints-topic a ns1:Constraint ;
+    rdfs:label "Constraints and Rules" ;
+    ns1:description "Restrictions and logical rules used to limit modeling choices, define domain boundaries, and support reasoning." ;
+    ns1:name "Constraints and Rules" .
+
+ns1:individuals-concept a ns1:Individual ;
+    rdfs:label "Individuals" ;
+    ns1:description "Actual concrete real-world objects that belong to a specific class." ;
+    ns1:name "Individuals" .
+
+ns1:isFeatureOf a rdf:Property ;
+    rdfs:label "is feature of" ;
+    rdfs:comment "Links a feature to a software system or artifact that has that feature." ;
+    rdfs:domain ns1:Feature ;
+    rdfs:range ns1:Entity .
+
+ns1:isLayerOfArchitecture a rdf:Property ;
+    rdfs:label "is layer of architecture" ;
+    rdfs:comment "Links an architecture layer to the larger architectural model or stack it belongs to." ;
+    rdfs:domain ns1:ArchitectureLayer ;
+    rdfs:range ns1:KnowledgeArtifact .
+
+ns1:json-ld a ns1:Language,
+        ns1:SerializationFormat ;
+    rdfs:label "JSON-LD" ;
+    ns1:description "A JSON-based format for linking data and embedding semantic data into standard JSON structures." ;
+    ns1:name "JSON-LD" .
+
+ns1:maintains a rdf:Property ;
+    rdfs:label "maintains" ;
+    rdfs:comment "Links an organization to a software system or artifact that it maintains." ;
+    rdfs:domain ns1:Organization ;
+    rdfs:range ns1:SoftwareSystem .
+
+ns1:non-unique-name-assumption a ns1:NonUniqueNameAssumption ;
+    rdfs:label "Non-Unique Name Assumption" ;
+    ns1:description "The assumption that two different identifiers can refer to the same real-world entity unless asserted otherwise." ;
+    ns1:name "Non-Unique Name Assumption" .
+
+ns1:open-world-assumption a ns1:OpenWorldAssumption ;
+    rdfs:label "Open World Assumption" ;
+    ns1:description "The assumption that missing information is treated as unknown rather than false." ;
+    ns1:name "Open World Assumption" .
+
+ns1:owl-2-el a ns1:OWL2ELProfile ;
+    rdfs:label "OWL 2 EL" ;
+    ns1:description "A profile of OWL 2 tailored for domains with massive numbers of classes and complex subclass hierarchies, supporting polynomial-time reasoning." ;
+    ns1:name "OWL 2 EL" .
+
+ns1:owl-2-ql a ns1:OWL2QLProfile ;
+    rdfs:label "OWL 2 QL" ;
+    ns1:description "A profile of OWL 2 designed for query answering and smooth integration with relational databases through translation to SQL." ;
+    ns1:name "OWL 2 QL" .
+
+ns1:owl-2-rl a ns1:OWL2RLProfile ;
+    rdfs:label "OWL 2 RL" ;
+    ns1:description "A profile of OWL 2 optimized for scalable rule-based reasoning using forward-chaining or backward-chaining rule platforms." ;
+    ns1:name "OWL 2 RL" .
+
+ns1:rdf-xml a ns1:Language,
+        ns1:SerializationFormat ;
+    rdfs:label "RDF/XML" ;
+    ns1:description "The historical XML-based RDF serialization format." ;
+    ns1:name "RDF/XML" .
+
+ns1:rdfs a ns1:DataModel,
+        ns1:Standard ;
+    rdfs:label "RDFS" ;
+    ns1:description "A foundational vocabulary for creating basic hierarchies and constraints such as class, subclass, domain, and range." ;
+    ns1:name "RDF Schema" ;
+    ns1:publishedBy ns1:w3c .
+
+ns1:relationships-concept a ns1:RelationshipProperty ;
+    rdfs:label "Relationships" ;
+    ns1:description "Object properties that define how classes and individuals interact with or relate to one another." ;
+    ns1:name "Relationships" .
+
+ns1:rif a ns1:Language,
+        ns1:RuleLanguage ;
+    rdfs:label "RIF" ;
+    ns1:description "A rule language used in the upper Semantic Web layers for combining ontologies with rule-based logic." ;
+    ns1:name "RIF" .
+
+ns1:skos a ns1:Language,
+        ns1:OntologyLanguage ;
+    rdfs:label "SKOS" ;
+    ns1:description "A language used to represent basic thesauri, taxonomies, and classification schemes that do not require full Description Logics." ;
+    ns1:name "Simple Knowledge Organization System" .
+
+ns1:sparql a ns1:Language,
+        ns1:QueryLanguage,
+        ns1:Standard ;
+    rdfs:label "SPARQL" ;
+    ns1:description "The query language for the Semantic Web that executes graph-pattern matching against RDF graphs and can span federated endpoints." ;
+    ns1:name "SPARQL" ;
+    ns1:publishedBy ns1:w3c .
+
+ns1:swrl a ns1:Language,
+        ns1:RuleLanguage ;
+    rdfs:label "SWRL" ;
+    ns1:description "A rule language used for expressing Horn-clause style rules with ontologies." ;
+    ns1:name "SWRL" .
+
+ns1:thomas-r-gruber a ns1:Person ;
+    rdfs:label "Thomas R. Gruber" ;
+    ns1:name "Thomas R. Gruber" .
+
+ns1:tim-berners-lee a ns1:Person ;
+    rdfs:label "Tim Berners-Lee" ;
+    ns1:name "Tim Berners-Lee" .
+
+ns1:turtle a ns1:Language,
+        ns1:SerializationFormat ;
     rdfs:label "Turtle" ;
     ns1:description "A compact, human-readable RDF serialization format." ;
-    ns1:name "Turtle" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-md> ;
-    ns1:supportsLayer <http://example.org/semantic-web/instance/syntax-layer> .
+    ns1:name "Turtle" .
 
-<http://example.org/semantic-web/instance/unicode> a ns1:CharacterEncoding ;
-    rdfs:label "Unicode" ;
-    ns1:description "A universal character encoding system supporting semantic web identifiers and content." ;
-    ns1:name "Unicode" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-md> .
-
-<http://example.org/semantic-web/instance/uri> a ns1:URI ;
+ns1:uri a ns1:IdentifierScheme ;
     rdfs:label "URI" ;
-    ns1:description "An identifier used to identify resources on the web." ;
-    ns1:name "Uniform Resource Identifier" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-md> ;
-    ns1:supportsLayer <http://example.org/semantic-web/instance/identifier-layer> .
+    ns1:name "URI" .
 
-<http://example.org/semantic-web/instance/w3c> a ns1:Organization ;
-    rdfs:label "World Wide Web Consortium" ;
-    ns1:description "The standards organization that initiated and standardized key Semantic Web technologies." ;
-    ns1:homepage "https://www.w3.org/"^^xsd:anyURI ;
-    ns1:name "World Wide Web Consortium" ;
-    ns1:officialName "World Wide Web Consortium" .
-
-<http://example.org/semantic-web/instance/wikidata> a ns1:Dataset ;
-    rdfs:label "Wikidata" ;
-    ns1:description "A central open knowledge base that connects many other open datasets." ;
-    ns1:name "Wikidata" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-md> .
-
-<http://example.org/semantic-web/instance/yahoo> a ns1:Organization ;
-    rdfs:label "Yahoo!" ;
-    ns1:name "Yahoo!" ;
-    ns1:officialName "Yahoo!" .
-
-<http://example.org/semantic-web/instance/yandex> a ns1:Organization ;
-    rdfs:label "Yandex" ;
-    ns1:name "Yandex" ;
-    ns1:officialName "Yandex" .
-
-<http://example.org/semantic-web/instance/attribute-concept> a ns1:AttributeConcept ;
-    rdfs:label "Attributes" ;
-    ns1:description "Datatype properties that describe characteristics or values associated with a class or individual." ;
-    ns1:name "Attributes" ;
-    ns1:partOf <http://example.org/semantic-web/instance/ontology-md> .
-
-<http://example.org/semantic-web/instance/axiom-concept> a ns1:AxiomConcept ;
-    rdfs:label "Axioms" ;
-    ns1:description "Logical assertions, constraints, and rules that are always true within an ontology and support reasoning." ;
-    ns1:name "Axioms" ;
-    ns1:partOf <http://example.org/semantic-web/instance/ontology-md> .
-
-<http://example.org/semantic-web/instance/class-concept> a ns1:ClassConcept ;
-    rdfs:label "Class" ;
-    ns1:description "Abstract concepts or categories within a domain, typically organized into taxonomies or hierarchies." ;
-    ns1:name "Classes" ;
-    ns1:partOf <http://example.org/semantic-web/instance/ontology-md> .
-
-<http://example.org/semantic-web/instance/individual-concept> a ns1:IndividualConcept ;
-    rdfs:label "Individuals" ;
-    ns1:description "Concrete real-world instances that belong to classes in an ontology." ;
-    ns1:name "Individuals" ;
-    ns1:partOf <http://example.org/semantic-web/instance/ontology-md> .
-
-<http://example.org/semantic-web/instance/proof-layer> a ns1:ProofLayer ;
-    rdfs:label "Proof layer" ;
-    ns1:description "Layer concerning proof and justification of inferred knowledge." ;
-    ns1:name "Proof" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-paradigm> .
-
-<http://example.org/semantic-web/instance/relationship-concept> a ns1:RelationshipConcept ;
-    rdfs:label "Relationships" ;
-    ns1:description "Object properties that define how classes and individuals relate to one another." ;
-    ns1:name "Relationships" ;
-    ns1:partOf <http://example.org/semantic-web/instance/ontology-md> .
-
-<http://example.org/semantic-web/instance/rules-layer> a ns1:RulesLayer ;
-    rdfs:label "Rules layer" ;
-    ns1:description "Layer covering logic rule technologies used with ontologies for advanced reasoning." ;
-    ns1:name "Rules" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-paradigm> .
-
-<http://example.org/semantic-web/instance/trust-layer> a ns1:TrustLayer ;
-    rdfs:label "Trust layer" ;
-    ns1:description "Layer concerning provenance, reliability, and trustworthiness of semantic data." ;
-    ns1:name "Trust" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-paradigm> .
-
-<http://example.org/semantic-web/instance/web-of-data> a ns1:WebOfData ;
+ns1:web-of-data a ns1:ConceptualTopic ;
     rdfs:label "Web of Data" ;
-    ns1:broaderThan <http://example.org/semantic-web/instance/web-of-documents> ;
-    ns1:description "The machine-understandable, data-centric web based on typed relationships and explicit semantics." ;
+    ns1:description "A web in which the primary unit is a resource or entity and data is expressed as highly structured explicit graphs with typed relationships." ;
     ns1:name "Web of Data" .
 
-<http://example.org/semantic-web/instance/query-layer> a ns1:QueryLayer ;
-    rdfs:label "Query layer" ;
-    ns1:description "Layer covering SPARQL for graph-pattern matching and RDF querying." ;
-    ns1:name "Query" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-paradigm> .
+<http://example.org/semantic-web/instance/api-interface/sparql-1-1-blueprint-rdf4j> a ns1:APIInterface ;
+    rdfs:label "SPARQL 1.1 / Blueprint / RDF4J" .
 
-<http://example.org/semantic-web/instance/web-of-documents> a ns1:WebOfDocuments ;
-    rdfs:label "Web of Documents" ;
-    ns1:description "The traditional web centered on unstructured and semi-structured documents for human consumption." ;
-    ns1:name "Web of Documents" .
+<http://example.org/semantic-web/instance/api-interface/sparql-1-1-cypher-c-api> a ns1:APIInterface ;
+    rdfs:label "SPARQL 1.1 / Cypher / C++ API" .
 
-<http://example.org/semantic-web/instance/data-model-layer> a ns1:DataModelLayer ;
-    rdfs:label "Data Model layer" ;
-    ns1:description "Layer covering RDF and RDF Schema as the foundational graph data model and schema vocabulary." ;
-    ns1:name "Data Model" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-paradigm> .
+<http://example.org/semantic-web/instance/api-interface/sparql-1-1-graphql-java-api> a ns1:APIInterface ;
+    rdfs:label "SPARQL 1.1 / GraphQL / Java API" .
 
-<http://example.org/semantic-web/instance/identifier-layer> a ns1:IdentifierLayer ;
-    rdfs:label "Identifiers and Character Sets layer" ;
-    ns1:description "Layer covering URI, IRI, and Unicode for global identification and character encoding." ;
-    ns1:name "Identifiers and Character Sets" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-paradigm> .
+<http://example.org/semantic-web/instance/api-interface/sparql-1-1-native-jena-api> a ns1:APIInterface ;
+    rdfs:label "SPARQL 1.1 / Native Jena API" .
 
-<http://example.org/semantic-web/instance/ontology-layer> a ns1:OntologyLayer ;
-    rdfs:label "Ontology layer" ;
-    ns1:description "Layer covering ontology technologies such as OWL and SKOS for advanced semantic modeling." ;
-    ns1:name "Ontology" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-paradigm> .
+<http://example.org/semantic-web/instance/api-interface/sparql-1-1-python-java-lisp> a ns1:APIInterface ;
+    rdfs:label "SPARQL 1.1 / Python / Java / Lisp" .
 
-<http://example.org/semantic-web/instance/syntax-layer> a ns1:SyntaxLayer ;
-    rdfs:label "Syntax and Serialization layer" ;
-    ns1:description "Layer covering text syntaxes used to serialize semantic graphs, including Turtle, JSON-LD, and RDF/XML." ;
+<http://example.org/semantic-web/instance/api-interface/sparql-1-1-rdf4j-api> a ns1:APIInterface ;
+    rdfs:label "SPARQL 1.1 / RDF4J API" .
+
+<http://example.org/semantic-web/instance/api-interface/sparql-1-1-rdf4j-graphdb-workbench> a ns1:APIInterface ;
+    rdfs:label "SPARQL 1.1 / RDF4J / GraphDB Workbench" .
+
+<http://example.org/semantic-web/instance/api-interface/sparql-1-1-rest-java-node-js> a ns1:APIInterface ;
+    rdfs:label "SPARQL 1.1 / REST / Java / Node.js" .
+
+<http://example.org/semantic-web/instance/api-interface/sparql-1-1-sql-property-graph> a ns1:APIInterface ;
+    rdfs:label "SPARQL 1.1 / SQL / Property Graph" .
+
+<http://example.org/semantic-web/instance/api-interface/sparql-apache-tinkerpop-gremlin-opencypher> a ns1:APIInterface ;
+    rdfs:label "SPARQL / Apache TinkerPop Gremlin / openCypher" .
+
+<http://example.org/semantic-web/instance/api-interface/sparql-sql-odbc-jdbc> a ns1:APIInterface ;
+    rdfs:label "SPARQL / SQL / ODBC / JDBC" .
+
+<http://example.org/semantic-web/instance/feature/advanced-rdf-owl-reasoning> a ns1:Feature ;
+    rdfs:label "Advanced RDF/OWL reasoning" .
+
+<http://example.org/semantic-web/instance/feature/component-of-the-apache-jena-framework-a-native> a ns1:Feature ;
+    rdfs:label "Component of the Apache Jena framework; a native" .
+
+<http://example.org/semantic-web/instance/feature/document-graph-database-with-advanced-temporal> a ns1:Feature ;
+    rdfs:label "Document-Graph database with advanced temporal" .
+
+<http://example.org/semantic-web/instance/feature/enterprise-knowledge-graph-platform-with-virtual-graphs-data-virtualization-and-logic-reasoning> a ns1:Feature ;
+    rdfs:label "Enterprise knowledge graph platform with virtual graphs (data virtualization) and logic reasoning." .
+
+<http://example.org/semantic-web/instance/feature/enterprise-rdf-semantic-graph-support-built-natively-into-oracle-database> a ns1:Feature ;
+    rdfs:label "Enterprise RDF semantic graph support built natively into Oracle Database." .
+
+<http://example.org/semantic-web/instance/feature/fully-managed-cloud-database> a ns1:Feature ;
+    rdfs:label "Fully managed cloud database" .
+
+<http://example.org/semantic-web/instance/feature/high-performance-graph-database-historically-powered-wikidata-query-service> a ns1:Feature ;
+    rdfs:label "High-performance graph database (historically powered Wikidata Query Service)." .
+
+<http://example.org/semantic-web/instance/feature/hybrid-relational-rdf-engine> a ns1:Feature ;
+    rdfs:label "Hybrid relational/RDF engine" .
+
+<http://example.org/semantic-web/instance/feature/java-framework-for-processing-rdf-data-that-includes-an-in-memory-and-disk-based-triplestore> a ns1:Feature ;
+    rdfs:label "Java framework for processing RDF data that includes an in-memory and disk-based triplestore." .
+
+<http://example.org/semantic-web/instance/feature/massively-parallel-processing-mpp-native-graph-database-designed-for-distributed-analytics> a ns1:Feature ;
+    rdfs:label "Massively Parallel Processing (MPP) native graph database designed for distributed analytics." .
+
+<http://example.org/semantic-web/instance/feature/multi-model-nosql-database-integrating-xml> a ns1:Feature ;
+    rdfs:label "Multi-model NoSQL database integrating XML" .
+
+<http://example.org/semantic-web/instance/license-model/commercial-free-edition> a ns1:LicenseModel ;
+    rdfs:label "Commercial / Free Edition" .
+
+<http://example.org/semantic-web/instance/license-model/commercial-managed-service> a ns1:LicenseModel ;
+    rdfs:label "Commercial (Managed Service)" .
+
+<http://example.org/semantic-web/instance/license-model/open-source-apache-2-0> a ns1:LicenseModel ;
+    rdfs:label "Open Source (Apache 2.0)" .
+
+<http://example.org/semantic-web/instance/license-model/open-source-edl> a ns1:LicenseModel ;
+    rdfs:label "Open Source (EDL)" .
+
+<http://example.org/semantic-web/instance/license-model/open-source-gplv2-commercial> a ns1:LicenseModel ;
+    rdfs:label "Open Source (GPLv2) / Commercial" .
+
+<http://example.org/semantic-web/instance/license-model/open-source-gplv3-commercial> a ns1:LicenseModel ;
+    rdfs:label "Open Source (GPLv3) / Commercial" .
+
+<http://example.org/semantic-web/instance/organization/amazon-web-services-aws> a ns1:Organization ;
+    rdfs:label "Amazon Web Services (AWS)" .
+
+<http://example.org/semantic-web/instance/organization/apache-software-foundation> a ns1:Organization ;
+    rdfs:label "Apache Software Foundation" .
+
+<http://example.org/semantic-web/instance/organization/cambridge-semantics> a ns1:Organization ;
+    rdfs:label "Cambridge Semantics" .
+
+<http://example.org/semantic-web/instance/organization/eclipse-foundation> a ns1:Organization ;
+    rdfs:label "Eclipse Foundation" .
+
+<http://example.org/semantic-web/instance/organization/franz-inc> a ns1:Organization ;
+    rdfs:label "Franz Inc." .
+
+<http://example.org/semantic-web/instance/organization/ontotext> a ns1:Organization ;
+    rdfs:label "Ontotext" .
+
+<http://example.org/semantic-web/instance/organization/openlink-software> a ns1:Organization ;
+    rdfs:label "OpenLink Software" .
+
+<http://example.org/semantic-web/instance/organization/oracle> a ns1:Organization ;
+    rdfs:label "Oracle" .
+
+<http://example.org/semantic-web/instance/organization/progress-software> a ns1:Organization ;
+    rdfs:label "Progress Software" .
+
+<http://example.org/semantic-web/instance/organization/stardog-union> a ns1:Organization ;
+    rdfs:label "Stardog Union" .
+
+<http://example.org/semantic-web/instance/organization/systap-acquired-by-amazon> a ns1:Organization ;
+    rdfs:label "Systap (acquired by Amazon)" .
+
+ns1:identifier-character-set-layer a ns1:IdentifierLayer ;
+    rdfs:label "Identifiers and Character Sets Layer" ;
+    ns1:isLayerOfArchitecture ns1:semantic-web-layer-cake ;
+    ns1:name "Identifiers and Character Sets (URI/IRI, Unicode)" ;
+    ns1:precedesLayer ns1:syntax-serialization-layer ;
+    ns1:usesTechnology ns1:iri,
+        ns1:uri .
+
+ns1:ontology-components-topic a ns1:ConceptualTopic ;
+    rdfs:label "Core Components of an Ontology" ;
+    ns1:name "Core Components of an Ontology" .
+
+ns1:owl a ns1:Language,
+        ns1:OntologyLanguage,
+        ns1:Standard ;
+    rdfs:label "OWL" ;
+    ns1:description "An ontology language standardized by the W3C that extends RDF Schema with advanced structural modeling based on Description Logics." ;
+    ns1:hasLogicalProfile ns1:owl-2-el,
+        ns1:owl-2-ql,
+        ns1:owl-2-rl ;
+    ns1:name "Web Ontology Language" ;
+    ns1:publishedBy ns1:w3c .
+
+ns1:proof-trust-layer-instance a ns1:ProofTrustLayer ;
+    rdfs:label "Proof and Trust Layer" ;
+    ns1:dependsOnLayer ns1:rules-layer-instance ;
+    ns1:description "The upper Semantic Web layer concerned with proof, provenance, trust, and reliability assessment." ;
+    ns1:isLayerOfArchitecture ns1:semantic-web-layer-cake ;
+    ns1:name "Proof and Trust" .
+
+ns1:classification-task a ns1:ClassificationTask ;
+    rdfs:label "Classification" ;
+    ns1:description "The task of computing implied class membership or taxonomy structure from logical definitions." ;
+    ns1:name "Classification" .
+
+ns1:consistency-checking-task a ns1:ConsistencyCheckingTask ;
+    rdfs:label "Consistency Checking" ;
+    ns1:description "The task of analyzing an ontology to find logical contradictions or incompatible assertions." ;
+    ns1:name "Consistency Checking" .
+
+ns1:data-model-layer-instance a ns1:DataModelLayer ;
+    rdfs:label "Data Model Layer" ;
+    ns1:dependsOnLayer ns1:syntax-serialization-layer ;
+    ns1:isLayerOfArchitecture ns1:semantic-web-layer-cake ;
+    ns1:name "Data Model (RDF and RDFS)" ;
+    ns1:precedesLayer ns1:ontology-layer-instance ;
+    ns1:usesTechnology ns1:rdf,
+        ns1:rdfs .
+
+ns1:iri a ns1:IdentifierScheme ;
+    rdfs:label "IRI" ;
+    ns1:description "An extension of URIs that allows non-ASCII characters." ;
+    ns1:name "IRI" .
+
+ns1:ontology-layer-instance a ns1:OntologyLayer ;
+    rdfs:label "Ontology Layer" ;
+    ns1:dependsOnLayer ns1:data-model-layer-instance ;
+    ns1:isLayerOfArchitecture ns1:semantic-web-layer-cake ;
+    ns1:name "Ontology (OWL and SKOS)" ;
+    ns1:precedesLayer ns1:query-layer-instance ;
+    ns1:usesTechnology ns1:owl,
+        ns1:skos .
+
+ns1:query-layer-instance a ns1:QueryLayer ;
+    rdfs:label "Query Layer" ;
+    ns1:dependsOnLayer ns1:ontology-layer-instance ;
+    ns1:isLayerOfArchitecture ns1:semantic-web-layer-cake ;
+    ns1:name "Query (SPARQL)" ;
+    ns1:precedesLayer ns1:rules-layer-instance ;
+    ns1:usesTechnology ns1:sparql .
+
+ns1:rdf a ns1:DataModel,
+        ns1:Standard ;
+    rdfs:label "RDF" ;
+    ns1:description "The fundamental Semantic Web data model that represents data as directed labeled graphs expressed as triples." ;
+    ns1:name "Resource Description Framework" ;
+    ns1:publishedBy ns1:w3c .
+
+ns1:reasoner-capability a ns1:ReasoningCapability ;
+    rdfs:label "Semantic reasoning" ;
+    ns1:description "The ability to deduce new information and detect logical consequences from ontology axioms and graph assertions." ;
+    ns1:name "Semantic reasoning" .
+
+ns1:rules-layer-instance a ns1:RulesLayer ;
+    rdfs:label "Rules Layer" ;
+    ns1:dependsOnLayer ns1:query-layer-instance ;
+    ns1:isLayerOfArchitecture ns1:semantic-web-layer-cake ;
+    ns1:name "Rules and Logic" ;
+    ns1:precedesLayer ns1:proof-trust-layer-instance ;
+    ns1:usesTechnology ns1:rif,
+        ns1:swrl .
+
+ns1:syntax-serialization-layer a ns1:SyntaxLayer ;
+    rdfs:label "Syntax and Serialization Layer" ;
+    ns1:dependsOnLayer ns1:identifier-character-set-layer ;
+    ns1:isLayerOfArchitecture ns1:semantic-web-layer-cake ;
     ns1:name "Syntax and Serialization" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-paradigm> .
+    ns1:precedesLayer ns1:data-model-layer-instance ;
+    ns1:usesTechnology ns1:json-ld,
+        ns1:rdf-xml,
+        ns1:turtle .
 
-<http://example.org/semantic-web/instance/semantic-web-paradigm> a ns1:SemanticWeb ;
-    rdfs:label "Semantic Web" ;
-    ns1:description "An evolutionary extension of the World Wide Web that embeds explicit, machine-understandable semantics into web resources to support data, information, and knowledge exchange." ;
-    ns1:hasComponent <http://example.org/semantic-web/instance/web-of-data>,
-        <http://example.org/semantic-web/instance/web-of-documents> ;
-    ns1:hasLayer <http://example.org/semantic-web/instance/data-model-layer>,
-        <http://example.org/semantic-web/instance/identifier-layer>,
-        <http://example.org/semantic-web/instance/ontology-layer>,
-        <http://example.org/semantic-web/instance/proof-layer>,
-        <http://example.org/semantic-web/instance/query-layer>,
-        <http://example.org/semantic-web/instance/rules-layer>,
-        <http://example.org/semantic-web/instance/syntax-layer>,
-        <http://example.org/semantic-web/instance/trust-layer> ;
-    ns1:name "Semantic Web" ;
-    ns1:partOf <http://example.org/semantic-web/instance/semantic-web-md> .
+ns1:w3c a ns1:Organization,
+        ns1:StandardsBody ;
+    rdfs:label "World Wide Web Consortium" ;
+    ns1:name "World Wide Web Consortium" .
 
-<http://example.org/semantic-web/instance/ontology-md> a ns1:Document ;
-    rdfs:label "ontology.md" ;
-    ns1:description "An explanatory document introducing ontologies in information science, including ontology definition, core components, taxonomy vs. knowledge graph vs. ontology, OWL profiles, semantic reasoning, and foundational ontologies." ;
-    ns1:title "Comprehensive Introduction to Ontologies in Information Science" .
+<http://example.org/semantic-web/instance/license-model/commercial> a ns1:LicenseModel ;
+    rdfs:label "Commercial" .
 
-<http://example.org/semantic-web/instance/semantic-web-md> a ns1:Document ;
-    rdfs:label "semantic web.md" ;
-    ns1:description "An explanatory document describing the Semantic Web, its architectural layers, logical principles, and modern implementations." ;
-    ns1:title "The Semantic Web: Architecture, Logic, and Engineering" .
+ns1:semantic-web-layer-cake a ns1:KnowledgeArtifact ;
+    rdfs:label "Semantic Web Layer Cake" ;
+    ns1:description "A hierarchical stack of Semantic Web technologies in which each layer builds upon the capabilities of the layer below it." ;
+    ns1:hasLayer ns1:data-model-layer-instance,
+        ns1:identifier-character-set-layer,
+        ns1:ontology-layer-instance,
+        ns1:proof-trust-layer-instance,
+        ns1:query-layer-instance,
+        ns1:rules-layer-instance,
+        ns1:syntax-serialization-layer ;
+    ns1:name "Semantic Web Layer Cake" .
 
